@@ -1151,11 +1151,12 @@ void nrf_communication_test(void)
  80008be:	3301      	adds	r3, #1
  80008c0:	63bb      	str	r3, [r7, #56]	; 0x38
 
-		HAL_Delay(1000);
- 80008c2:	f44f 707a 	mov.w	r0, #1000	; 0x3e8
- 80008c6:	f000 fd0d 	bl	80012e4 <HAL_Delay>
+		HAL_Delay(250);
+ 80008c2:	20fa      	movs	r0, #250	; 0xfa
+ 80008c4:	f000 fd0e 	bl	80012e4 <HAL_Delay>
 	{
- 80008ca:	e753      	b.n	8000774 <nrf_communication_test+0xac>
+ 80008c8:	e754      	b.n	8000774 <nrf_communication_test+0xac>
+ 80008ca:	bf00      	nop
  80008cc:	200000ac 	.word	0x200000ac
  80008d0:	20000004 	.word	0x20000004
  80008d4:	08003dbc 	.word	0x08003dbc
@@ -2116,9 +2117,9 @@ static void MX_SPI1_Init(void)
  8000e4e:	4b0e      	ldr	r3, [pc, #56]	; (8000e88 <MX_SPI1_Init+0x64>)
  8000e50:	f44f 7200 	mov.w	r2, #512	; 0x200
  8000e54:	619a      	str	r2, [r3, #24]
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
  8000e56:	4b0c      	ldr	r3, [pc, #48]	; (8000e88 <MX_SPI1_Init+0x64>)
- 8000e58:	2218      	movs	r2, #24
+ 8000e58:	2220      	movs	r2, #32
  8000e5a:	61da      	str	r2, [r3, #28]
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
  8000e5c:	4b0a      	ldr	r3, [pc, #40]	; (8000e88 <MX_SPI1_Init+0x64>)

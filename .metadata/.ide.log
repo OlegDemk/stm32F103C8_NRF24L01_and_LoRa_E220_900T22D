@@ -289,3 +289,7 @@
 2021-07-03 14:34:04,069 [WARN] DetailPanel:315 - Failed to get advertising image, set to default
 2021-07-03 14:34:12,723 [INFO] ApiDb:276 - Save user favorites file /home/odemki/.stm32cubeide/favorites.mcus.txt: 0 item(s)
 2021-07-03 14:34:12,723 [INFO] ApiDb:280 - User favorites MCUs=[]
+2021-07-03 15:42:37,217 [INFO] Activator:170 - 
+
+
+2021-07-03 15:42:37,219 [INFO] Activator:171 - !SESSION log4j initialized
