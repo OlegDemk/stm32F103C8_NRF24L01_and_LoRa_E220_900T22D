@@ -48,9 +48,15 @@
 #define OBSERVE_TX 0x08 //'Transmit observe' register
 #define RX_ADDR_P0 0x0A //'RX address pipe0' register address
 #define RX_ADDR_P1 0x0B //'RX address pipe1' register address
+
+#define RX_ADDR_P2 0x0C
+
 #define TX_ADDR 0x10 //'TX address' register address
 #define RX_PW_P0 0x11 //'RX payload width, pipe0' register address
 #define RX_PW_P1 0x12 //'RX payload width, pipe1' register address
+
+#define RX_PW_P2 0x12
+
 #define FIFO_STATUS 0x17 //'FIFO Status Register' register address
 #define DYNPD 0x1C
 #define FEATURE 0x1D

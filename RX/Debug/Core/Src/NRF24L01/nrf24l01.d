@@ -1,5 +1,6 @@
-Core/Src/nrf24l01.o: ../Core/Src/nrf24l01.c ../Core/Inc/nrf24l01.h \
- ../Core/Inc/main.h ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
+Core/Src/NRF24L01/nrf24l01.o: ../Core/Src/NRF24L01/nrf24l01.c \
+ ../Core/Inc/NRF24L01/nrf24l01.h ../Core/Inc/main.h \
+ ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h \
@@ -23,10 +24,10 @@ Core/Src/nrf24l01.o: ../Core/Src/nrf24l01.c ../Core/Inc/nrf24l01.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h \
- ../Core/Inc/OLED/ssd1306.h ../Core/Inc/OLED/fonts.h ../Core/Inc/main.h \
+ ../Core/Inc/OLED/ssd1306.h ../Core/Inc/OLED/fonts.h \
  ../Core/Inc/OLED/oled_ssd1306.h
 
-../Core/Inc/nrf24l01.h:
+../Core/Inc/NRF24L01/nrf24l01.h:
 
 ../Core/Inc/main.h:
 
@@ -81,7 +82,5 @@ Core/Src/nrf24l01.o: ../Core/Src/nrf24l01.c ../Core/Inc/nrf24l01.h \
 ../Core/Inc/OLED/ssd1306.h:
 
 ../Core/Inc/OLED/fonts.h:
-
-../Core/Inc/main.h:
 
 ../Core/Inc/OLED/oled_ssd1306.h:

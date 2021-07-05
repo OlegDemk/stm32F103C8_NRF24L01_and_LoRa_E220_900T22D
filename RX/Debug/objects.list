@@ -1,7 +1,7 @@
+"Core/Src/NRF24L01/nrf24l01.o"
 "Core/Src/OLED/fonts.o"
 "Core/Src/OLED/ssd1306.o"
 "Core/Src/main.o"
-"Core/Src/nrf24l01.o"
 "Core/Src/stm32f1xx_hal_msp.o"
 "Core/Src/stm32f1xx_it.o"
 "Core/Src/syscalls.o"

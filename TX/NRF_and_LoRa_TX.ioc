@@ -58,6 +58,7 @@ Mcu.Pin9=PA13
 RCC.AHBFreq_Value=64000000
 Mcu.Pin0=PC13-TAMPER-RTC
 Mcu.Pin1=PD0-OSC_IN
+GPIO.groupedBy=Group By Peripherals
 PD0-OSC_IN.Mode=HSE-External-Oscillator
 Mcu.Pin2=PD1-OSC_OUT
 Mcu.Pin3=PA2
