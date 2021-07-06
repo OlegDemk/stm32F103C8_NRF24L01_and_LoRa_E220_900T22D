@@ -16,10 +16,11 @@
 extern SPI_HandleTypeDef hspi1;
 
 #define TX_ADR_WIDTH 3
-#define TX_PLOAD_WIDTH 5
+#define TX_PLOAD_WIDTH 10
 uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xAA,0xBB,0x01};
 uint8_t RX_BUF[TX_PLOAD_WIDTH] = {0};
 
+volatile uint8_t rx_flag = 0;			//
 
 uint8_t config_array[15] = {0};
 
@@ -137,23 +138,35 @@ void NRF24L01_RX_Mode(void)
 // Function waite Low IRQ signal from NRF module
 bool NRF24L01_Receive(void)
 {
-  uint8_t status=0x01;
-  while((GPIO_PinState)IRQ == GPIO_PIN_SET) {}	// Waiting interrupt from IRQ
-  status = NRF24_ReadReg(STATUS_NRF);
+	if(rx_flag == 1)
+	{
+		// Print RX data on OLED
+		ssd1306_SetCursor(0, 16);
+		char test_main[15] = {0};
+		strcpy(test_main, "RX data: ");
+		strcat(test_main, RX_BUF);
+		ssd1306_WriteString(test_main,  Font_7x10, White);
+		ssd1306_UpdateScreen();
 
-  DelayMicro(10);
-  status = NRF24_ReadReg(STATUS_NRF);
-  if(status & 0x40)				//	Flag: Data ready in FIFO  (Check RX_DR flag)
-  {
-      NRF24_Read_Buf(RD_RX_PLOAD,RX_BUF,TX_PLOAD_WIDTH);		// Read data from FIFO RX buffer
-
-      NRF24_WriteReg(STATUS_NRF, 0x40);		// Turn off interrupt
-      return true;
-  }
-  else
-  {
-	  return false;
-  }
+		rx_flag = 0;
+	}
+//  uint8_t status=0x01;
+//  while((GPIO_PinState)IRQ == GPIO_PIN_SET) {}	// Waiting interrupt from IRQ
+//  status = NRF24_ReadReg(STATUS_NRF);
+//
+//  DelayMicro(10);
+//  status = NRF24_ReadReg(STATUS_NRF);
+//  if(status & 0x40)				//	Flag: Data ready in FIFO  (Check RX_DR flag)
+//  {
+//      NRF24_Read_Buf(RD_RX_PLOAD,RX_BUF,TX_PLOAD_WIDTH);		// Read data from FIFO RX buffer
+//
+//      NRF24_WriteReg(STATUS_NRF, 0x40);		// Turn off interrupt
+//      return true;
+//  }
+//  else
+//  {
+//	  return false;
+//  }
 }
 //----------------------------------------------------------------------------------------
 void NRF24_ini(void)                  // RECEIVE
@@ -205,39 +218,62 @@ void read_config_registers(void)
 void nrf_communication_test(void)
 {
 
-	NRF24_ini();
-	read_config_registers();
+//	NRF24_ini();
+//	read_config_registers();
 
 	// Print config registers
-	char ctr[5] = {0};
-	char ctr_buf[5] = {0};
+//	char ctr[5] = {0};
+//	char ctr_buf[5] = {0};
+//
+//	uint8_t x = 0;
+//	for (int i = 0; i <=4; i++)
+//	{
+//		itoa(config_array[i], ctr, 16);
+//		strcat(ctr_buf, ctr);
+//		ssd1306_SetCursor(x, 16);
+//		ssd1306_WriteString(ctr_buf,  Font_7x10, White);
+//		ssd1306_UpdateScreen();
+//		x = x + 26;
+//
+//		memset(ctr_buf, 0, sizeof(ctr_buf));
+//		memset(ctr, 0, sizeof(ctr));
+//	}
 
-	uint8_t x = 0;
-	for (int i = 0; i <=4; i++)
+	NRF24L01_Receive();
+
+//	while(1)		// Infinity loop for receive data from transmiter
+//	{
+//		//NRF24L01_Receive();
+//
+////		// Print RX data on OLED
+////		ssd1306_SetCursor(0, 32);
+////		char test_main[15] = {0};
+////		strcpy(test_main, "RX data: ");
+////		strcat(test_main, RX_BUF);
+////		ssd1306_WriteString(test_main,  Font_7x10, White);
+////		ssd1306_UpdateScreen();
+//	}
+}
+//----------------------------------------------------------------------------------------
+void IRQ_Callback(void)
+{
+	uint8_t status=0x01;
+	uint8_t pipe;
+	uint16_t dt=0;
+
+	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+
+	DelayMicro(10);
+
+	status = NRF24_ReadReg(STATUS_NRF);
+	if(status & 0x40)									//	Flag: Data ready in FIFO  (Check RX_DR flag)
 	{
-		itoa(config_array[i], ctr, 16);
-		strcat(ctr_buf, ctr);
-		ssd1306_SetCursor(x, 16);
-		ssd1306_WriteString(ctr_buf,  Font_7x10, White);
-		ssd1306_UpdateScreen();
-		x = x + 26;
-
-		memset(ctr_buf, 0, sizeof(ctr_buf));
-		memset(ctr, 0, sizeof(ctr));
+	  NRF24_Read_Buf(RD_RX_PLOAD,RX_BUF,TX_PLOAD_WIDTH);
+	  NRF24_WriteReg(STATUS_NRF, 0x40);					// For turn down interrupt in nrf module
+	  rx_flag = 1;
 	}
 
-	while(1)		// Infinity loop for receive data from transmiter
-	{
-		NRF24L01_Receive();
 
-		// Print RX data on OLED
-		ssd1306_SetCursor(0, 32);
-		char test_main[15] = {0};
-		strcpy(test_main, "RX data: ");
-		strcat(test_main, RX_BUF);
-		ssd1306_WriteString(test_main,  Font_7x10, White);
-		ssd1306_UpdateScreen();
-	}
 }
 //----------------------------------------------------------------------------------------
 

@@ -14,7 +14,7 @@
 extern SPI_HandleTypeDef hspi1;
 
 #define TX_ADR_WIDTH 3
-#define TX_PLOAD_WIDTH 5
+#define TX_PLOAD_WIDTH 10
 uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xAA,0xBB,0x01};
 uint8_t RX_BUF[TX_PLOAD_WIDTH] = {0};
 
@@ -22,6 +22,8 @@ char str1[20]={0};
 uint8_t buf1[20]={0};
 
 uint8_t config_array[15] = {0};		// For save registers
+
+uint32_t i=1,retr_cnt_full=0, cnt_lost=0;
 
 void read_config_registers_nrf(void);
 
@@ -231,23 +233,23 @@ void nrf_communication_test(void)
 	char ctr[5] = {0};
 	char ctr_buf[5] = {0};
 
-	uint8_t x = 0;
-	for (int i = 0; i <=4; i++)
-	{
-		itoa(config_array[i], ctr, 16);
-		strcat(ctr_buf, ctr);
-		ssd1306_SetCursor(x, 16);
-		ssd1306_WriteString(ctr_buf,  Font_7x10, White);
-		ssd1306_UpdateScreen();
-		x = x + 24;
+//	uint8_t x = 0;
+//	for (int i = 0; i <=4; i++)
+//	{
+//		itoa(config_array[i], ctr, 16);
+//		strcat(ctr_buf, ctr);
+//		ssd1306_SetCursor(x, 16);
+//		ssd1306_WriteString(ctr_buf,  Font_7x10, White);
+//		ssd1306_UpdateScreen();
+//		x = x + 24;
+//
+//		memset(ctr_buf, 0, sizeof(ctr_buf));
+//		memset(ctr, 0, sizeof(ctr));
+//	}
 
-		memset(ctr_buf, 0, sizeof(ctr_buf));
-		memset(ctr, 0, sizeof(ctr));
-	}
-
-	uint8_t retr_cnt, dt;
-	uint16_t i=1;
-	uint16_t retr_cnt_full =0;
+	uint8_t retr_cnt, dt = 0;
+//	uint16_t i=1;
+//	uint16_t retr_cnt_full =0;
 
 	int test_data = 0;
 
@@ -260,7 +262,7 @@ void nrf_communication_test(void)
 		uint8_t test[25] = {0};
 		uint8_t test_i[10] = {0};
 
-		ssd1306_SetCursor(0, 32);
+		ssd1306_SetCursor(0, 16);
 		strcpy(test, "Data:");
 		strcat(test, buf1);
 		ssd1306_WriteString(test,  Font_7x10, White);
@@ -276,7 +278,7 @@ void nrf_communication_test(void)
 		memset(test, 0, sizeof(test));
 		memset(test_i, 0, sizeof(test_i));
 
-		ssd1306_SetCursor(0, 42);
+		ssd1306_SetCursor(0, 26);
 		strcpy(test, "Conut trans:");
 		// number in string
 		itoa(i, test_i, 10);
@@ -284,16 +286,30 @@ void nrf_communication_test(void)
 		ssd1306_WriteString(test,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		// Print transmit error
+		// Print retransmeet counter
 		memset(test, 0, sizeof(test));
 		memset(test_i, 0, sizeof(test_i));
 
-		ssd1306_SetCursor(0, 52);
+		ssd1306_SetCursor(0, 36);
 		strcpy(test, "Retransm:");
 		itoa(retr_cnt_full, test_i, 10);
 		strcat(test, test_i);
 		ssd1306_WriteString(test,  Font_7x10, White);
 		ssd1306_UpdateScreen();
+
+		// Print lost paket
+		memset(test, 0, sizeof(test));
+		memset(test_i, 0, sizeof(test_i));
+
+//		uint8_t lost = 0;
+//		cnt_lost = dt >> 4;
+//
+//		ssd1306_SetCursor(0, 46);
+//		strcpy(test, "Lost:");
+//		itoa(cnt_lost, test_i, 10);
+//		strcat(test, test_i);
+//		ssd1306_WriteString(test,  Font_7x10, White);
+//		ssd1306_UpdateScreen();
 
 		test_data++;
 

@@ -74,5 +74,6 @@ void NRF24_ini(void);
 void nrf_communication_test(void);
 void read_config_registers(void);
 bool NRF24L01_Receive(void);
+void IRQ_Callback(void);
 
 #endif /* INC_NRF24L01_NRF24L01_H_ */

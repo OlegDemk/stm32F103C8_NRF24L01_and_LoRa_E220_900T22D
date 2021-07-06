@@ -113,6 +113,10 @@ int main(void)
   ssd1306_WriteString(test_main,  Font_7x10, White);
   ssd1306_UpdateScreen();
 
+
+  NRF24_ini();
+  read_config_registers();
+
   while (1)
   {
 //	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
@@ -270,7 +274,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PA2 */
   GPIO_InitStruct.Pin = GPIO_PIN_2;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -281,9 +285,29 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
 }
 
 /* USER CODE BEGIN 4 */
+
+//----------------------------------------------------------------------------------------
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if(GPIO_Pin== GPIO_PIN_2)
+  {
+    IRQ_Callback();
+  }
+  else
+  {
+    __NOP();
+  }
+}
+//----------------------------------------------------------------------------------------
+
+
 
 /* USER CODE END 4 */
 
