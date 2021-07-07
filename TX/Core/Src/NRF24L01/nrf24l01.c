@@ -140,7 +140,7 @@ void NRF24_ini(void)    // TRANSMITTER
 	NRF24_WriteReg(DYNPD, 0);
 	NRF24_WriteReg(STATUS_NRF, 0x70); 		// Reset flags for IRQ
 	NRF24_WriteReg(RF_CH, 76); 				// Frequency = 2476 MHz
-	NRF24_WriteReg(RF_SETUP, 0x06); 		//TX_PWR:0dBm, Datarate:1Mbps
+	NRF24_WriteReg(RF_SETUP, 0x26);  		//TX_PWR:0dBm, Datarate:1Mbps 0x06
 
 	NRF24_Write_Buf(TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);			// Write TX address
 	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);		//
@@ -266,7 +266,7 @@ void nrf_communication_test(void)
 		strcpy(test, "Data:");
 		strcat(test, buf1);
 		ssd1306_WriteString(test,  Font_7x10, White);
-		ssd1306_UpdateScreen();
+		//ssd1306_UpdateScreen();
 
 		dt = NRF24L01_Send(buf1);			// Transmit data
 
@@ -284,7 +284,7 @@ void nrf_communication_test(void)
 		itoa(i, test_i, 10);
 		strcat(test, test_i);
 		ssd1306_WriteString(test,  Font_7x10, White);
-		ssd1306_UpdateScreen();
+		//ssd1306_UpdateScreen();
 
 		// Print retransmeet counter
 		memset(test, 0, sizeof(test));
@@ -301,15 +301,15 @@ void nrf_communication_test(void)
 		memset(test, 0, sizeof(test));
 		memset(test_i, 0, sizeof(test_i));
 
-//		uint8_t lost = 0;
-//		cnt_lost = dt >> 4;
-//
-//		ssd1306_SetCursor(0, 46);
-//		strcpy(test, "Lost:");
-//		itoa(cnt_lost, test_i, 10);
-//		strcat(test, test_i);
-//		ssd1306_WriteString(test,  Font_7x10, White);
-//		ssd1306_UpdateScreen();
+		uint8_t lost = 0;
+		cnt_lost = dt >> 4;
+
+		ssd1306_SetCursor(0, 46);
+		strcpy(test, "Lost:");
+		itoa(cnt_lost, test_i, 10);
+		strcat(test, test_i);
+		ssd1306_WriteString(test,  Font_7x10, White);
+		ssd1306_UpdateScreen();
 
 		test_data++;
 

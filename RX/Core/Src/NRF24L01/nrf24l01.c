@@ -186,8 +186,8 @@ void NRF24_ini(void)                  // RECEIVE
 	NRF24_WriteReg(FEATURE, 0);				// Turn off all FEATURE register
 	NRF24_WriteReg(DYNPD, 0); 				// Turn off all payload length data pipe
 	NRF24_WriteReg(STATUS_NRF, 0x70); 		// Reset flags for IRQ
-	NRF24_WriteReg(RF_CH, 76); 				// Frequency = 2476 MHz
-	NRF24_WriteReg(RF_SETUP, 0x06); // 0x06 					// 0x06 //TX_PWR:0dBm, Datarate:1Mbps
+	NRF24_WriteReg(RF_CH, 76); 				// Frequency = 2476 MHz  // was 76
+	NRF24_WriteReg(RF_SETUP, 0x26); // 0x06 					// 0x06 //TX_PWR:0dBm, Datarate:1Mbps
 
 	NRF24_Write_Buf(TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);
 	NRF24_Write_Buf(RX_ADDR_P1, TX_ADDRESS, TX_ADR_WIDTH);   //
