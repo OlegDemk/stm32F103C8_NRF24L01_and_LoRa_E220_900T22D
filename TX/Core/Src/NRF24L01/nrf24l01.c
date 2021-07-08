@@ -24,6 +24,7 @@ uint8_t buf1[20]={0};
 uint8_t config_array[15] = {0};		// For save registers
 
 uint32_t i=1,retr_cnt_full=0, cnt_lost=0;
+uint32_t cnt_lost_global = 0;
 
 void read_config_registers_nrf(void);
 
@@ -251,6 +252,8 @@ void nrf_communication_test(void)
 //	uint16_t i=1;
 //	uint16_t retr_cnt_full =0;
 
+
+
 	int test_data = 0;
 
 	while(1)
@@ -301,19 +304,21 @@ void nrf_communication_test(void)
 		memset(test, 0, sizeof(test));
 		memset(test_i, 0, sizeof(test_i));
 
-		uint8_t lost = 0;
+		//uint8_t lost = 0;
 		cnt_lost = dt >> 4;
 
 		ssd1306_SetCursor(0, 46);
 		strcpy(test, "Lost:");
-		itoa(cnt_lost, test_i, 10);
+		itoa(cnt_lost_global, test_i, 10);
 		strcat(test, test_i);
 		ssd1306_WriteString(test,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
+		cnt_lost_global = cnt_lost_global + cnt_lost;
+
 		test_data++;
 
-		HAL_Delay(250);
+		HAL_Delay(100);
 	}
 }
 //----------------------------------------------------------------------------------------
