@@ -15,7 +15,7 @@ extern SPI_HandleTypeDef hspi1;
 
 #define TX_ADR_WIDTH 3
 #define TX_PLOAD_WIDTH 10
-uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xAA,0xBB,0x01};
+uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb7,0xb5,0xa1};
 uint8_t RX_BUF[TX_PLOAD_WIDTH] = {0};
 
 char str1[20]={0};
@@ -24,6 +24,7 @@ uint8_t buf1[20]={0};
 uint8_t config_array[15] = {0};		// For save registers
 
 uint32_t i=1,retr_cnt_full=0, cnt_lost=0;
+uint32_t cnt_lost_global = 0;
 
 void read_config_registers_nrf(void);
 
@@ -134,13 +135,13 @@ void NRF24_ini(void)    // TRANSMITTER
 	NRF24_WriteReg(EN_AA, 0x01); 			// Enable Pipe0
 	NRF24_WriteReg(EN_RXADDR, 0x01); 		// Enable Pipe0
 	NRF24_WriteReg(SETUP_AW, 0x01); 		// Setup address width=3 bytes
-	NRF24_WriteReg(SETUP_RETR, 0x5F); 		// 1500us, 15 retrans
+	NRF24_WriteReg(SETUP_RETR, 0x6F); 		// 1750us, 15 retrans
 	NRF24_ToggleFeatures();
 	NRF24_WriteReg(FEATURE, 0);
 	NRF24_WriteReg(DYNPD, 0);
 	NRF24_WriteReg(STATUS_NRF, 0x70); 		// Reset flags for IRQ
 	NRF24_WriteReg(RF_CH, 76); 				// Frequency = 2476 MHz
-	NRF24_WriteReg(RF_SETUP, 0x06); 		//TX_PWR:0dBm, Datarate:1Mbps
+	NRF24_WriteReg(RF_SETUP, 0x26); 		//TX_PWR:0dBm, Datarate:1Mbps
 
 	NRF24_Write_Buf(TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);			// Write TX address
 	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);		//
@@ -271,7 +272,6 @@ void nrf_communication_test(void)
 		dt = NRF24L01_Send(buf1);			// Transmit data
 
 		retr_cnt = dt & 0xF;
-		i++;
 		retr_cnt_full += retr_cnt;
 
 		// Print transmit counter
@@ -301,7 +301,7 @@ void nrf_communication_test(void)
 		memset(test, 0, sizeof(test));
 		memset(test_i, 0, sizeof(test_i));
 
-		uint8_t lost = 0;
+		//uint8_t lost = 0;
 		cnt_lost = dt >> 4;
 
 		ssd1306_SetCursor(0, 46);
@@ -313,7 +313,9 @@ void nrf_communication_test(void)
 
 		test_data++;
 
-		HAL_Delay(250);
+		i++;
+
+		HAL_Delay(350);
 	}
 }
 //----------------------------------------------------------------------------------------

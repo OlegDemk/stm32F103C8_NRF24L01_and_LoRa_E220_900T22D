@@ -17,7 +17,8 @@ extern SPI_HandleTypeDef hspi1;
 
 #define TX_ADR_WIDTH 3
 #define TX_PLOAD_WIDTH 10
-uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xAA,0xBB,0x01};
+uint8_t TX_ADDRESS_0[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};	// TX Pipe 0
+uint8_t TX_ADDRESS_1[TX_ADR_WIDTH] = {0xb7,0xb5,0xa1};  // TX Pipe 1
 uint8_t RX_BUF[TX_PLOAD_WIDTH] = {0};
 
 volatile uint8_t rx_flag = 0;			//
@@ -31,6 +32,8 @@ uint8_t buf1[20]={0};
 
 char str1[150]={0};
 uint8_t buf1[20]={0};
+
+uint8_t pipe = 0;
 
 uint8_t ErrCnt_Fl = 0; 		// Error counter
 
@@ -140,12 +143,26 @@ bool NRF24L01_Receive(void)
 {
 	if(rx_flag == 1)
 	{
+		if(pipe == 0)
+		{
+			ssd1306_SetCursor(0, 16);
+			char test_main[15] = {0};
+			strcpy(test_main, "P0 data:");
+			strcat(test_main, RX_BUF);
+			ssd1306_WriteString(test_main,  Font_7x10, White);
+		}
+		if(pipe == 1)
+		{
+			ssd1306_SetCursor(0, 26);
+			char test_main[15] = {0};
+			strcpy(test_main, "P1 data:");
+			strcat(test_main, RX_BUF);
+			ssd1306_WriteString(test_main,  Font_7x10, White);
+		}
+
+
 		// Print RX data on OLED
-		ssd1306_SetCursor(0, 16);
-		char test_main[15] = {0};
-		strcpy(test_main, "RX data: ");
-		strcat(test_main, RX_BUF);
-		ssd1306_WriteString(test_main,  Font_7x10, White);
+
 		ssd1306_UpdateScreen();
 
 		rx_flag = 0;
@@ -178,8 +195,8 @@ void NRF24_ini(void)                  // RECEIVE
 
 	DelayMicro(5000);
 
-	NRF24_WriteReg(EN_AA, 0x02); 			// Enable Pipe1
-	NRF24_WriteReg(EN_RXADDR, 0x02); 		// Enable Pipe1
+	NRF24_WriteReg(EN_AA, 0x03); 			// Enable Pipe0 and Pipe1
+	NRF24_WriteReg(EN_RXADDR, 0x03); 		// Enable Pipe0 and Pipe1
 	NRF24_WriteReg(SETUP_AW, 0x01); 		// Setup address width=3 bytes
 	NRF24_WriteReg(SETUP_RETR, 0x5F); 		// 1500us, 15 retrans
 	NRF24_ToggleFeatures();					// Send activated command
@@ -189,8 +206,12 @@ void NRF24_ini(void)                  // RECEIVE
 	NRF24_WriteReg(RF_CH, 76); 				// Frequency = 2476 MHz  // was 76
 	NRF24_WriteReg(RF_SETUP, 0x26); // 0x06 					// 0x06 //TX_PWR:0dBm, Datarate:1Mbps
 
-	NRF24_Write_Buf(TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);
-	NRF24_Write_Buf(RX_ADDR_P1, TX_ADDRESS, TX_ADR_WIDTH);   //
+	NRF24_Write_Buf(TX_ADDR, TX_ADDRESS_0, TX_ADR_WIDTH);
+
+	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS_0, TX_ADR_WIDTH);   //
+	NRF24_Write_Buf(RX_ADDR_P1, TX_ADDRESS_1, TX_ADR_WIDTH);   //
+
+	NRF24_WriteReg(RX_PW_P0, TX_PLOAD_WIDTH);				 //Number of bytes in RX
 	NRF24_WriteReg(RX_PW_P1, TX_PLOAD_WIDTH);				 //Number of bytes in RX
 
 	// Open PIPE 2
@@ -258,7 +279,6 @@ void nrf_communication_test(void)
 void IRQ_Callback(void)
 {
 	uint8_t status=0x01;
-	uint8_t pipe;
 	uint16_t dt=0;
 
 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
@@ -268,9 +288,10 @@ void IRQ_Callback(void)
 	status = NRF24_ReadReg(STATUS_NRF);
 	if(status & 0x40)									//	Flag: Data ready in FIFO  (Check RX_DR flag)
 	{
-	  NRF24_Read_Buf(RD_RX_PLOAD,RX_BUF,TX_PLOAD_WIDTH);
-	  NRF24_WriteReg(STATUS_NRF, 0x40);					// For turn down interrupt in nrf module
-	  rx_flag = 1;
+		pipe = (status>>1) & 0x07;
+		NRF24_Read_Buf(RD_RX_PLOAD,RX_BUF,TX_PLOAD_WIDTH);
+		NRF24_WriteReg(STATUS_NRF, 0x40);					// For turn down interrupt in nrf module
+		rx_flag = 1;
 	}
 
 

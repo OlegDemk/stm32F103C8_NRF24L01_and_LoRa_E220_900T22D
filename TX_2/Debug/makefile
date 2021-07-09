@@ -37,34 +37,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := NRF_and_LoRa_TX
+BUILD_ARTIFACT_NAME := TX2
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX := 
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME).$(BUILD_ARTIFACT_EXTENSION)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-NRF_and_LoRa_TX.elf \
+TX2.elf \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-NRF_and_LoRa_TX.list \
+TX2.list \
 
 OBJCOPY_BIN += \
-NRF_and_LoRa_TX.bin \
+TX2.bin \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: NRF_and_LoRa_TX.elf secondary-outputs
+main-build: TX2.elf secondary-outputs
 
 # Tool invocations
-NRF_and_LoRa_TX.elf: $(OBJS) $(USER_OBJS) /home/odemki/work/projects/my_projects/STM32/projects/nrf_and_lora/TX/STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "NRF_and_LoRa_TX.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"/home/odemki/work/projects/my_projects/STM32/projects/nrf_and_lora/TX/STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="NRF_and_LoRa_TX.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+TX2.elf: $(OBJS) $(USER_OBJS) /home/odemki/work/projects/my_projects/STM32/projects/nrf_and_lora/TX_2/STM32F103C8TX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "TX2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m3 -T"/home/odemki/work/projects/my_projects/STM32/projects/nrf_and_lora/TX_2/STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TX2.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -73,13 +73,13 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-NRF_and_LoRa_TX.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "NRF_and_LoRa_TX.list"
+TX2.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "TX2.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
-NRF_and_LoRa_TX.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "NRF_and_LoRa_TX.bin"
+TX2.bin: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objcopy  -O binary $(EXECUTABLES) "TX2.bin"
 	@echo 'Finished building: $@'
 	@echo ' '
 

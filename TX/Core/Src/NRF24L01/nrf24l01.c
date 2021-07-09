@@ -15,7 +15,7 @@ extern SPI_HandleTypeDef hspi1;
 
 #define TX_ADR_WIDTH 3
 #define TX_PLOAD_WIDTH 10
-uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xAA,0xBB,0x01};
+uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};
 uint8_t RX_BUF[TX_PLOAD_WIDTH] = {0};
 
 char str1[20]={0};
@@ -274,7 +274,6 @@ void nrf_communication_test(void)
 		dt = NRF24L01_Send(buf1);			// Transmit data
 
 		retr_cnt = dt & 0xF;
-		i++;
 		retr_cnt_full += retr_cnt;
 
 		// Print transmit counter
@@ -300,7 +299,7 @@ void nrf_communication_test(void)
 		ssd1306_WriteString(test,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		// Print lost paket
+		// Print lost pacets
 		memset(test, 0, sizeof(test));
 		memset(test_i, 0, sizeof(test_i));
 
@@ -309,14 +308,17 @@ void nrf_communication_test(void)
 
 		ssd1306_SetCursor(0, 46);
 		strcpy(test, "Lost:");
-		itoa(cnt_lost_global, test_i, 10);
+		itoa(cnt_lost, test_i, 10);
 		strcat(test, test_i);
 		ssd1306_WriteString(test,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		cnt_lost_global = cnt_lost_global + cnt_lost;
+
+		//Зробити нормальний лічильник втрачених пакетів
+		//cnt_lost_global = cnt_lost_global + cnt_lost;
 
 		test_data++;
+		i++;
 
 		HAL_Delay(100);
 	}
