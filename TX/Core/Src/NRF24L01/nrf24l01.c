@@ -15,14 +15,11 @@ extern SPI_HandleTypeDef hspi1;
 
 #define TX_ADR_WIDTH 3
 #define TX_PLOAD_WIDTH 10
-uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};
+uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};   // Address for pipe 0
 uint8_t RX_BUF[TX_PLOAD_WIDTH] = {0};
 
-char str1[20]={0};
 uint8_t buf1[20]={0};
-
-uint8_t config_array[15] = {0};		// For save registers
-
+uint8_t config_array[15] = {0};				// For save registers
 uint32_t i=1,retr_cnt_full=0, cnt_lost=0;
 uint32_t cnt_lost_global = 0;
 
@@ -141,15 +138,16 @@ void NRF24_ini(void)    // TRANSMITTER
 	NRF24_WriteReg(DYNPD, 0);
 	NRF24_WriteReg(STATUS_NRF, 0x70); 		// Reset flags for IRQ
 	NRF24_WriteReg(RF_CH, 76); 				// Frequency = 2476 MHz
-	NRF24_WriteReg(RF_SETUP, 0x26);  		//TX_PWR:0dBm, Datarate:1Mbps 0x06
+	NRF24_WriteReg(RF_SETUP, 0x26);  		// TX_PWR:0dBm, Datarate:250kbps
 
 	NRF24_Write_Buf(TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);			// Write TX address
-	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);		//
-	NRF24_WriteReg(RX_PW_P0, TX_PLOAD_WIDTH);				 	//Number of bytes in RX
+
+	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);		// Set up pipe 0 address
+	NRF24_WriteReg(RX_PW_P0, TX_PLOAD_WIDTH);				 	// Number of bytes in TX buffer
 
 	NRF24L01_RX_Mode();
 
-	read_config_registers_nrf();
+	read_config_registers_nrf();	// For debug
 }
 //----------------------------------------------------------------------------------------
 // Read config data from nrf registers
@@ -165,7 +163,6 @@ void read_config_registers_nrf(void)
 
 	NRF24_Read_Buf(TX_ADDR,buf1,3);
 	NRF24_Read_Buf(RX_ADDR_P0,buf1,3);
-
 }
 //----------------------------------------------------------------------------------------
 void NRF24L01_TX_Mode(uint8_t *pBuf)
@@ -230,29 +227,10 @@ void nrf_communication_test(void)
 {
 	NRF24_ini();
 
-	// Print config array config_array[0]  (Config registers)
 	char ctr[5] = {0};
 	char ctr_buf[5] = {0};
 
-//	uint8_t x = 0;
-//	for (int i = 0; i <=4; i++)
-//	{
-//		itoa(config_array[i], ctr, 16);
-//		strcat(ctr_buf, ctr);
-//		ssd1306_SetCursor(x, 16);
-//		ssd1306_WriteString(ctr_buf,  Font_7x10, White);
-//		ssd1306_UpdateScreen();
-//		x = x + 24;
-//
-//		memset(ctr_buf, 0, sizeof(ctr_buf));
-//		memset(ctr, 0, sizeof(ctr));
-//	}
-
 	uint8_t retr_cnt, dt = 0;
-//	uint16_t i=1;
-//	uint16_t retr_cnt_full =0;
-
-
 
 	int test_data = 0;
 
@@ -269,9 +247,8 @@ void nrf_communication_test(void)
 		strcpy(test, "Data:");
 		strcat(test, buf1);
 		ssd1306_WriteString(test,  Font_7x10, White);
-		//ssd1306_UpdateScreen();
 
-		dt = NRF24L01_Send(buf1);			// Transmit data
+		dt = NRF24L01_Send(buf1);						// Transmit data
 
 		retr_cnt = dt & 0xF;
 		retr_cnt_full += retr_cnt;
@@ -286,7 +263,6 @@ void nrf_communication_test(void)
 		itoa(i, test_i, 10);
 		strcat(test, test_i);
 		ssd1306_WriteString(test,  Font_7x10, White);
-		//ssd1306_UpdateScreen();
 
 		// Print retransmeet counter
 		memset(test, 0, sizeof(test));
@@ -303,7 +279,6 @@ void nrf_communication_test(void)
 		memset(test, 0, sizeof(test));
 		memset(test_i, 0, sizeof(test_i));
 
-		//uint8_t lost = 0;
 		cnt_lost = dt >> 4;
 
 		ssd1306_SetCursor(0, 46);
@@ -312,10 +287,6 @@ void nrf_communication_test(void)
 		strcat(test, test_i);
 		ssd1306_WriteString(test,  Font_7x10, White);
 		ssd1306_UpdateScreen();
-
-
-		//Зробити нормальний лічильник втрачених пакетів
-		//cnt_lost_global = cnt_lost_global + cnt_lost;
 
 		test_data++;
 		i++;

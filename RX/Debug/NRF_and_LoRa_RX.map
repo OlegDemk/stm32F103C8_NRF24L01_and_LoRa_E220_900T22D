@@ -92,7 +92,6 @@ Discarded input sections
  .text          0x0000000000000000        0x0 Core/Src/NRF24L01/nrf24l01.o
  .data          0x0000000000000000        0x0 Core/Src/NRF24L01/nrf24l01.o
  .bss           0x0000000000000000        0x0 Core/Src/NRF24L01/nrf24l01.o
- .bss.str1      0x0000000000000000       0x96 Core/Src/NRF24L01/nrf24l01.o
  .bss.ErrCnt_Fl
                 0x0000000000000000        0x1 Core/Src/NRF24L01/nrf24l01.o
  .group         0x0000000000000000        0xc Core/Src/OLED/fonts.o
@@ -3155,37 +3154,37 @@ LOAD /home/odemki/Programs/programs/STM32IDE/1/en.en-st-stm32cubeide_1-5-0_8698_
 LOAD /home/odemki/Programs/programs/STM32IDE/1/en.en-st-stm32cubeide_1-5-0_8698_20201117_1050_amd64_sh/makeself_dir_5QpOGP/y/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.linux64_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/../../../../arm-none-eabi/lib/thumb/v7-m/nofp/libm.a
 LOAD /home/odemki/Programs/programs/STM32IDE/1/en.en-st-stm32cubeide_1-5-0_8698_20201117_1050_amd64_sh/makeself_dir_5QpOGP/y/plugins/com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.9-2020-q2-update.linux64_1.5.0.202011040924/tools/bin/../lib/gcc/arm-none-eabi/9.3.1/thumb/v7-m/nofp/libgcc.a
 
-.debug_info     0x0000000000000000     0xad60
- .debug_info    0x0000000000000000     0x1667 Core/Src/NRF24L01/nrf24l01.o
- .debug_info    0x0000000000001667      0xb43 Core/Src/OLED/fonts.o
- .debug_info    0x00000000000021aa      0x95a Core/Src/OLED/ssd1306.o
- .debug_info    0x0000000000002b04      0xfb2 Core/Src/main.o
- .debug_info    0x0000000000003ab6      0xc5c Core/Src/stm32f1xx_hal_msp.o
- .debug_info    0x0000000000004712      0x24c Core/Src/stm32f1xx_it.o
- .debug_info    0x000000000000495e      0x2be Core/Src/system_stm32f1xx.o
- .debug_info    0x0000000000004c1c       0x22 Core/Startup/startup_stm32f103c8tx.o
- .debug_info    0x0000000000004c3e      0x76a Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
- .debug_info    0x00000000000053a8      0xbdc Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
- .debug_info    0x0000000000005f84      0x701 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
- .debug_info    0x0000000000006685     0x278e Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.o
- .debug_info    0x0000000000008e13      0x88e Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
- .debug_info    0x00000000000096a1     0x16bf Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
+.debug_info     0x0000000000000000     0xad3b
+ .debug_info    0x0000000000000000     0x1642 Core/Src/NRF24L01/nrf24l01.o
+ .debug_info    0x0000000000001642      0xb43 Core/Src/OLED/fonts.o
+ .debug_info    0x0000000000002185      0x95a Core/Src/OLED/ssd1306.o
+ .debug_info    0x0000000000002adf      0xfb2 Core/Src/main.o
+ .debug_info    0x0000000000003a91      0xc5c Core/Src/stm32f1xx_hal_msp.o
+ .debug_info    0x00000000000046ed      0x24c Core/Src/stm32f1xx_it.o
+ .debug_info    0x0000000000004939      0x2be Core/Src/system_stm32f1xx.o
+ .debug_info    0x0000000000004bf7       0x22 Core/Startup/startup_stm32f103c8tx.o
+ .debug_info    0x0000000000004c19      0x76a Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
+ .debug_info    0x0000000000005383      0xbdc Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
+ .debug_info    0x0000000000005f5f      0x701 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
+ .debug_info    0x0000000000006660     0x278e Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.o
+ .debug_info    0x0000000000008dee      0x88e Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
+ .debug_info    0x000000000000967c     0x16bf Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
 
-.debug_abbrev   0x0000000000000000     0x1b85
- .debug_abbrev  0x0000000000000000      0x2c1 Core/Src/NRF24L01/nrf24l01.o
- .debug_abbrev  0x00000000000002c1      0x1c2 Core/Src/OLED/fonts.o
- .debug_abbrev  0x0000000000000483      0x206 Core/Src/OLED/ssd1306.o
- .debug_abbrev  0x0000000000000689      0x2cd Core/Src/main.o
- .debug_abbrev  0x0000000000000956      0x1ac Core/Src/stm32f1xx_hal_msp.o
- .debug_abbrev  0x0000000000000b02       0xd2 Core/Src/stm32f1xx_it.o
- .debug_abbrev  0x0000000000000bd4      0x14e Core/Src/system_stm32f1xx.o
- .debug_abbrev  0x0000000000000d22       0x12 Core/Startup/startup_stm32f103c8tx.o
- .debug_abbrev  0x0000000000000d34      0x1ed Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
- .debug_abbrev  0x0000000000000f21      0x313 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
- .debug_abbrev  0x0000000000001234      0x1e8 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
- .debug_abbrev  0x000000000000141c      0x288 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.o
- .debug_abbrev  0x00000000000016a4      0x273 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
- .debug_abbrev  0x0000000000001917      0x26e Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
+.debug_abbrev   0x0000000000000000     0x1b47
+ .debug_abbrev  0x0000000000000000      0x283 Core/Src/NRF24L01/nrf24l01.o
+ .debug_abbrev  0x0000000000000283      0x1c2 Core/Src/OLED/fonts.o
+ .debug_abbrev  0x0000000000000445      0x206 Core/Src/OLED/ssd1306.o
+ .debug_abbrev  0x000000000000064b      0x2cd Core/Src/main.o
+ .debug_abbrev  0x0000000000000918      0x1ac Core/Src/stm32f1xx_hal_msp.o
+ .debug_abbrev  0x0000000000000ac4       0xd2 Core/Src/stm32f1xx_it.o
+ .debug_abbrev  0x0000000000000b96      0x14e Core/Src/system_stm32f1xx.o
+ .debug_abbrev  0x0000000000000ce4       0x12 Core/Startup/startup_stm32f103c8tx.o
+ .debug_abbrev  0x0000000000000cf6      0x1ed Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
+ .debug_abbrev  0x0000000000000ee3      0x313 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
+ .debug_abbrev  0x00000000000011f6      0x1e8 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
+ .debug_abbrev  0x00000000000013de      0x288 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.o
+ .debug_abbrev  0x0000000000001666      0x273 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
+ .debug_abbrev  0x00000000000018d9      0x26e Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
 
 .debug_aranges  0x0000000000000000      0x978
  .debug_aranges
@@ -3316,50 +3315,50 @@ LOAD /home/odemki/Programs/programs/STM32IDE/1/en.en-st-stm32cubeide_1-5-0_8698_
  .debug_macro   0x0000000000017210      0x1aa Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
  .debug_macro   0x00000000000173ba      0x1a0 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
 
-.debug_line     0x0000000000000000     0xcaec
- .debug_line    0x0000000000000000      0xbeb Core/Src/NRF24L01/nrf24l01.o
- .debug_line    0x0000000000000beb      0x9e3 Core/Src/OLED/fonts.o
- .debug_line    0x00000000000015ce      0x9ef Core/Src/OLED/ssd1306.o
- .debug_line    0x0000000000001fbd      0x972 Core/Src/main.o
- .debug_line    0x000000000000292f      0x850 Core/Src/stm32f1xx_hal_msp.o
- .debug_line    0x000000000000317f      0x88c Core/Src/stm32f1xx_it.o
- .debug_line    0x0000000000003a0b      0x830 Core/Src/system_stm32f1xx.o
- .debug_line    0x000000000000423b       0x87 Core/Startup/startup_stm32f103c8tx.o
- .debug_line    0x00000000000042c2      0xa5d Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
- .debug_line    0x0000000000004d1f      0xc45 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
- .debug_line    0x0000000000005964      0xaf4 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
- .debug_line    0x0000000000006458     0x3b47 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.o
- .debug_line    0x0000000000009f9f      0xe6b Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
- .debug_line    0x000000000000ae0a     0x1ce2 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
+.debug_line     0x0000000000000000     0xcae5
+ .debug_line    0x0000000000000000      0xbe4 Core/Src/NRF24L01/nrf24l01.o
+ .debug_line    0x0000000000000be4      0x9e3 Core/Src/OLED/fonts.o
+ .debug_line    0x00000000000015c7      0x9ef Core/Src/OLED/ssd1306.o
+ .debug_line    0x0000000000001fb6      0x972 Core/Src/main.o
+ .debug_line    0x0000000000002928      0x850 Core/Src/stm32f1xx_hal_msp.o
+ .debug_line    0x0000000000003178      0x88c Core/Src/stm32f1xx_it.o
+ .debug_line    0x0000000000003a04      0x830 Core/Src/system_stm32f1xx.o
+ .debug_line    0x0000000000004234       0x87 Core/Startup/startup_stm32f103c8tx.o
+ .debug_line    0x00000000000042bb      0xa5d Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
+ .debug_line    0x0000000000004d18      0xc45 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
+ .debug_line    0x000000000000595d      0xaf4 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
+ .debug_line    0x0000000000006451     0x3b47 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.o
+ .debug_line    0x0000000000009f98      0xe6b Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
+ .debug_line    0x000000000000ae03     0x1ce2 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
 
-.debug_str      0x0000000000000000    0x845df
- .debug_str     0x0000000000000000    0x81319 Core/Src/NRF24L01/nrf24l01.o
-                                      0x81799 (size before relaxing)
- .debug_str     0x0000000000081319      0xf69 Core/Src/OLED/fonts.o
+.debug_str      0x0000000000000000    0x845da
+ .debug_str     0x0000000000000000    0x81314 Core/Src/NRF24L01/nrf24l01.o
+                                      0x81794 (size before relaxing)
+ .debug_str     0x0000000000081314      0xf69 Core/Src/OLED/fonts.o
                                       0x81a60 (size before relaxing)
- .debug_str     0x0000000000082282      0x112 Core/Src/OLED/ssd1306.o
+ .debug_str     0x000000000008227d      0x112 Core/Src/OLED/ssd1306.o
                                       0x7df47 (size before relaxing)
- .debug_str     0x0000000000082394      0x491 Core/Src/main.o
+ .debug_str     0x000000000008238f      0x491 Core/Src/main.o
                                       0x7e5f6 (size before relaxing)
- .debug_str     0x0000000000082825       0xa8 Core/Src/stm32f1xx_hal_msp.o
+ .debug_str     0x0000000000082820       0xa8 Core/Src/stm32f1xx_hal_msp.o
                                       0x7e061 (size before relaxing)
- .debug_str     0x00000000000828cd       0xce Core/Src/stm32f1xx_it.o
+ .debug_str     0x00000000000828c8       0xce Core/Src/stm32f1xx_it.o
                                       0x7d9e0 (size before relaxing)
- .debug_str     0x000000000008299b       0x52 Core/Src/system_stm32f1xx.o
+ .debug_str     0x0000000000082996       0x52 Core/Src/system_stm32f1xx.o
                                       0x7d98b (size before relaxing)
- .debug_str     0x00000000000829ed       0x36 Core/Startup/startup_stm32f103c8tx.o
+ .debug_str     0x00000000000829e8       0x36 Core/Startup/startup_stm32f103c8tx.o
                                          0x82 (size before relaxing)
- .debug_str     0x0000000000082a23      0x2fa Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
+ .debug_str     0x0000000000082a1e      0x2fa Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal.o
                                       0x7e01c (size before relaxing)
- .debug_str     0x0000000000082d1d      0x300 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
+ .debug_str     0x0000000000082d18      0x300 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_cortex.o
                                       0x7e024 (size before relaxing)
- .debug_str     0x000000000008301d      0x304 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
+ .debug_str     0x0000000000083018      0x304 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_gpio.o
                                       0x7dd4f (size before relaxing)
- .debug_str     0x0000000000083321      0xb4c Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.o
+ .debug_str     0x000000000008331c      0xb4c Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_i2c.o
                                       0x7e9c7 (size before relaxing)
- .debug_str     0x0000000000083e6d      0x244 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
+ .debug_str     0x0000000000083e68      0x244 Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_rcc.o
                                       0x7dd88 (size before relaxing)
- .debug_str     0x00000000000840b1      0x52e Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
+ .debug_str     0x00000000000840ac      0x52e Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o
                                       0x7e297 (size before relaxing)
 
 .comment        0x0000000000000000       0x53

@@ -27,23 +27,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000029  00000000  00000000  00020080  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0000b689  00000000  00000000  000200a9  2**0
+ 12 .debug_info   0000b687  00000000  00000000  000200a9  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00001cdd  00000000  00000000  0002b732  2**0
+ 13 .debug_abbrev 00001ccc  00000000  00000000  0002b730  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000990  00000000  00000000  0002d410  2**3
+ 14 .debug_aranges 00000990  00000000  00000000  0002d400  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_ranges 000008c8  00000000  00000000  0002dda0  2**3
+ 15 .debug_ranges 000008c8  00000000  00000000  0002dd90  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  000178a0  00000000  00000000  0002e668  2**0
+ 16 .debug_macro  000178a0  00000000  00000000  0002e658  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000d267  00000000  00000000  00045f08  2**0
+ 17 .debug_line   0000d265  00000000  00000000  00045ef8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00084b15  00000000  00000000  0005316f  2**0
+ 18 .debug_str    00084b15  00000000  00000000  0005315d  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  000d7c84  2**0
+ 19 .comment      00000053  00000000  00000000  000d7c72  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002acc  00000000  00000000  000d7cd8  2**2
+ 20 .debug_frame  00002acc  00000000  00000000  000d7cc8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -545,7 +545,7 @@ void NRF24_ini(void)    // TRANSMITTER
  8000496:	214c      	movs	r1, #76	; 0x4c
  8000498:	2005      	movs	r0, #5
  800049a:	f7ff fead 	bl	80001f8 <NRF24_WriteReg>
-	NRF24_WriteReg(RF_SETUP, 0x26); 		//TX_PWR:0dBm, Datarate:1Mbps
+	NRF24_WriteReg(RF_SETUP, 0x26); 		// TX_PWR:0dBm, Datarate:250kbps
  800049e:	2126      	movs	r1, #38	; 0x26
  80004a0:	2006      	movs	r0, #6
  80004a2:	f7ff fea9 	bl	80001f8 <NRF24_WriteReg>
@@ -555,12 +555,12 @@ void NRF24_ini(void)    // TRANSMITTER
  80004a8:	490a      	ldr	r1, [pc, #40]	; (80004d4 <NRF24_ini+0xa0>)
  80004aa:	2010      	movs	r0, #16
  80004ac:	f7ff ff26 	bl	80002fc <NRF24_Write_Buf>
-	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);		//
+	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);		// Set up pipe 0 address
  80004b0:	2203      	movs	r2, #3
  80004b2:	4908      	ldr	r1, [pc, #32]	; (80004d4 <NRF24_ini+0xa0>)
  80004b4:	200a      	movs	r0, #10
  80004b6:	f7ff ff21 	bl	80002fc <NRF24_Write_Buf>
-	NRF24_WriteReg(RX_PW_P0, TX_PLOAD_WIDTH);				 	//Number of bytes in RX
+	NRF24_WriteReg(RX_PW_P0, TX_PLOAD_WIDTH);				 	// Number of bytes in RX
  80004ba:	210a      	movs	r1, #10
  80004bc:	2011      	movs	r0, #17
  80004be:	f7ff fe9b 	bl	80001f8 <NRF24_WriteReg>
@@ -568,7 +568,7 @@ void NRF24_ini(void)    // TRANSMITTER
 	NRF24L01_RX_Mode();
  80004c2:	f7ff ff91 	bl	80003e8 <NRF24L01_RX_Mode>
 
-	read_config_registers_nrf();
+	read_config_registers_nrf();	// For debug
  80004c6:	f000 f807 	bl	80004d8 <read_config_registers_nrf>
 }
  80004ca:	bf00      	nop
@@ -856,7 +856,6 @@ void nrf_communication_test(void)
 	NRF24_ini();
  80006b2:	f7ff febf 	bl	8000434 <NRF24_ini>
 
-	// Print config array config_array[0]  (Config registers)
 	char ctr[5] = {0};
  80006b6:	2300      	movs	r3, #0
  80006b8:	637b      	str	r3, [r7, #52]	; 0x34
@@ -867,17 +866,10 @@ void nrf_communication_test(void)
  80006c2:	62fb      	str	r3, [r7, #44]	; 0x2c
  80006c4:	2300      	movs	r3, #0
  80006c6:	f887 3030 	strb.w	r3, [r7, #48]	; 0x30
-//
-//		memset(ctr_buf, 0, sizeof(ctr_buf));
-//		memset(ctr, 0, sizeof(ctr));
-//	}
 
 	uint8_t retr_cnt, dt = 0;
  80006ca:	2300      	movs	r3, #0
  80006cc:	f887 303b 	strb.w	r3, [r7, #59]	; 0x3b
-//	uint16_t i=1;
-//	uint16_t retr_cnt_full =0;
-
 	int test_data = 0;
  80006d0:	2300      	movs	r3, #0
  80006d2:	63fb      	str	r3, [r7, #60]	; 0x3c

@@ -46,12 +46,20 @@
 #define RF_CH 0x05 //'RF channel' register address
 #define RF_SETUP 0x06 //'RF setup' register address
 #define STATUS_NRF 0x07 //'Status' register address
+
 #define OBSERVE_TX 0x08 //'Transmit observe' register
+
+// Define TX addresses
 #define RX_ADDR_P0 0x0A //'RX address pipe0' register address
 #define RX_ADDR_P1 0x0B //'RX address pipe1' register address
-#define TX_ADDR 0x10 //'TX address' register address
+
+// Set RX_ADDR_P0 equal to this address to handle automatic acknowledge
+#define TX_ADDR 0x10 //'TX address' register address			//
+
+// Define payload width for all pipes
 #define RX_PW_P0 0x11 //'RX payload width, pipe0' register address
 #define RX_PW_P1 0x12 //'RX payload width, pipe1' register address
+
 #define FIFO_STATUS 0x17 //'FIFO Status Register' register address
 #define DYNPD 0x1C
 #define FEATURE 0x1D
