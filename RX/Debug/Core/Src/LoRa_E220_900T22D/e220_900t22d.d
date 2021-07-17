@@ -1,0 +1,2 @@
+Core/Src/LoRa_E220_900T22D/e220_900t22d.o: \
+ ../Core/Src/LoRa_E220_900T22D/e220_900t22d.c

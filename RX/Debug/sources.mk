@@ -20,6 +20,7 @@ OBJCOPY_BIN :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Core/Src/LoRa_E220_900T22D \
 Core/Src/NRF24L01 \
 Core/Src/OLED \
 Core/Src \
