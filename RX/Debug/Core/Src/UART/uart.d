@@ -1,5 +1,4 @@
-Core/Src/LoRa_E220_900T22D/e220_900t22d.o: \
- ../Core/Src/LoRa_E220_900T22D/e220_900t22d.c ../Core/Inc/main.h \
+Core/Src/UART/uart.o: ../Core/Src/UART/uart.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \

@@ -23,6 +23,7 @@ SUBDIRS := \
 Core/Src/LoRa_E220_900T22D \
 Core/Src/NRF24L01 \
 Core/Src/OLED \
+Core/Src/UART \
 Core/Src \
 Core/Startup \
 Drivers/STM32F1xx_HAL_Driver/Src \

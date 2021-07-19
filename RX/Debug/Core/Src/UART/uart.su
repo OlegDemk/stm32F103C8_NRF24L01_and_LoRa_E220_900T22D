@@ -1,0 +1,3 @@
+uart.c:19:6:test_uart	8	static
+uart.c:26:6:simple_test_transmit_uart	80	static
+uart.c:57:6:simple_test_receive_uart	16	static
