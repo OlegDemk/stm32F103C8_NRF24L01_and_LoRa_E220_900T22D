@@ -1,3 +1,4 @@
+"Core/Src/LoRa_E220_900T22D/e220_900t22d.o"
 "Core/Src/NRF24L01/nrf24l01.o"
 "Core/Src/OLED/fonts.o"
 "Core/Src/OLED/ssd1306.o"
@@ -23,3 +24,4 @@
 "Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.o"
 "Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim.o"
 "Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_tim_ex.o"
+"Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.o"

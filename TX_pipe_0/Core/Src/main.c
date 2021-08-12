@@ -25,11 +25,23 @@
 #include <OLED/fonts.h>
 #include <OLED/oled_ssd1306.h>
 #include <OLED/ssd1306.h>
+#include <LoRa_E220_900T22D/e220_900t22d.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+#define off 0
+#define on 1
 
+#define nrf off
+#define lora on
+
+char uart_rx_data[50] = {0};			// Main rx buffer data
+char str[1] = {0};						// Buffer for one char
+bool flag_command_received = false;		// Flag show status receive data (completed/not completed)
+uint8_t rx_data_counter = 0;
+
+int transmeet_count = 0;
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -46,6 +58,8 @@ I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
 
+UART_HandleTypeDef huart1;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -55,6 +69,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
+static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -94,6 +109,7 @@ int main(void)
   MX_GPIO_Init();
   MX_I2C1_Init();
   MX_SPI1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -102,24 +118,76 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 
+  HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART1_IRQn);
+
+
   ssd1306_Init();
   ssd1306_Fill(Black);
   ssd1306_UpdateScreen();
 
 
-   // Test write on OLED
-   ssd1306_SetCursor(0, 0);
-   char test_main[20] = {0};
-   strcpy(test_main, "NRF24L01 TX");
-   ssd1306_WriteString(test_main,  Font_7x10, White);
-   ssd1306_UpdateScreen();
+#if nrf
+  // Test write on OLED
+  ssd1306_SetCursor(0, 0);
+  char test_main[20] = {0};
+  strcpy(test_main, "NRF24L01 RX");
+  ssd1306_WriteString(test_main,  Font_7x10, White);
+  ssd1306_UpdateScreen();
+
+  NRF24_ini();
+  read_config_registers();
+#endif
+
+#if lora
+  ssd1306_SetCursor(0, 0);
+  char test_main[50] = {0};
+  strcpy(test_main, "LoRa TX:");
+  ssd1306_WriteString(test_main,  Font_7x10, White);
+  ssd1306_UpdateScreen();
+
+  init_lora();
+
+  ssd1306_SetCursor(65, 0);
+  strcpy(test_main, "Ready");
+  ssd1306_WriteString(test_main,  Font_7x10, White);
+  ssd1306_UpdateScreen();
+
+  ssd1306_SetCursor(0, 16);
+  strcpy(test_main, "TX data: ");
+  ssd1306_WriteString(test_main,  Font_7x10, White);
+  ssd1306_UpdateScreen();
+
+  HAL_UART_Receive_IT(&huart1, str, 1);
+#endif
 
   while (1)
   {
-//	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-//	  HAL_Delay(300);
 
-	  nrf_communication_test();
+
+	#if nrf
+  nrf_communication_test();      // Main function LORA
+	#endif
+
+	#if lora
+
+//  	  while(1)
+//  	  {
+//  		  test();
+//  	  }
+
+ 	  int count = lora_test_module();
+
+// 	  // Print transmeeting data
+ 	  memset(test_main, 0, sizeof(test_main));
+ 	  ssd1306_SetCursor(60, 16);
+ 	  sprintf(test_main, "%d", count);
+ 	  ssd1306_WriteString(test_main,  Font_7x10, White);
+ 	  ssd1306_UpdateScreen();
+
+
+ 	  HAL_Delay(2000);
+	#endif
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -238,6 +306,39 @@ static void MX_SPI1_Init(void)
 }
 
 /**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 9600;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -261,6 +362,9 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_SET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, M1_Pin|M0_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : PC13 */
   GPIO_InitStruct.Pin = GPIO_PIN_13;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -281,9 +385,45 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : M1_Pin M0_Pin */
+  GPIO_InitStruct.Pin = M1_Pin|M0_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : AUX_Pin */
+  GPIO_InitStruct.Pin = AUX_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(AUX_GPIO_Port, &GPIO_InitStruct);
+
 }
 
 /* USER CODE BEGIN 4 */
+
+//----------------------------------------------------------------------------------------
+// If data received (Received 1 bytes)        Define in: HAL_UART_Receive_IT(&huart1, str, 1);
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//	if(huart == &huart1)											// Which uart generate Callback function
+//	{
+//		if((str[0] == '\0') || (str[0] == 13) || (rx_data_counter >= sizeof(uart_rx_data)))   		// Detect '\0' Null or "Enter" or rx data too long
+//		{
+//			flag_command_received = true;                          // Data is ready
+//			rx_data_counter = 0;
+//		}
+//		else
+//		{
+//			flag_command_received = false;							// Receive data
+//			uart_rx_data[rx_data_counter] = str[0];					// Save data in global buffer
+//			HAL_UART_Receive_IT(&huart1, str, 1);					// Turn on "HAL_UART_Receive_IT"
+//			rx_data_counter ++;
+//		}
+//	}
+//}
+//----------------------------------------------------------------------------------------
+
 
 /* USER CODE END 4 */
 

@@ -40,8 +40,13 @@
 #define on 1
 
 #define nrf off
-#define lora off
+#define lora on
 
+
+char uart_rx_data[50] = {0};			// Main rx buffer data
+char str[1] = {0};						// Buffer for one char
+bool flag_command_received = false;		// Flag show status receive data (completed/not completed)
+uint8_t rx_data_counter = 0;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -114,13 +119,16 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
 
-//  HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
-//  HAL_NVIC_EnableIRQ(USART1_IRQn);
+  HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(USART1_IRQn);
 
 
   ssd1306_Init();
   ssd1306_Fill(Black);
   ssd1306_UpdateScreen();
+
+
+
 
 
 #if nrf
@@ -130,18 +138,34 @@ int main(void)
   strcpy(test_main, "NRF24L01 RX");
   ssd1306_WriteString(test_main,  Font_7x10, White);
   ssd1306_UpdateScreen();
+
+  NRF24_ini();
+  read_config_registers();
 #endif
 
 #if lora
   ssd1306_SetCursor(0, 0);
-  char test_main[20] = {0};
-  strcpy(test_main, "LoRa");
+  char test_main[50] = {0};
+  strcpy(test_main, "LoRa RX");
   ssd1306_WriteString(test_main,  Font_7x10, White);
   ssd1306_UpdateScreen();
+
+  init_lora();
+
+  ssd1306_SetCursor(65, 0);
+  strcpy(test_main, "Ready");
+  ssd1306_WriteString(test_main,  Font_7x10, White);
+  ssd1306_UpdateScreen();
+
+  ssd1306_SetCursor(0, 16);
+  strcpy(test_main, "RX data: ");
+  ssd1306_WriteString(test_main,  Font_7x10, White);
+  ssd1306_UpdateScreen();
+
+  HAL_UART_Receive_IT(&huart1, str, 1);
 #endif
 
-  NRF24_ini();
-  read_config_registers();
+
 
   while (1)
   {
@@ -152,10 +176,36 @@ int main(void)
 	#endif
 
 	#if lora
-	  lora_test_module();
+
+	  if(flag_command_received == true)			// If data is ready
+	  {
+		  // Data received
+		  int g= 99;
+
+		//   Print on OLED
+		char clearn_array[10] = "         ";
+		ssd1306_SetCursor(60, 16);
+		//memset(test_main,0, sizeof(test_main));
+		ssd1306_WriteString(clearn_array,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		ssd1306_SetCursor(60, 16);
+		//memset(test_main,0, sizeof(test_main));
+		strcpy(test_main, uart_rx_data);
+
+		ssd1306_WriteString(test_main,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		HAL_Delay(100);
+		memset(uart_rx_data, 0, sizeof(uart_rx_data));
+		flag_command_received = false;
+
+
+		HAL_UART_Receive_IT(&huart1, str, 1);
+	  }
 	#endif
 
-	test_uart();
+	//test_uart();
 
 
 	 // Зробити перемикач на LoRa або UART USB
@@ -364,11 +414,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : AUX_Pin */
-  GPIO_InitStruct.Pin = AUX_Pin;
+  /*Configure GPIO pins : AUX_Pin SW3_Pin SW2_Pin */
+  GPIO_InitStruct.Pin = AUX_Pin|SW3_Pin|SW2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(AUX_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : SW1_Pin */
+  GPIO_InitStruct.Pin = SW1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SW1_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
@@ -379,7 +435,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 //----------------------------------------------------------------------------------------
-
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin== GPIO_PIN_2)			// If detect External interrupt from PA2
@@ -392,15 +447,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
   }
 }
 //----------------------------------------------------------------------------------------
-
-
-
-//void HAL_UART_TxCpltCallback(&huart3)
-//{
-//
-//
-//}
-
+// If data received (Received 1 bytes)        Define in: HAL_UART_Receive_IT(&huart1, str, 1);
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart == &huart1)											// Which uart generate Callback function
+	{
+		if((str[0] == '\0') || (rx_data_counter >= sizeof(uart_rx_data)))   		// Detect '\0' Null or  data too long
+		{
+			flag_command_received = true;                          // Data is ready
+			rx_data_counter = 0;
+		}
+		else
+		{
+			flag_command_received = false;							// Receive data
+			uart_rx_data[rx_data_counter] = str[0];					// Save data in global buffer
+			HAL_UART_Receive_IT(&huart1, str, 1);					// Turn on "HAL_UART_Receive_IT"
+			rx_data_counter ++;
+		}
+	}
+}
+//----------------------------------------------------------------------------------------
 
 
 /* USER CODE END 4 */

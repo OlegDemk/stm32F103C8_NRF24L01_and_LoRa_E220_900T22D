@@ -1,0 +1,4 @@
+e220_900t22d.c:24:5:lora_test_module	24	static
+e220_900t22d.c:47:6:init_lora	24	static
+e220_900t22d.c:98:6:read_settings_from_module	24	static
+e220_900t22d.c:119:6:test	24	static

@@ -56,17 +56,43 @@ void simple_test_transmit_uart(void)
 //----------------------------------------------------------------------------------------
 void simple_test_receive_uart(void)
 {
-	char str[3] = {};
+	///////////////////////////
+	// Method 1 ( Echo )  Receive and transmit data
+//	char str[3] = {};
+//	while(1)
+//	{
+//		if(HAL_UART_Receive_IT(&huart1, str, 1) != HAL_BUSY )				// Receive data from comport (One char)
+//		{
+//			while( HAL_UART_Transmit_IT(&huart1, str, 1) == HAL_BUSY );     // Transmit data to comport (One char)
+//		}
+//	}
+	///////////////////////////
 
+	// Method 2
+	// Read one char from comport
+	// Receive and transmit data
+//	char str[3] = {0};
+//	while(1)
+//	{
+//		HAL_UART_Receive_IT(&huart1, str, 1);
+//		if(str[0] == '1')								// If received '1'
+//		{
+//			int h = 0;
+//			HAL_UART_Transmit_IT(&huart1, str, 1);		// Transmit data back to comport
+//			memset(str, 0, sizeof(str));
+//		}
+//
+//		if(str[0] == '2')								// If received '2'
+//		{
+//			int e = 0;
+//			HAL_UART_Transmit_IT(&huart1, str, 1);		// Transmit data back to comport
+//			memset(str, 0, sizeof(str));
+//		}
+//	}
 	///////////////////////////
-	// Method 1 ( Echo )
-	while(1)
-	{
-		if(HAL_UART_Receive_IT(&huart1, str, 1) != HAL_BUSY )				// Receive data from comport (One char)
-		{
-			while( HAL_UART_Transmit_IT(&huart1, str, 1) == HAL_BUSY );     // Transmit data to comport (One char)
-		}
-	}
-	///////////////////////////
+
+	// Method 3
+
+
 }
 //----------------------------------------------------------------------------------------

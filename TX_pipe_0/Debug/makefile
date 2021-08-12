@@ -13,6 +13,7 @@ RM := rm -rf
 -include Core/Startup/subdir.mk
 -include Core/Src/OLED/subdir.mk
 -include Core/Src/NRF24L01/subdir.mk
+-include Core/Src/LoRa_E220_900T22D/subdir.mk
 -include Core/Src/subdir.mk
 -include subdir.mk
 -include objects.mk
