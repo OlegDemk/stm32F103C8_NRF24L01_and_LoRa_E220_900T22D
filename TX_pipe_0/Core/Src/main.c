@@ -146,7 +146,8 @@ int main(void)
   ssd1306_WriteString(test_main,  Font_7x10, White);
   ssd1306_UpdateScreen();
 
-  init_lora();
+  HAL_Delay(1000);
+  init_TX_mode_lora();
 
   ssd1306_SetCursor(65, 0);
   strcpy(test_main, "Ready");
@@ -163,21 +164,12 @@ int main(void)
 
   while (1)
   {
-
-
 	#if nrf
   nrf_communication_test();      // Main function LORA
 	#endif
 
 	#if lora
-
-//  	  while(1)
-//  	  {
-//  		  test();
-//  	  }
-
- 	  int count = lora_test_module();
-
+ 	  int count = lora_transmit_data();
 // 	  // Print transmeeting data
  	  memset(test_main, 0, sizeof(test_main));
  	  ssd1306_SetCursor(60, 16);
@@ -185,8 +177,24 @@ int main(void)
  	  ssd1306_WriteString(test_main,  Font_7x10, White);
  	  ssd1306_UpdateScreen();
 
+ 	  HAL_Delay(2000);			// Must be more than 1.5 sec
 
- 	  HAL_Delay(2000);
+
+ 	// Buttons test	 /////////////////////////////
+    if(HAL_GPIO_ReadPin(GPIOB, SW1_Pin) == 0)	// if button pressed
+    {
+    	int g = 99;
+    }
+    if(HAL_GPIO_ReadPin(GPIOB, SW2_Pin) == 0)	// if button pressed
+    {
+    	int h = 99;
+    }
+    if(HAL_GPIO_ReadPin(GPIOA, SW3_Pin) == 0)	// if button pressed
+    {
+    	int j = 99;
+    }
+
+
 	#endif
     /* USER CODE END WHILE */
 
@@ -372,8 +380,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA2 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  /*Configure GPIO pins : PA2 SW3_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|SW3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -392,11 +400,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : AUX_Pin */
-  GPIO_InitStruct.Pin = AUX_Pin;
+  /*Configure GPIO pins : AUX_Pin SW1_Pin SW2_Pin */
+  GPIO_InitStruct.Pin = AUX_Pin|SW1_Pin|SW2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(AUX_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 }
 

@@ -8,6 +8,7 @@
 #ifndef INC_LORA_E220_900T22D_E220_900T22D_H_
 #define INC_LORA_E220_900T22D_E220_900T22D_H_
 
-int lora_test_module(void);
+void init_TX_mode_lora(void);
+int lora_transmit_data(void);
 
 #endif /* INC_LORA_E220_900T22D_E220_900T22D_H_ */

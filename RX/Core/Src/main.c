@@ -118,17 +118,14 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-
+  // Init interrupp
   HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(USART1_IRQn);
 
-
+  // OLED init
   ssd1306_Init();
   ssd1306_Fill(Black);
   ssd1306_UpdateScreen();
-
-
-
 
 
 #if nrf
@@ -150,6 +147,7 @@ int main(void)
   ssd1306_WriteString(test_main,  Font_7x10, White);
   ssd1306_UpdateScreen();
 
+  HAL_Delay(1000);
   init_lora();
 
   ssd1306_SetCursor(65, 0);
@@ -179,18 +177,16 @@ int main(void)
 
 	  if(flag_command_received == true)			// If data is ready
 	  {
-		  // Data received
-		  int g= 99;
+		// Data received
 
 		//   Print on OLED
 		char clearn_array[10] = "         ";
 		ssd1306_SetCursor(60, 16);
-		//memset(test_main,0, sizeof(test_main));
+
 		ssd1306_WriteString(clearn_array,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
 		ssd1306_SetCursor(60, 16);
-		//memset(test_main,0, sizeof(test_main));
 		strcpy(test_main, uart_rx_data);
 
 		ssd1306_WriteString(test_main,  Font_7x10, White);
@@ -200,8 +196,22 @@ int main(void)
 		memset(uart_rx_data, 0, sizeof(uart_rx_data));
 		flag_command_received = false;
 
+		HAL_UART_Receive_IT(&huart1, str, 1);		// Start interrupt again
+	  }
 
-		HAL_UART_Receive_IT(&huart1, str, 1);
+
+	  // Buttons test	 /////////////////////////////
+	  if(HAL_GPIO_ReadPin(GPIOB, SW1_Pin) == 0)		// if button pressed
+	  {
+	      int g = 99;
+	  }
+	  if(HAL_GPIO_ReadPin(GPIOB, SW2_Pin) == 0)		// if button pressed
+	  {
+	      int h = 99;
+	  }
+	  if(HAL_GPIO_ReadPin(GPIOA, SW3_Pin) == 0)		// if button pressed
+	  {
+		  int j = 99;
 	  }
 	#endif
 
@@ -414,17 +424,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : AUX_Pin SW3_Pin SW2_Pin */
-  GPIO_InitStruct.Pin = AUX_Pin|SW3_Pin|SW2_Pin;
+  /*Configure GPIO pins : AUX_Pin SW1_Pin SW2_Pin */
+  GPIO_InitStruct.Pin = AUX_Pin|SW1_Pin|SW2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SW1_Pin */
-  GPIO_InitStruct.Pin = SW1_Pin;
+  /*Configure GPIO pin : SW3_Pin */
+  GPIO_InitStruct.Pin = SW3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SW1_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(SW3_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
