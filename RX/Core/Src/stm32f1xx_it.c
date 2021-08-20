@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2021 STMicroelectronics.
+  * Copyright (c) 2021 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -24,14 +24,16 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <state_machine/state_machine.h>
-extern uint8_t button_up_or_down_was_pressed_flag;
+extern bool button_was_pressed;
 extern uint8_t utton_enter_pressed_flag;
 
-extern uint8_t pppp;
 extern int pressed_batton_counter;
 
-int i = 0;
-int new_press = 1;
+int delay_time = 0;
+uint8_t doesent_detected = 1;
+uint8_t dalay_duration = 10;
+int button_processed_status = 1;					// For interrupt work only one time
+#define detected 0
 
 
 /* USER CODE END Includes */
@@ -232,44 +234,14 @@ void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
 	// Detect "DOWN" button
-	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_8))
+	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_8))						// If interrupt from GPIOA PIN_8
 	{
-		if(new_press == 1)
+		if(button_processed_status == doesent_detected)
 		{
-			HAL_TIM_Base_Start_IT(&htim1);		// Вмикає таймер
-			new_press = 0;
+			HAL_TIM_Base_Start_IT(&htim1);							// Turn on Timer 1
+			button_processed_status = detected;						// For interrupt work only one time
 		}
 	}
-
-
-//		if(utton_enter_pressed_flag == 0)		// If menu doesen't enter
-//		{
-//
-////			if(pppp == 1)
-////			{
-//				pppp = 0;
-//				pressed_batton_counter++;				// For debug
-//				button_up_or_down_was_pressed_flag = 1;
-//				switch(state_get())
-//				{
-//					case ST_1:
-//						state_set(ST_2);
-//						break;
-//					case ST_2:
-//						state_set(ST_3);
-//						break;
-//					case ST_3:
-//						state_set(ST_4);
-//						break;
-//					case ST_4:
-//						state_set(ST_1);
-//						break;
-//
-//				}
-//			}
-
-//		}
-//	}
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
@@ -283,106 +255,100 @@ void EXTI9_5_IRQHandler(void)
 void TIM1_UP_IRQHandler(void)			// Period = 1 msec
 {
   /* USER CODE BEGIN TIM1_UP_IRQn 0 */
+	/* This timmer start by external interrupts from buttons:
+	 * EXTI9_5_IRQHandler and EXTI15_10_IRQHandler
+	 */
 
-	if(new_press == 0)		// Якщо зафіксований перши наростаючий фронт
+	if(button_processed_status == detected)							// If pressed button was detected by external interrupts
 	{
-		// UP BUTTON
-		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0)    // якщо кнопка натиснута
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0)    			// If "UP" button was pressed
 		{
-			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0)    // якщо кнопка натиснута
-			{
-				i++;
-			}
-			if(i >= 10)		// Кнопка вваажється натиснутою, якщо вона утримана більше 100 мс
-			{
-				// button UP = 1 (Pressed)
-				i = 0;
-				new_press = 1;
-				HAL_TIM_Base_Stop_IT(&htim1);
+			/*
+			 * If every time when timer interrupt, delay_time will increment
+			 * for avoid bounce button
+			 */
+			delay_time++;
 
-				pppp++;
+			if(delay_time >= dalay_duration)						// if button pressed more than dalay_duration time it mean button was pressed
+			{
+				delay_time = 0;
+				button_processed_status = 1;						// Flag for interrupts
+				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 
-				if(utton_enter_pressed_flag == 0)		// If menu doesen't enter
+				if(utton_enter_pressed_flag == 0)					// If menu doesen't enter
 				{
-						button_up_or_down_was_pressed_flag = 1;
-						switch(state_get())
-						{
-							case ST_1:
-								state_set(ST_4);
-								break;
-							case ST_2:
-								state_set(ST_1);
-								break;
-							case ST_3:
-								state_set(ST_2);
-								break;
-							case ST_4:
-								state_set(ST_3);
+					switch(state_get())
+					{
+						case ST_1:
+							state_set(ST_4);
 							break;
-						}
+						case ST_2:
+							state_set(ST_1);
+							break;
+						case ST_3:
+							state_set(ST_2);
+							break;
+						case ST_4:
+							state_set(ST_3);
+						break;
+					}
+					button_was_pressed = true;
 				}
 			}
 		}
 
-		// DOWN BUTTON
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == 0)    // якщо кнопка натиснута
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == 0)   			 	// If "DOWN" button was pressed
 		{
-			if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == 0)    // якщо кнопка натиснута
+			/*
+			* If every time when timer interrupt, delay_time will increment
+			* for avoid bounce button
+			*/
+			delay_time++;
+
+			if(delay_time >= dalay_duration)						// if button pressed more than dalay_duration time it mean button was pressed
 			{
-				i++;
-			}
-			if(i >= 10)		// Кнопка вваажється натиснутою, якщо вона утримана більше 100 мс
-			{
-							// button UP = 1 (Pressed)
-							i = 0;
-							new_press = 1;
-							HAL_TIM_Base_Stop_IT(&htim1);
+				delay_time = 0;
+				button_processed_status = 1;						// Flag for interrupts
+				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 
-							if (pppp >0)
-							{
-								pppp--;
-							}
-
-
-							if(utton_enter_pressed_flag == 0)		// If menu doesen't enter
-							{
-									button_up_or_down_was_pressed_flag = 1;
-									switch(state_get())
-									{
-										case ST_1:
-											state_set(ST_2);
-											break;
-										case ST_2:
-											state_set(ST_3);
-											break;
-										case ST_3:
-											state_set(ST_4);
-											break;
-										case ST_4:
-											state_set(ST_1);
-											break;
-									}
-							}
+				if(utton_enter_pressed_flag == 0)					// If menu doesen't enter
+				{
+					switch(state_get())
+					{
+						case ST_1:
+							state_set(ST_2);
+							break;
+						case ST_2:
+							state_set(ST_3);
+							break;
+						case ST_3:
+							state_set(ST_4);
+							break;
+						case ST_4:
+							state_set(ST_1);
+							break;
+					}
+					button_was_pressed = true;
+				}
 			}
 		}
 
-		// DOWN ENTER
-		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == 0)    // якщо кнопка натиснута
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == 0)   			// If "ENTER" button was pressed
 		{
+			/*
+			* If every time when timer interrupt, delay_time will increment
+			* for avoid bounce button
+			*/
+			delay_time++;
 
-			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == 0)    // якщо кнопка натиснута
+			if(delay_time >= dalay_duration)						// if button pressed more than dalay_duration time it mean button was pressed
 			{
-				i++;
-			}
-			if(i >= 10)		// Кнопка вваажється натиснутою, якщо вона утримана більше 100 мс
-			{
-				// button UP = 1 (Pressed)
-				i = 0;
-				new_press = 1;
+				delay_time = 0;
+				button_processed_status = 1;
 
-				button_up_or_down_was_pressed_flag = 1;
+				button_was_pressed = true;
 				utton_enter_pressed_flag = !utton_enter_pressed_flag;
-				HAL_TIM_Base_Stop_IT(&htim1);
+				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 			}
 
 
@@ -417,56 +383,24 @@ void USART1_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-
-	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_14))
+	// Detect "UP" button
+	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_14))	// If interrupt from GPIOB PIN_14
 	{
-		if(new_press == 1)
+		if(button_processed_status == doesent_detected)
 		{
-			HAL_TIM_Base_Start_IT(&htim1);		// Вмикає таймер
-			new_press = 0;
+			HAL_TIM_Base_Start_IT(&htim1);		// Turn on Timer 1
+			button_processed_status = detected;						// For interrupt work only one time
 		}
 	}
 
-
-//	uint8_t count = 0;
-//	// Detect "UP" button
-//	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_14))
-//	{
-//		//i = 0;
-//		//new_press = 1;						// Зафіксовано перший зростаючий фронт
-//		//HAL_TIM_Base_Start_IT(&htim1);		// Вмикає таймер
-//		if(utton_enter_pressed_flag == 0)		// If menu doesen't enter
-//		{
-//			button_up_or_down_was_pressed_flag = 1;
-//			switch(state_get())
-//			{
-//				case ST_1:
-//					state_set(ST_4);
-//					break;
-//				case ST_2:
-//					state_set(ST_1);
-//					break;
-//				case ST_3:
-//					state_set(ST_2);
-//					break;
-//				case ST_4:
-//					state_set(ST_3);
-//					break;
-//			}
-//		}
-//
-//	}
-
 	// Detect "ENTER" button
-	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_15))
+	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_15))	// If interrupt from GPIOB PIN_15
 	{
-		if(new_press == 1)
+		if(button_processed_status == doesent_detected)
 		{
-			HAL_TIM_Base_Start_IT(&htim1);		// Вмикає таймер
-			new_press = 0;
+			HAL_TIM_Base_Start_IT(&htim1);		// Turn on Timer 1
+			button_processed_status = detected;						// For interrupt work only one time
 		}
-//		button_up_or_down_was_pressed_flag = 1;
-//		utton_enter_pressed_flag = !utton_enter_pressed_flag;
 	}
 
   /* USER CODE END EXTI15_10_IRQn 0 */

@@ -13,7 +13,7 @@
 #include <OLED/oled_main.h>
 
 volatile STATE_t state = ST_1;
-uint8_t button_up_or_down_was_pressed_flag = 1;			// Pointer on menu item
+bool button_was_pressed = true;			// Pointer on menu item
 uint8_t utton_enter_pressed_flag = 0;		// This variable set by "ENTER" button
 
 extern bool flag_command_received;
@@ -23,7 +23,6 @@ extern UART_HandleTypeDef huart1;
 
 int pressed_batton_counter = 0;
 
-uint8_t pppp = 1;
 
 // ----------------------------------------------------------------------------------------
 STATE_t state_get(void)
@@ -56,17 +55,6 @@ void state_machine(void)
 
 	clearn_oled();
 
-//	// Print all menus on OLED
-//	uint8_t row = 20;
-//	for(uint8_t i = 0; i <=4; i++)
-//	{
-//		ssd1306_SetCursor(20, row);
-//		memset(str, 0, sizeof(str));
-//		strcpy(str, menu_items[i]);
-//		ssd1306_WriteString(str,  Font_7x10, White);
-//		ssd1306_UpdateScreen();
-//		row = row + 10;
-//	}
 	bool print_all_menu = true;
 
 	while(1)   // Main loop
@@ -86,20 +74,8 @@ void state_machine(void)
 			}
 		}
 
-
-		memset(str, 0, sizeof(str));
-		ssd1306_SetCursor(0, 0);
-		itoa(pppp, str, 10);
-	    ssd1306_WriteString(str,  Font_7x10, White);
-		ssd1306_UpdateScreen();
-
-
-
-		if(button_up_or_down_was_pressed_flag == 1)			// From GPIO interrupt
+		if(button_was_pressed == true)				// From timer_1 interrupt (New button was pressed)
 		{
-
-
-			//pppp = 1;
 
 			switch(state_get())
 			{
@@ -112,7 +88,7 @@ void state_machine(void)
 					strcpy(str, "->");
 					ssd1306_WriteString(str,  Font_7x10, White);
 					ssd1306_UpdateScreen();
-					button_up_or_down_was_pressed_flag = 0;
+					button_was_pressed = false;
 					print_all_menu == false;
 
 					if(utton_enter_pressed_flag == 1)	// If "Enter" button was press"
@@ -142,7 +118,7 @@ void state_machine(void)
 					strcpy(str, "->");
 					ssd1306_WriteString(str,  Font_7x10, White);
 					ssd1306_UpdateScreen();
-					button_up_or_down_was_pressed_flag = 0;
+					button_was_pressed = false;
 					print_all_menu == false;
 
 					if(utton_enter_pressed_flag == 1)	// If "Enter" button was press"
@@ -172,7 +148,7 @@ void state_machine(void)
 					strcpy(str, "->");
 					ssd1306_WriteString(str,  Font_7x10, White);
 					ssd1306_UpdateScreen();
-					button_up_or_down_was_pressed_flag = 0;
+					button_was_pressed = false;
 					print_all_menu == false;
 
 					if(utton_enter_pressed_flag == 1)	// If "Enter" button was press"
@@ -202,7 +178,7 @@ void state_machine(void)
 					strcpy(str, "->");
 					ssd1306_WriteString(str,  Font_7x10, White);
 					ssd1306_UpdateScreen();
-					button_up_or_down_was_pressed_flag = 0;
+					button_was_pressed = false;
 					print_all_menu == false;
 
 					if(utton_enter_pressed_flag == 1)	// If "Enter" button was press"
