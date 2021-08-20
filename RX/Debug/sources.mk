@@ -24,7 +24,9 @@ Core/Src/LoRa_E220_900T22D \
 Core/Src/NRF24L01 \
 Core/Src/OLED \
 Core/Src/UART \
+Core/Src/keyboard \
 Core/Src \
+Core/Src/state_machine \
 Core/Startup \
 Drivers/STM32F1xx_HAL_Driver/Src \
 

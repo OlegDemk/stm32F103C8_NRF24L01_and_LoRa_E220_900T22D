@@ -23,6 +23,17 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <state_machine/state_machine.h>
+extern uint8_t button_up_or_down_was_pressed_flag;
+extern uint8_t utton_enter_pressed_flag;
+
+extern uint8_t pppp;
+extern int pressed_batton_counter;
+
+int i = 0;
+int new_press = 1;
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +67,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern TIM_HandleTypeDef htim1;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
 
@@ -214,6 +226,178 @@ void EXTI2_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles EXTI line[9:5] interrupts.
+  */
+void EXTI9_5_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI9_5_IRQn 0 */
+	// Detect "DOWN" button
+	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_8))
+	{
+		if(new_press == 1)
+		{
+			HAL_TIM_Base_Start_IT(&htim1);		// Вмикає таймер
+			new_press = 0;
+		}
+	}
+
+
+//		if(utton_enter_pressed_flag == 0)		// If menu doesen't enter
+//		{
+//
+////			if(pppp == 1)
+////			{
+//				pppp = 0;
+//				pressed_batton_counter++;				// For debug
+//				button_up_or_down_was_pressed_flag = 1;
+//				switch(state_get())
+//				{
+//					case ST_1:
+//						state_set(ST_2);
+//						break;
+//					case ST_2:
+//						state_set(ST_3);
+//						break;
+//					case ST_3:
+//						state_set(ST_4);
+//						break;
+//					case ST_4:
+//						state_set(ST_1);
+//						break;
+//
+//				}
+//			}
+
+//		}
+//	}
+  /* USER CODE END EXTI9_5_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
+  /* USER CODE BEGIN EXTI9_5_IRQn 1 */
+
+  /* USER CODE END EXTI9_5_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM1 update interrupt.
+  */
+void TIM1_UP_IRQHandler(void)			// Period = 1 msec
+{
+  /* USER CODE BEGIN TIM1_UP_IRQn 0 */
+
+	if(new_press == 0)		// Якщо зафіксований перши наростаючий фронт
+	{
+		// UP BUTTON
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0)    // якщо кнопка натиснута
+		{
+			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0)    // якщо кнопка натиснута
+			{
+				i++;
+			}
+			if(i >= 10)		// Кнопка вваажється натиснутою, якщо вона утримана більше 100 мс
+			{
+				// button UP = 1 (Pressed)
+				i = 0;
+				new_press = 1;
+				HAL_TIM_Base_Stop_IT(&htim1);
+
+				pppp++;
+
+				if(utton_enter_pressed_flag == 0)		// If menu doesen't enter
+				{
+						button_up_or_down_was_pressed_flag = 1;
+						switch(state_get())
+						{
+							case ST_1:
+								state_set(ST_4);
+								break;
+							case ST_2:
+								state_set(ST_1);
+								break;
+							case ST_3:
+								state_set(ST_2);
+								break;
+							case ST_4:
+								state_set(ST_3);
+							break;
+						}
+				}
+			}
+		}
+
+		// DOWN BUTTON
+		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == 0)    // якщо кнопка натиснута
+		{
+			if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == 0)    // якщо кнопка натиснута
+			{
+				i++;
+			}
+			if(i >= 10)		// Кнопка вваажється натиснутою, якщо вона утримана більше 100 мс
+			{
+							// button UP = 1 (Pressed)
+							i = 0;
+							new_press = 1;
+							HAL_TIM_Base_Stop_IT(&htim1);
+
+							if (pppp >0)
+							{
+								pppp--;
+							}
+
+
+							if(utton_enter_pressed_flag == 0)		// If menu doesen't enter
+							{
+									button_up_or_down_was_pressed_flag = 1;
+									switch(state_get())
+									{
+										case ST_1:
+											state_set(ST_2);
+											break;
+										case ST_2:
+											state_set(ST_3);
+											break;
+										case ST_3:
+											state_set(ST_4);
+											break;
+										case ST_4:
+											state_set(ST_1);
+											break;
+									}
+							}
+			}
+		}
+
+		// DOWN ENTER
+		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == 0)    // якщо кнопка натиснута
+		{
+
+			if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == 0)    // якщо кнопка натиснута
+			{
+				i++;
+			}
+			if(i >= 10)		// Кнопка вваажється натиснутою, якщо вона утримана більше 100 мс
+			{
+				// button UP = 1 (Pressed)
+				i = 0;
+				new_press = 1;
+
+				button_up_or_down_was_pressed_flag = 1;
+				utton_enter_pressed_flag = !utton_enter_pressed_flag;
+				HAL_TIM_Base_Stop_IT(&htim1);
+			}
+
+
+		}
+
+	}
+
+  /* USER CODE END TIM1_UP_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim1);
+  /* USER CODE BEGIN TIM1_UP_IRQn 1 */
+
+  /* USER CODE END TIM1_UP_IRQn 1 */
+}
+
+/**
   * @brief This function handles USART1 global interrupt.
   */
 void USART1_IRQHandler(void)
@@ -225,6 +409,72 @@ void USART1_IRQHandler(void)
   /* USER CODE BEGIN USART1_IRQn 1 */
 
   /* USER CODE END USART1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles EXTI line[15:10] interrupts.
+  */
+void EXTI15_10_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI15_10_IRQn 0 */
+
+	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_14))
+	{
+		if(new_press == 1)
+		{
+			HAL_TIM_Base_Start_IT(&htim1);		// Вмикає таймер
+			new_press = 0;
+		}
+	}
+
+
+//	uint8_t count = 0;
+//	// Detect "UP" button
+//	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_14))
+//	{
+//		//i = 0;
+//		//new_press = 1;						// Зафіксовано перший зростаючий фронт
+//		//HAL_TIM_Base_Start_IT(&htim1);		// Вмикає таймер
+//		if(utton_enter_pressed_flag == 0)		// If menu doesen't enter
+//		{
+//			button_up_or_down_was_pressed_flag = 1;
+//			switch(state_get())
+//			{
+//				case ST_1:
+//					state_set(ST_4);
+//					break;
+//				case ST_2:
+//					state_set(ST_1);
+//					break;
+//				case ST_3:
+//					state_set(ST_2);
+//					break;
+//				case ST_4:
+//					state_set(ST_3);
+//					break;
+//			}
+//		}
+//
+//	}
+
+	// Detect "ENTER" button
+	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_15))
+	{
+		if(new_press == 1)
+		{
+			HAL_TIM_Base_Start_IT(&htim1);		// Вмикає таймер
+			new_press = 0;
+		}
+//		button_up_or_down_was_pressed_flag = 1;
+//		utton_enter_pressed_flag = !utton_enter_pressed_flag;
+	}
+
+  /* USER CODE END EXTI15_10_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_15);
+  /* USER CODE BEGIN EXTI15_10_IRQn 1 */
+
+  /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

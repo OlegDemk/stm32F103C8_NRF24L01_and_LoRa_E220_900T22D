@@ -1,0 +1,4 @@
+state_machine.c:29:9:state_get	4	static
+state_machine.c:35:6:state_set	16	static
+state_machine.c:40:6:state_machine	152	static
+state_machine.c:231:6:clearn_pointer_on_menu	16	static

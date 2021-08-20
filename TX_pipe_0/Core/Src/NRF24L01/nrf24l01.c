@@ -147,11 +147,11 @@ void NRF24_ini(void)    // TRANSMITTER
 
 	NRF24L01_RX_Mode();
 
-	read_config_registers_nrf();	// For debug
+	read_config_registers();	// For debug
 }
 //----------------------------------------------------------------------------------------
 // Read config data from nrf registers
-void read_config_registers_nrf(void)
+void read_config_registers(void)
 {
 	HAL_Delay(1);
 

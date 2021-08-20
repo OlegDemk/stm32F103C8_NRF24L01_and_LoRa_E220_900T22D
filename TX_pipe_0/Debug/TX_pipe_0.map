@@ -235,7 +235,7 @@ Discarded input sections
                 0x0000000000000000       0x4c Core/Src/NRF24L01/nrf24l01.o
  .text.NRF24_ini
                 0x0000000000000000       0xa4 Core/Src/NRF24L01/nrf24l01.o
- .text.read_config_registers_nrf
+ .text.read_config_registers
                 0x0000000000000000       0x70 Core/Src/NRF24L01/nrf24l01.o
  .text.NRF24L01_TX_Mode
                 0x0000000000000000       0x34 Core/Src/NRF24L01/nrf24l01.o
@@ -246,8 +246,8 @@ Discarded input sections
  .rodata        0x0000000000000000       0x2e Core/Src/NRF24L01/nrf24l01.o
  .text.nrf_communication_test
                 0x0000000000000000      0x214 Core/Src/NRF24L01/nrf24l01.o
- .debug_info    0x0000000000000000     0x171f Core/Src/NRF24L01/nrf24l01.o
- .debug_abbrev  0x0000000000000000      0x2b8 Core/Src/NRF24L01/nrf24l01.o
+ .debug_info    0x0000000000000000     0x1732 Core/Src/NRF24L01/nrf24l01.o
+ .debug_abbrev  0x0000000000000000      0x2cb Core/Src/NRF24L01/nrf24l01.o
  .debug_aranges
                 0x0000000000000000       0x90 Core/Src/NRF24L01/nrf24l01.o
  .debug_ranges  0x0000000000000000       0x80 Core/Src/NRF24L01/nrf24l01.o
@@ -310,7 +310,7 @@ Discarded input sections
  .debug_macro   0x0000000000000000       0x1c Core/Src/NRF24L01/nrf24l01.o
  .debug_macro   0x0000000000000000       0x22 Core/Src/NRF24L01/nrf24l01.o
  .debug_line    0x0000000000000000      0xd0e Core/Src/NRF24L01/nrf24l01.o
- .debug_str     0x0000000000000000    0x834ad Core/Src/NRF24L01/nrf24l01.o
+ .debug_str     0x0000000000000000    0x834a9 Core/Src/NRF24L01/nrf24l01.o
  .comment       0x0000000000000000       0x54 Core/Src/NRF24L01/nrf24l01.o
  .debug_frame   0x0000000000000000      0x21c Core/Src/NRF24L01/nrf24l01.o
  .ARM.attributes

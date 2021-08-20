@@ -27,8 +27,23 @@ uint8_t buf1[20]={0};					// RX buffer
 uint8_t pipe = 0;						// Number of pipes
 uint8_t ErrCnt_Fl = 0; 					// Error counter (Can count only to 15)
 
-void read_config_registers(void);
+bool read_config_registers(void);
 
+//----------------------------------------------------------------------------------------
+void nrf(void)
+{
+	char str[30] = {0};
+	clearn_oled();
+
+	memset(str, 0, sizeof(str));
+	ssd1306_SetCursor(0, 0);
+	strcpy(str, "NRF24L01");
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+
+
+
+}
 //----------------------------------------------------------------------------------------
 /*
  * Function make us delay
@@ -190,7 +205,7 @@ void NRF24_ini(void)                  // RECEIVE
 }
 //----------------------------------------------------------------------------------------
 // Read config data from nrf registers
-void read_config_registers(void)
+bool read_config_registers(void)
 {
 	HAL_Delay(100);
 
@@ -202,11 +217,28 @@ void read_config_registers(void)
 
 	NRF24_Read_Buf(TX_ADDR,buf1,3);
 	NRF24_Read_Buf(RX_ADDR_P0,buf1,3);
+
+	if(config_array[0] == 0)		// Data from nrf module was read
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 //----------------------------------------------------------------------------------------
 void nrf_communication_test(void)
 {
 	NRF24L01_Receive();
+}
+//----------------------------------------------------------------------------------------
+bool init_nrf(void)
+{
+	bool status = false;
+	NRF24_ini();
+	status = read_config_registers();
+	return status;
 }
 //----------------------------------------------------------------------------------------
 void IRQ_Callback(void)

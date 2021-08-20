@@ -9,14 +9,25 @@
 #include <string.h>
 #include <stdbool.h>
 
-extern UART_HandleTypeDef huart1;
-extern bool flag_command_received;
+#include <OLED/fonts.h>
+#include <OLED/oled_ssd1306.h>
+#include <OLED/ssd1306.h>
+#include <OLED/oled_main.h>
 
-void init_lora(void);
+#include <keyboard/keyboard.h>
+
+extern UART_HandleTypeDef huart1;
+
+extern bool flag_command_received;
+extern char uart_rx_data[50];
+
+bool init_lora(void);
 void test_uart(void);
 
+
+
 //----------------------------------------------------------------------------------------
-void init_lora(void)
+bool init_lora(void)
 {
 	static uint8_t data[10] = {0};
 	set_config_deep_sleep_mode();
@@ -41,7 +52,6 @@ void init_lora(void)
 	HAL_UART_Transmit_IT(&huart1, data, 4);
 	HAL_Delay(100);
 
-
 	read_settings_from_module();
 
 	set_WOR_RX_mode();
@@ -64,10 +74,15 @@ void read_settings_from_module(void)
 	HAL_UART_Transmit_IT(&huart1, data, 3);
 	HAL_Delay(100);
 
+    // ЗЧИТИТИ ДАНІ З LORA МОДУЛЯ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// I ВЕРНУТИ ЗНАЧЕННЯ ІНІЦІАЛІЗАЦІї !!!!!!!!!!!!!!!!!!!
+
 	// Return:
 	// 0xC1 0x00 0x03 0x12 0x34 0x62
 	// 0x12 0x34 - Adders 1234
 	// 0x62 - 9600, 8n1 and 2,4 k air data rate
+
+	return true;
 }
 //-------------------------------------------------------------------------------------------------
 void set_config_deep_sleep_mode (void)

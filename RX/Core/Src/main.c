@@ -25,8 +25,15 @@
 #include <OLED/fonts.h>
 #include <OLED/oled_ssd1306.h>
 #include <OLED/ssd1306.h>
+#include <OLED/oled_main.h>
+
+#include <NRF24L01/nrf24l01.h>
 
 #include <LoRa_E220_900T22D/e220_900t22d.h>
+
+#include <keyboard/keyboard.h>
+
+#include <state_machine/state_machine.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,17 +43,25 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define off 0
-#define on 1
 
-#define nrf off
-#define lora on
 
 
 char uart_rx_data[50] = {0};			// Main rx buffer data
 char str[1] = {0};						// Buffer for one char
 bool flag_command_received = false;		// Flag show status receive data (completed/not completed)
 uint8_t rx_data_counter = 0;
+
+char test_main[20] = {0};
+
+
+
+#define off 0
+#define on 1
+
+#define nrf_on_off off
+#define lora_on_off off
+
+void state_machine(void);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -58,6 +73,8 @@ uint8_t rx_data_counter = 0;
 I2C_HandleTypeDef hi2c1;
 
 SPI_HandleTypeDef hspi1;
+
+TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart1;
 
@@ -71,6 +88,7 @@ static void MX_GPIO_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART1_UART_Init(void);
+static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -111,6 +129,7 @@ int main(void)
   MX_I2C1_Init();
   MX_SPI1_Init();
   MX_USART1_UART_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -118,9 +137,12 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+
   // Init interrupp
   HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(USART1_IRQn);
+
 
   // OLED init
   ssd1306_Init();
@@ -128,7 +150,11 @@ int main(void)
   ssd1306_UpdateScreen();
 
 
-#if nrf
+ // HAL_TIM_Base_Start_IT(&htim1);
+
+
+
+#if nrf_on_off
   // Test write on OLED
   ssd1306_SetCursor(0, 0);
   char test_main[20] = {0};
@@ -140,13 +166,13 @@ int main(void)
   read_config_registers();
 #endif
 
-#if lora
+#if lora_on_off
   ssd1306_SetCursor(0, 0);
   char test_main[50] = {0};
   strcpy(test_main, "LoRa RX");
   ssd1306_WriteString(test_main,  Font_7x10, White);
   ssd1306_UpdateScreen();
-
+  state_machine
   HAL_Delay(1000);
   init_lora();
 
@@ -167,13 +193,14 @@ int main(void)
 
   while (1)
   {
-//	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-//	  HAL_Delay(100);
-	#if nrf
+
+	#if nrf_on_off
+	  bool init_nrf_status = init_nrf();    // For debug
 	  nrf_communication_test();      // Main function LORA
 	#endif
 
-	#if lora
+	#if lora_on_off
+	  char test_main[30] = {0};
 
 	  if(flag_command_received == true)			// If data is ready
 	  {
@@ -198,24 +225,16 @@ int main(void)
 
 		HAL_UART_Receive_IT(&huart1, str, 1);		// Start interrupt again
 	  }
-
-
-	  // Buttons test	 /////////////////////////////
-	  if(HAL_GPIO_ReadPin(GPIOB, SW1_Pin) == 0)		// if button pressed
-	  {
-	      int g = 99;
-	  }
-	  if(HAL_GPIO_ReadPin(GPIOB, SW2_Pin) == 0)		// if button pressed
-	  {
-	      int h = 99;
-	  }
-	  if(HAL_GPIO_ReadPin(GPIOA, SW3_Pin) == 0)		// if button pressed
-	  {
-		  int j = 99;
-	  }
 	#endif
 
-	//test_uart();
+     ///////////////////////////////////////////////////
+	 // Test phase state mashine
+	bool  state_machine_status = 1;
+    if (state_machine_status == 1)
+	{
+		state_machine();
+	}
+    //////////////////////////////////////////////
 
 
 	 // Зробити перемикач на LoRa або UART USB
@@ -281,7 +300,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.ClockSpeed = 400000;
   hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
@@ -334,6 +353,52 @@ static void MX_SPI1_Init(void)
   /* USER CODE BEGIN SPI1_Init 2 */
 
   /* USER CODE END SPI1_Init 2 */
+
+}
+
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 6400;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 100;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_ENABLE;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
 
 }
 
@@ -404,8 +469,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA2 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  /*Configure GPIO pins : PA2 PA8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_8;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -424,21 +489,27 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : AUX_Pin SW1_Pin SW2_Pin */
-  GPIO_InitStruct.Pin = AUX_Pin|SW1_Pin|SW2_Pin;
+  /*Configure GPIO pin : AUX_Pin */
+  GPIO_InitStruct.Pin = AUX_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(AUX_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SW3_Pin */
-  GPIO_InitStruct.Pin = SW3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SW3_GPIO_Port, &GPIO_InitStruct);
+  /*Configure GPIO pins : PB14 PB15 */
+  GPIO_InitStruct.Pin = GPIO_PIN_14|GPIO_PIN_15;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
 
@@ -456,6 +527,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     __NOP();
   }
 }
+
 //----------------------------------------------------------------------------------------
 // If data received (Received 1 bytes)        Define in: HAL_UART_Receive_IT(&huart1, str, 1);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -476,7 +548,28 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		}
 	}
 }
+
 //----------------------------------------------------------------------------------------
+//uint8_t read_buttons_state(uint8_t  button_pressed)
+//{
+//	if(HAL_GPIO_ReadPin(GPIOB, SW1_Pin) == 0)		// if button pressed
+//	{
+//		return button_pressed = 1;
+//	}
+//	else if(HAL_GPIO_ReadPin(GPIOB, SW2_Pin) == 0)		// if button pressed
+//	{
+//		return button_pressed = 2;
+//	}
+//	else if(HAL_GPIO_ReadPin(GPIOA, SW3_Pin) == 0)		// if button pressed
+//	{
+//		return button_pressed = 3;
+//	}
+//	else		// buttons toesen't press
+//	{
+//		return button_pressed = 0;
+//	}
+//
+//}
 
 
 /* USER CODE END 4 */

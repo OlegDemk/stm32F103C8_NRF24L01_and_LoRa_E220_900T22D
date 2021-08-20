@@ -1,0 +1,2 @@
+oled_main.c:11:6:init_oled	8	static
+oled_main.c:18:6:clearn_oled	8	static
