@@ -252,7 +252,7 @@ void EXTI9_5_IRQHandler(void)
 /**
   * @brief This function handles TIM1 update interrupt.
   */
-void TIM1_UP_IRQHandler(void)			// Period = 1 msec
+void TIM1_UP_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM1_UP_IRQn 0 */
 	/* This timmer start by external interrupts from buttons:

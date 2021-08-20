@@ -1215,7 +1215,7 @@ static void MX_I2C1_Init(void)
  8000808:	4b12      	ldr	r3, [pc, #72]	; (8000854 <MX_I2C1_Init+0x50>)
  800080a:	4a13      	ldr	r2, [pc, #76]	; (8000858 <MX_I2C1_Init+0x54>)
  800080c:	601a      	str	r2, [r3, #0]
-  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.ClockSpeed = 400000;
  800080e:	4b11      	ldr	r3, [pc, #68]	; (8000854 <MX_I2C1_Init+0x50>)
  8000810:	4a12      	ldr	r2, [pc, #72]	; (800085c <MX_I2C1_Init+0x58>)
  8000812:	605a      	str	r2, [r3, #4]
@@ -1266,7 +1266,7 @@ static void MX_I2C1_Init(void)
  8000852:	bd80      	pop	{r7, pc}
  8000854:	20000490 	.word	0x20000490
  8000858:	40005400 	.word	0x40005400
- 800085c:	000186a0 	.word	0x000186a0
+ 800085c:	00061a80 	.word	0x00061a80
 
 08000860 <MX_SPI1_Init>:
   * @brief SPI1 Initialization Function
@@ -1393,9 +1393,9 @@ static void MX_TIM1_Init(void)
  80008f6:	4b1b      	ldr	r3, [pc, #108]	; (8000964 <MX_TIM1_Init+0x98>)
  80008f8:	2200      	movs	r2, #0
  80008fa:	609a      	str	r2, [r3, #8]
-  htim1.Init.Period = 10;
+  htim1.Init.Period = 100;
  80008fc:	4b19      	ldr	r3, [pc, #100]	; (8000964 <MX_TIM1_Init+0x98>)
- 80008fe:	220a      	movs	r2, #10
+ 80008fe:	2264      	movs	r2, #100	; 0x64
  8000900:	60da      	str	r2, [r3, #12]
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
  8000902:	4b18      	ldr	r3, [pc, #96]	; (8000964 <MX_TIM1_Init+0x98>)
@@ -2555,7 +2555,7 @@ void EXTI9_5_IRQHandler(void)
 /**
   * @brief This function handles TIM1 update interrupt.
   */
-void TIM1_UP_IRQHandler(void)			// Period = 1 msec
+void TIM1_UP_IRQHandler(void)
 {
  8000efc:	b580      	push	{r7, lr}
  8000efe:	af00      	add	r7, sp, #0
