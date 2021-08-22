@@ -1,4 +1,5 @@
-Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
+Core/Src/lists/simply_linked_list.o: \
+ ../Core/Src/lists/simply_linked_list.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -25,13 +26,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_spi.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
- ../Core/Inc/OLED/fonts.h ../Core/Inc/OLED/oled_ssd1306.h \
- ../Core/Inc/OLED/ssd1306.h ../Core/Inc/OLED/oled_main.h \
- ../Core/Inc/NRF24L01/nrf24l01.h \
- ../Core/Inc/LoRa_E220_900T22D/e220_900t22d.h \
- ../Core/Inc/keyboard/keyboard.h ../Core/Inc/lists/simply_linked_list.h \
- ../Core/Inc/state_machine/state_machine.h
+ ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
 
 ../Core/Inc/main.h:
 
@@ -88,21 +83,3 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
 
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
-
-../Core/Inc/OLED/fonts.h:
-
-../Core/Inc/OLED/oled_ssd1306.h:
-
-../Core/Inc/OLED/ssd1306.h:
-
-../Core/Inc/OLED/oled_main.h:
-
-../Core/Inc/NRF24L01/nrf24l01.h:
-
-../Core/Inc/LoRa_E220_900T22D/e220_900t22d.h:
-
-../Core/Inc/keyboard/keyboard.h:
-
-../Core/Inc/lists/simply_linked_list.h:
-
-../Core/Inc/state_machine/state_machine.h:

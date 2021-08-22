@@ -36,6 +36,82 @@ void state_set(STATE_t new_state)
 	state = new_state;
 }
 // ----------------------------------------------------------------------------------------
+
+//typedef struct{
+//	struct MenuItem* up;				// показник на попередній массив
+//	struct MenuItem* down;				// показник наступний массив
+//
+//	void ( *updateScreen ) (void );		// Функція яка відмальовує при переході в даний пункт
+//	void ( *makeAction) ( void );		// Функція яка робить дію при натисканні кнопки ENTER
+//}MenuItem_t;
+//
+//static struct MenuItem_t items[MENU_ITEM_NUM];   // What is it ?????????
+//
+//MenuItem_t * currentItem = &items[0];	// встановлюємо показний на нульовий адрес списку
+//
+//void Menu_Init ( void )
+//{
+//	items[0].up = 0;
+//	items[0].down = &items[1];
+//	items[0].updateScreen = 0;
+//	items[0].makeAction = 0;
+//
+//	items[1].up = &items[0];
+//	items[1].down = &items[2];
+//	items[1].updateScreen = 0;
+//	items[1].makeAction = 0;
+//
+//	items[2].up = &items[1];
+//	items[2].down = &items[3];
+//	items[2].updateScreen = 0;
+//	items[2].makeAction = 0;
+//
+//	items[3].up =&items[2];
+//	items[3].down =0;
+//	items[3].updateScreen = 0;
+//	items[3].makeAction  =0;
+//
+//}
+//// ----------------------------------------------------------------------------------------
+//void up(void)
+//{
+//	if (currentItem->up)
+//	{
+//	    currentItem = currentItem->up;
+//	    if (currentItem->updateScreen )
+//	    {
+//	        currentItem->updateScreen();
+//	    }
+//	}
+//}
+//// ----------------------------------------------------------------------------------------
+//void down(void)
+//{
+//	if (currentItem->down)
+//	{
+//	    currentItem = currentItem->down;
+//	    if (currentItem->updateScreen )
+//	    {
+//	        currentItem->updateScreen();
+//	    }
+//	}
+//}
+//// ----------------------------------------------------------------------------------------
+//void enter(void)
+//{
+//	if (currentItem->makeAction)
+//	{
+//	    currentItem = currentItem->makeAction();
+//	}
+//}
+//// ----------------------------------------------------------------------------------------
+//void menu_simulation(void)
+//{
+//
+//
+//}
+
+// ----------------------------------------------------------------------------------------
 void state_machine(void)
 {
 	// Init OLED

@@ -32,8 +32,10 @@
 #include <LoRa_E220_900T22D/e220_900t22d.h>
 
 #include <keyboard/keyboard.h>
+#include <lists/simply_linked_list.h>
 
 #include <state_machine/state_machine.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,6 +79,7 @@ SPI_HandleTypeDef hspi1;
 TIM_HandleTypeDef htim1;
 
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
 
@@ -89,6 +92,7 @@ static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -130,6 +134,7 @@ int main(void)
   MX_SPI1_Init();
   MX_USART1_UART_Init();
   MX_TIM1_Init();
+  MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -172,9 +177,10 @@ int main(void)
   strcpy(test_main, "LoRa RX");
   ssd1306_WriteString(test_main,  Font_7x10, White);
   ssd1306_UpdateScreen();
-  state_machine
+ // state_machine
   HAL_Delay(1000);
   init_lora();
+  HAL_Delay(1000);
 
   ssd1306_SetCursor(65, 0);
   strcpy(test_main, "Ready");
@@ -228,13 +234,15 @@ int main(void)
 	#endif
 
      ///////////////////////////////////////////////////
-	 // Test phase state mashine
-	bool  state_machine_status = 1;
-    if (state_machine_status == 1)
-	{
-		state_machine();
-	}
+//	 // Test phase state mashine
+//	bool  state_machine_status = 1;
+//    if (state_machine_status == 1)
+//	{
+//		state_machine();
+//	}
     //////////////////////////////////////////////
+
+	  lists();
 
 
 	 // Зробити перемикач на LoRa або UART USB
@@ -432,6 +440,39 @@ static void MX_USART1_UART_Init(void)
   /* USER CODE BEGIN USART1_Init 2 */
 
   /* USER CODE END USART1_Init 2 */
+
+}
+
+/**
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART3_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART3_Init 0 */
+
+  /* USER CODE END USART3_Init 0 */
+
+  /* USER CODE BEGIN USART3_Init 1 */
+
+  /* USER CODE END USART3_Init 1 */
+  huart3.Instance = USART3;
+  huart3.Init.BaudRate = 9600;
+  huart3.Init.WordLength = UART_WORDLENGTH_8B;
+  huart3.Init.StopBits = UART_STOPBITS_1;
+  huart3.Init.Parity = UART_PARITY_NONE;
+  huart3.Init.Mode = UART_MODE_TX_RX;
+  huart3.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart3.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART3_Init 2 */
+
+  /* USER CODE END USART3_Init 2 */
 
 }
 

@@ -25,6 +25,7 @@ Core/Src/NRF24L01 \
 Core/Src/OLED \
 Core/Src/UART \
 Core/Src/keyboard \
+Core/Src/lists \
 Core/Src \
 Core/Src/state_machine \
 Core/Startup \
