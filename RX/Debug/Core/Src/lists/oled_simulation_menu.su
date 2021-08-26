@@ -1,0 +1,10 @@
+oled_simulation_menu.c:37:6:clear_menu_items	56	static
+oled_simulation_menu.c:64:6:print_rows_on_oled_if_up	56	static
+oled_simulation_menu.c:97:6:print_rows_on_oled_if_down	56	static
+oled_simulation_menu.c:132:6:print_menu_init	48	static
+oled_simulation_menu.c:162:6:action	40	static
+oled_simulation_menu.c:174:6:Menu_Init	24	static
+oled_simulation_menu.c:244:6:up	8	static
+oled_simulation_menu.c:256:6:down	8	static
+oled_simulation_menu.c:268:6:enter	8	static
+oled_simulation_menu.c:277:6:simulation_navigation_on_menu	16	static

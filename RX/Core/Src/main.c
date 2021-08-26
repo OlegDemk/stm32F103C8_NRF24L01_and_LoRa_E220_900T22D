@@ -36,6 +36,8 @@
 
 #include <state_machine/state_machine.h>
 
+#include <lists/oled_simulation_menu.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -242,8 +244,8 @@ int main(void)
 //	}
     //////////////////////////////////////////////
 
-	  lists();
-
+	 // lists();
+	  simulation_navigation_on_menu();
 
 	 // Зробити перемикач на LoRa або UART USB
 

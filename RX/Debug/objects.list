@@ -6,6 +6,7 @@
 "Core/Src/UART/uart.o"
 "Core/Src/keyboard/keyboard.o"
 "Core/Src/lists/lists.o"
+"Core/Src/lists/oled_simulation_menu.o"
 "Core/Src/lists/simply_linked_list.o"
 "Core/Src/main.o"
 "Core/Src/stm32f1xx_hal_msp.o"

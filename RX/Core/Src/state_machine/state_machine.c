@@ -19,7 +19,9 @@ uint8_t utton_enter_pressed_flag = 0;		// This variable set by "ENTER" button
 extern bool flag_command_received;
 extern char str[1];
 extern char uart_rx_data[50];
+
 extern UART_HandleTypeDef huart1;
+extern UART_HandleTypeDef huart3;
 
 int pressed_batton_counter = 0;
 
@@ -36,40 +38,109 @@ void state_set(STATE_t new_state)
 	state = new_state;
 }
 // ----------------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 
 //typedef struct{
-//	struct MenuItem* up;				// показник на попередній массив
-//	struct MenuItem* down;				// показник наступний массив
+//	struct MenuItem* up;				// pointer on up element of list
+//	struct MenuItem* down;				// pointer on down element of list
 //
-//	void ( *updateScreen ) (void );		// Функція яка відмальовує при переході в даний пункт
-//	void ( *makeAction) ( void );		// Функція яка робить дію при натисканні кнопки ENTER
+//	uint8_t id;							// Number of menu
+//	char *name;							// Name menu
+//	void ( *updateScreen ) (void );
+//	void ( *makeAction) ( void );
 //}MenuItem_t;
 //
-//static struct MenuItem_t items[MENU_ITEM_NUM];   // What is it ?????????
+//static struct MenuItem_t items[6];   // What is it ????????? I have ERROR
 //
-//MenuItem_t * currentItem = &items[0];	// встановлюємо показний на нульовий адрес списку
+//MenuItem_t * currentItem = &items[0];			// Create and set pointer on first element of list
 //
+//// ----------------------------------------------------------------------------------------
+//void print_rows_on_oled(void)
+//{
+//	// Function must receive current number menu
+//
+//	// Print only 4 lines of menu
+//	// Because OLED has 4 free lines
+//	for(uint8_t row = 0; row<= 4; row++)
+//	{
+//
+//	}
+//}
+//// ----------------------------------------------------------------------------------------
+//void action(void)
+//{
+//	char str_buffer[30] = "Enter!\n\r";
+//	clearn_pointer_on_menu();
+//
+//	ssd1306_SetCursor(0, 0);
+//	ssd1306_WriteString(str_buffer,  Font_7x10, White);
+//	ssd1306_UpdateScreen();
+//}
+//// ----------------------------------------------------------------------------------------
 //void Menu_Init ( void )
 //{
+//	// Make pointers on funscions
+//	void (*p_print_rows_on_oled) (void);			// Create pointer on function
+//	void (*p_action) (void);						// Create pointer on function
+//	p_print_rows_on_oled = print_rows_on_oled;		// Save function print on pointer print_p
+//	p_action = action;								// Save function action on pointer action_p
+//
+//	// Fill in elements(nodes) of list (7 items)
 //	items[0].up = 0;
 //	items[0].down = &items[1];
-//	items[0].updateScreen = 0;
-//	items[0].makeAction = 0;
+//	items[0].id = 0;
+//	items[0].name = "Item_0";						// Name of item
+//	items[0].updateScreen = p_print_rows_on_oled;
+//	items[0].makeAction = p_action;
 //
 //	items[1].up = &items[0];
 //	items[1].down = &items[2];
-//	items[1].updateScreen = 0;
-//	items[1].makeAction = 0;
+//	items[1].id = 1;
+//	items[1].name = "Item_1";
+//	items[1].updateScreen = p_print_rows_on_oled;
+//	items[1].makeAction = p_action;
 //
 //	items[2].up = &items[1];
 //	items[2].down = &items[3];
-//	items[2].updateScreen = 0;
-//	items[2].makeAction = 0;
+//	items[2].id = 2;
+//	items[2].name = "Item_2";
+//	items[2].updateScreen = p_print_rows_on_oled;
+//	items[2].makeAction = p_action;
 //
-//	items[3].up =&items[2];
-//	items[3].down =0;
-//	items[3].updateScreen = 0;
-//	items[3].makeAction  =0;
+//	items[3].up = &items[2];
+//	items[3].down = &items[4];
+//	items[3].id = 3;
+//	items[3].name = "Item_3";
+//	items[3].updateScreen = p_print_rows_on_oled;
+//	items[3].makeAction = p_action;
+//
+//	items[4].up = &items[3];
+//	items[4].down = &items[5];
+//	items[4].id = 4;
+//	items[4].name = "Item_4";
+//	items[4].updateScreen = p_print_rows_on_oled;
+//	items[4].makeAction = p_action;
+//
+//	items[5].up = &items[4];
+//	items[5].down = &items[6];
+//	items[5].id = 5;
+//	items[5].name = "Item_5";
+//	items[5].updateScreen = p_print_rows_on_oled;
+//	items[5].makeAction  = p_action;
+//
+//	items[6].up = &items[5];
+//	items[6].down = 0;
+//	items[6].id = 6;
+//	items[6].name = "Item_6";
+//	items[6].updateScreen = p_print_rows_on_oled;
+//	items[6].makeAction  = p_action;
 //
 //}
 //// ----------------------------------------------------------------------------------------
@@ -107,9 +178,33 @@ void state_set(STATE_t new_state)
 //// ----------------------------------------------------------------------------------------
 //void menu_simulation(void)
 //{
+//	//1. Simulation press up, down and enter
 //
+//    // For example:
+//	// Show rows on OLED( only 4 rows)
+//	//		down
+//	// Show rows on OLED( only 4 rows)
+//	//		down
+//	// Show rows on OLED( only 4 rows)
+//	//		down
+//	// Show rows on OLED( only 4 rows)
+//	//		up
+//	// Show rows on OLED( only 4 rows)
+//	// 		up
+//	// Show rows on OLED( only 4 rows)
 //
 //}
+//
+
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////
 
 // ----------------------------------------------------------------------------------------
 void state_machine(void)

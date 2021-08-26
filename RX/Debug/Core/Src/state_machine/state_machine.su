@@ -1,4 +1,4 @@
-state_machine.c:28:9:state_get	4	static
-state_machine.c:34:6:state_set	16	static
-state_machine.c:115:6:state_machine	152	static
-state_machine.c:283:6:clearn_pointer_on_menu	16	static
+state_machine.c:30:9:state_get	4	static
+state_machine.c:36:6:state_set	16	static
+state_machine.c:210:6:state_machine	152	static
+state_machine.c:378:6:clearn_pointer_on_menu	16	static
