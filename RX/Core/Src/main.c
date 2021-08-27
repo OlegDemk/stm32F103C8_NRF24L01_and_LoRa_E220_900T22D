@@ -244,7 +244,7 @@ int main(void)
 //	}
     //////////////////////////////////////////////
 
-	 // lists();
+	  //lists();
 	  simulation_navigation_on_menu();
 
 	 // Зробити перемикач на LoRa або UART USB
