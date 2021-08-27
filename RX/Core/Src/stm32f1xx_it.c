@@ -29,12 +29,15 @@ extern uint8_t utton_enter_pressed_flag;
 
 extern int pressed_batton_counter;
 
-int delay_time = 0;
+
+int delay_time = 0;										//	Counter
 uint8_t doesent_detected = 1;
-uint8_t dalay_duration = 10;
+uint8_t dalay_duration = 5;
+
 int button_processed_status = 1;					// For interrupt work only one time
 #define detected 0
 
+extern uint8_t button;
 
 /* USER CODE END Includes */
 
@@ -259,6 +262,8 @@ void TIM1_UP_IRQHandler(void)
 	 * EXTI9_5_IRQHandler and EXTI15_10_IRQHandler
 	 */
 
+//	static int delay_time = 0;										//	Counter
+
 	if(button_processed_status == detected)							// If pressed button was detected by external interrupts
 	{
 		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_14) == 0)    			// If "UP" button was pressed
@@ -271,33 +276,15 @@ void TIM1_UP_IRQHandler(void)
 
 			if(delay_time >= dalay_duration)						// if button pressed more than dalay_duration time it mean button was pressed
 			{
-				delay_time = 0;
 				button_processed_status = 1;						// Flag for interrupts
 				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 
-				if(utton_enter_pressed_flag == 0)					// If menu doesen't enter
-				{
-					switch(state_get())
-					{
-						case ST_1:
-							state_set(ST_4);
-							break;
-						case ST_2:
-							state_set(ST_1);
-							break;
-						case ST_3:
-							state_set(ST_2);
-							break;
-						case ST_4:
-							state_set(ST_3);
-						break;
-					}
-					button_was_pressed = true;
-				}
+				button = BOTTON_UP;
+				delay_time = 0;
 			}
 		}
 
-		if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == 0)   			 	// If "DOWN" button was pressed
+		else if(HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_8) == 0)   			 	// If "DOWN" button was pressed
 		{
 			/*
 			* If every time when timer interrupt, delay_time will increment
@@ -307,33 +294,15 @@ void TIM1_UP_IRQHandler(void)
 
 			if(delay_time >= dalay_duration)						// if button pressed more than dalay_duration time it mean button was pressed
 			{
-				delay_time = 0;
 				button_processed_status = 1;						// Flag for interrupts
 				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 
-				if(utton_enter_pressed_flag == 0)					// If menu doesen't enter
-				{
-					switch(state_get())
-					{
-						case ST_1:
-							state_set(ST_2);
-							break;
-						case ST_2:
-							state_set(ST_3);
-							break;
-						case ST_3:
-							state_set(ST_4);
-							break;
-						case ST_4:
-							state_set(ST_1);
-							break;
-					}
-					button_was_pressed = true;
-				}
+				button = BUTTON_DOWN;
+				delay_time = 0;
 			}
 		}
 
-		if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == 0)   			// If "ENTER" button was pressed
+		else if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_15) == 0)   			// If "ENTER" button was pressed
 		{
 			/*
 			* If every time when timer interrupt, delay_time will increment
@@ -343,15 +312,15 @@ void TIM1_UP_IRQHandler(void)
 
 			if(delay_time >= dalay_duration)						// if button pressed more than dalay_duration time it mean button was pressed
 			{
-				delay_time = 0;
 				button_processed_status = 1;
-
-				button_was_pressed = true;
-				utton_enter_pressed_flag = !utton_enter_pressed_flag;
+				button = BUTTON_ENTER;
+				delay_time = 0;
 				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 			}
-
-
+		}
+		else
+		{
+			delay_time = 0;
 		}
 
 	}

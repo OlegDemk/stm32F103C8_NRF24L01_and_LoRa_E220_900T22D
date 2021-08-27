@@ -18,20 +18,32 @@ extern UART_HandleTypeDef huart3;
 
 
 typedef struct{
-	struct MenuItem* up;				// pointer on up element of list
-	struct MenuItem* down;				// pointer on down element of list
+	struct MenuItem* up;						// pointer on up element of list
+	struct MenuItem* down;						// pointer on down element of list
+	struct MenuItem* parent;
+	struct MenuItem* child;
 
-	uint8_t id;							// Number of menu
-	char *name;							// Name menu
+	uint8_t id;									// Number of menu
+	char *name;									// Name menu
 	void ( *updateScreen_up ) (void );
 	void ( *updateScreen_down ) (void );
 	void ( *makeAction) ( void );
 }MenuItem_t;
 
-#define MENU_ITEM_NUM 7							// How many menu items
+uint8_t button = 0;								// Pressed button
 
-MenuItem_t items[MENU_ITEM_NUM];				// Create array structure
+extern int button_processed_status;				// For interrupt work only one time
+
+#define MENU_ITEM_NUM 7							// How many menu items
+#define MENU_1_1_ITEM_NUM 3
+
+MenuItem_t items[MENU_ITEM_NUM];				// Create main menu item array structure
+MenuItem_t items_menu_1[MENU_1_1_ITEM_NUM];
+
 MenuItem_t * currentItem = &items[0];			// Create and set pointer on first element of list
+//MenuItem_t * items_menu_1 = &items_menu_1[0];
+
+char str_pointer[4] = "->";						// How look pointer on menu item
 
 // ----------------------------------------------------------------------------------------
 void clear_menu_items (bool first, bool second, bool third, bool fourth)
@@ -63,7 +75,6 @@ void clear_menu_items (bool first, bool second, bool third, bool fourth)
 // ----------------------------------------------------------------------------------------
 void print_rows_on_oled_if_up(void)
 {
-	char str_pointer[4] = "->";
 	char str[30] = {0};
 	//clearn_oled();
 	clear_menu_items (true , true , true , true );
@@ -72,7 +83,7 @@ void print_rows_on_oled_if_up(void)
 	ssd1306_SetCursor(0, 16);
 	ssd1306_WriteString(str_pointer,  Font_7x10, White);
 
-	MenuItem_t * currentItem_buff_up = currentItem;       // Чому тут currentItem == 0 item
+	MenuItem_t * currentItem_buff_up = currentItem;
 	for (uint8_t row = 16; row <= 52; row = row + 12)
 	{
 		// Print number of menu item
@@ -96,7 +107,6 @@ void print_rows_on_oled_if_up(void)
 // ----------------------------------------------------------------------------------------
 void print_rows_on_oled_if_down(void)	// print text menu item
 {
-	char str_pointer[4] = "->";
 	char str[30] = {0};
 
 	clear_menu_items (true , true , true , true );
@@ -183,8 +193,12 @@ void Menu_Init (void)
 	p_action = action;								// Save function action on pointer action_p
 
 	// Fill in elements(nodes) of list (7 items)
+	// Main menu items
+	/////////////////////////////////////////////////////////////////
 	items[0].up = 0;
 	items[0].down = &items[1];
+	items[0].parent = 0;
+	items[0].child = 0; // &items_menu_1[0];           //  <<<<<< Перейти на новий список першого меню
 	items[0].id = 1;
 	items[0].name = "LoRa E220 RX";						// Name of item
 	items[0].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -193,6 +207,8 @@ void Menu_Init (void)
 
 	items[1].up = &items[0];
 	items[1].down = &items[2];
+	items[1].parent = 0;
+	items[1].child = 0;
 	items[1].id = 2;
 	items[1].name = "LoRa E220 TX";
 	items[1].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -201,6 +217,8 @@ void Menu_Init (void)
 
 	items[2].up = &items[1];
 	items[2].down = &items[3];
+	items[2].parent = 0;
+	items[2].child = 0;
 	items[2].id = 3;
 	items[2].name = "NRF24L01 RX";
 	items[2].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -209,6 +227,8 @@ void Menu_Init (void)
 
 	items[3].up = &items[2];
 	items[3].down = &items[4];
+	items[3].parent = 0;
+	items[3].child = 0;
 	items[3].id = 4;
 	items[3].name = "NRF24L01 RX";
 	items[3].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -217,27 +237,65 @@ void Menu_Init (void)
 
 	items[4].up = &items[3];
 	items[4].down = &items[5];
+	items[4].parent = 0;
+	items[4].child = 0;
 	items[4].id = 5;
-	items[4].name = "Item_5";
+	items[4].name = "Item_5________";
 	items[4].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[4].updateScreen_down = p_print_rows_on_oled_if_down;
 	items[4].makeAction = p_action;
 
 	items[5].up = &items[4];
 	items[5].down = &items[6];
+	items[5].parent = 0;
+	items[5].child = 0;
 	items[5].id = 6;
-	items[5].name = "Item_6";
+	items[5].name = "Item_6________";
 	items[5].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[5].updateScreen_down = p_print_rows_on_oled_if_down;
 	items[5].makeAction  = p_action;
 
 	items[6].up = &items[5];
 	items[6].down = 0;
+	items[6].parent = 0;
+	items[6].child = 0;
 	items[6].id = 7;
-	items[6].name = "Item_7";
+	items[6].name = "Item_7________";
 	items[6].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[6].updateScreen_down = p_print_rows_on_oled_if_down;
 	items[6].makeAction  = p_action;
+
+	///////////////////////////////////////////////////////////////////
+	// Creating second menu
+//	items_menu_1[0].up = 0;
+//	items_menu_1[0].down = &items_menu_1[0];
+//	items_menu_1[0].parent =  &items[0];
+//	items_menu_1[0].child = 0;
+//	items_menu_1[0].id = 1;
+//	items_menu_1[0].name = "1.1 LoRa E220 RX";						// Name of item
+//	items_menu_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
+//	items_menu_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
+//	items_menu_1[0].makeAction = p_action;
+//
+//	items_menu_1[1].up = &items_menu_1[0];
+//	items_menu_1[1].down = &items_menu_1[2];
+//	items_menu_1[1].parent =  &items[0];
+//	items_menu_1[1].child = 0;
+//	items_menu_1[1].id = 1;
+//	items_menu_1[1].name = "1.2 LoRa E220 RX";						// Name of item
+//	items_menu_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
+//	items_menu_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
+//	items_menu_1[1].makeAction = p_action;
+//
+//	items_menu_1[2].up = &items_menu_1[1];
+//	items_menu_1[2].down = 0;
+//	items_menu_1[2].parent =  &items[0];
+//	items_menu_1[2].child = 0;
+//	items_menu_1[2].id = 1;
+//	items_menu_1[2].name = "1.2 LoRa E220 RX";						// Name of item
+//	items_menu_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
+//	items_menu_1[2].updateScreen_down = p_print_rows_on_oled_if_down;
+//	items_menu_1[2].makeAction = p_action;
 
 }
 // ----------------------------------------------------------------------------------------
@@ -273,53 +331,87 @@ void enter(void)
 		currentItem->makeAction();
 	}
 }
+
+// ----------------------------------------------------------------------------------------
+uint8_t get_pressed_button(void)
+{
+
+}
 // ----------------------------------------------------------------------------------------
 void simulation_navigation_on_menu(void)
 {
 	Menu_Init();
 
 	print_menu_init();
-	HAL_Delay(1000);
+	HAL_Delay(10);
 
 	while(1)
 	{
+
+		if(button_processed_status == 1)	// If buttons was pressed
+		{
+
+			button_processed_status = 1;
+			switch (button)
+			{
+				case BOTTON_UP:		// Up
+					up();
+					break;
+				case BUTTON_ENTER:		// ENRET
+					enter();
+					break;
+				case BUTTON_DOWN:		// Dowm
+					down();
+					break;
+			}
+
+			button = 0;
+		}
+//		switch ()
+//		{
+//
+//
+//
+//		}
+
+
+
 		//Надрукувати перші 4 меню
-			int delay = 500;
-
-			down();
-			HAL_Delay(delay);
-			down();
-			HAL_Delay(delay);
-			down();
-			HAL_Delay(delay);
-			down();
-			HAL_Delay(delay);
-			down();
-			HAL_Delay(delay);
-			down();
-			HAL_Delay(2000);
-
-
-			enter();
-
-			HAL_Delay(2000);
-
-			up();
-			HAL_Delay(delay);
-			up();
-			HAL_Delay(delay);
-			up();
-
-			HAL_Delay(2000);
-
-			down();
-			HAL_Delay(delay);
-			up();
-			HAL_Delay(delay);
-			down();
-			HAL_Delay(delay);
-			up();
-			HAL_Delay(delay);
+//			int delay = 500;
+//
+//			down();
+//			HAL_Delay(delay);
+//			down();
+//			HAL_Delay(delay);
+//			down();
+//			HAL_Delay(delay);
+//			down();
+//			HAL_Delay(delay);
+//			down();
+//			HAL_Delay(delay);
+//			down();
+//			HAL_Delay(2000);
+//
+//			enter();
+//
+//			HAL_Delay(2000);
+//
+//			up();
+//			HAL_Delay(delay);
+//			up();
+//			HAL_Delay(delay);
+//			up();
+//
+//			HAL_Delay(2000);
+//
+//			down();
+//			HAL_Delay(delay);
+//			up();
+//			HAL_Delay(delay);
+//			down();
+//			HAL_Delay(delay);
+//			up();
+//			HAL_Delay(delay);
 
 
 	}

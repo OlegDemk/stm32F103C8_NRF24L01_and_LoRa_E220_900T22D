@@ -6,6 +6,6 @@ main.c:374:13:MX_TIM1_Init	32	static
 main.c:420:13:MX_USART1_UART_Init	8	static
 main.c:453:13:MX_USART3_UART_Init	8	static
 main.c:486:13:MX_GPIO_Init	40	static
-main.c:562:6:HAL_GPIO_EXTI_Callback	16	static,ignoring_inline_asm
-main.c:576:6:HAL_UART_RxCpltCallback	16	static
-main.c:624:6:Error_Handler	4	static,ignoring_inline_asm
+main.c:568:6:HAL_GPIO_EXTI_Callback	16	static,ignoring_inline_asm
+main.c:582:6:HAL_UART_RxCpltCallback	16	static
+main.c:630:6:Error_Handler	4	static,ignoring_inline_asm

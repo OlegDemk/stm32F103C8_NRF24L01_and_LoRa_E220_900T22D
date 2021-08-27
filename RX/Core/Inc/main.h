@@ -36,6 +36,10 @@ extern "C" {
 #include <stdbool.h>
 void test(void);
 
+// Define button
+#define BOTTON_UP 1
+#define BUTTON_ENTER 2
+#define BUTTON_DOWN 3
 
 /* USER CODE END Includes */
 
