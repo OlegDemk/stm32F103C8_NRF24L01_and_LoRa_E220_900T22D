@@ -14,9 +14,23 @@
 #include <OLED/oled_main.h>
 
 /*				READ ME
- * 	Для додавання нового меню потрібно зробити такі кроки.
- * 	1. Створити массив з відповідною кількістю елементів структур MenuItem_t імя_нового_пункту[кількість елементі в в ньому];
- * 	2. Заповнити поля спасивів структур у функції Menu_Init
+  	Для додавання нового меню потрібно зробити такі кроки:
+  	1. Створити массив з відповідною кількістю елементів структур MenuItem_t імя_нового_пункту[кількість елементі в в ньому];
+
+  	2. Заповнити відповідні поля спасивів структур у функції Menu_Init:
+  		Example:
+  			items[0].up = 0;											// Адрес елемента меню, на який елемент буде здійснено перехід при натисеанні кнопки UP
+			items[0].down = &items[1];									// Адрес елемента меню, на який елемент буде здійснено перехід при натисеанні кнопки Down
+			items[0].child = &items_menu_1[0];							// Адрес нульового елемента нового підменю
+			items[0].id = 1;											// Порядковий номер елемента меню
+			items[0].name = "LoRa E220 RX";								// Назва меню
+			items[0].updateScreen_up = p_print_rows_on_oled_if_up;		// Показник на функцію, яка робить навігацію вверх, і відотсовує її на екрані
+			items[0].updateScreen_down = p_print_rows_on_oled_if_down;	// Показник на функцію, яка робить навігацію вниз, і відотсовує її на екрані
+			items[0].makeAction = 0;									// Показник на функцію, яка робить дію при натисканні на даний пункт меню
+	makeAction - не використовується тоді коли є поле child (тобто коли є підменю). Це зроблено для того, щоб сумістити
+	дві функції в одній кнопці.
+
+	3.
  *
  */
 
@@ -26,6 +40,7 @@ extern UART_HandleTypeDef huart3;
 typedef struct Struct{
 	struct MenuItem* up;						// pointer on up element of list
 	struct MenuItem* down;						// pointer on down element of list
+	struct MenuItem* child;
 
 	uint8_t id;									// Number of menu
 	char *name;									// Name menu
@@ -50,6 +65,7 @@ MenuItem_t * currentItem = &items[0];			// Create and set pointer on first eleme
 char str_pointer[4] = "->";						// How look pointer on menu item
 
 // ----------------------------------------------------------------------------------------
+// Clear some menu items.
 void clear_menu_items (bool first, bool second, bool third, bool fourth)
 {
 	char str[30] = "                     ";
@@ -80,14 +96,14 @@ void clear_menu_items (bool first, bool second, bool third, bool fourth)
 void print_rows_on_oled_if_up(void)
 {
 	char str[30] = {0};
-	//clearn_oled();
+
 	clear_menu_items (true , true , true , true );
 
 	// Print pointer on first item menu
 	ssd1306_SetCursor(0, 16);
 	ssd1306_WriteString(str_pointer,  Font_7x10, White);
 
-	MenuItem_t * currentItem_buff_up = currentItem;
+	MenuItem_t * currentItem_buff_up = currentItem;				// Create buffer on selected current item pointer.
 	for (uint8_t row = 16; row <= 52; row = row + 12)
 	{
 		// Print number of menu item
@@ -100,8 +116,10 @@ void print_rows_on_oled_if_up(void)
 		ssd1306_SetCursor(30, row);
 		ssd1306_WriteString(str,  Font_7x10, White);
 
-		currentItem_buff_up = currentItem_buff_up -> down;
-		if(currentItem_buff_up == 0)
+		currentItem_buff_up = currentItem_buff_up -> down;		// Make a step down
+
+		// Print only existing items
+		if(currentItem_buff_up == 0)							// If no next item
 		{
 			break;
 		}
@@ -133,8 +151,10 @@ void print_rows_on_oled_if_down(void)	// print text menu item
 	    ssd1306_SetCursor(30, row);
 	    ssd1306_WriteString(str,  Font_7x10, White);
 
-	    currentItem_buff = currentItem_buff -> down;
-	    if(currentItem_buff == 0)		// End of menu
+	    currentItem_buff = currentItem_buff -> down;			// Make a step down
+
+	    // Print only existing items
+	    if(currentItem_buff == 0)		 						// If no next item
 	    {
 	    	break;
 	    }
@@ -145,12 +165,11 @@ void print_rows_on_oled_if_down(void)	// print text menu item
 // Print first 4 items of menu (only first time)
 void print_menu_init(void)
 {
-	//char str[30] = {0};
 	MenuItem_t * currentItem_buff = currentItem;
 
 	//Print selected name of menu
-	char str[30] = "MAIN MENU:";
-	ssd1306_SetCursor(30, 0);
+	char str[30] = ">> MAIN MENU <<";
+	ssd1306_SetCursor(10, 0);
 	ssd1306_WriteString(str,  Font_7x10, White);
 	ssd1306_UpdateScreen();
 	memset(str, 0, sizeof(str));
@@ -159,7 +178,7 @@ void print_menu_init(void)
 	{
 		if(row == 16)
 		{
-			// Print pointer on menu
+			// Print pointer on menu (On top)
 			char str_pointer[4] = "->";
 			ssd1306_SetCursor(0, row);
 			ssd1306_WriteString(str_pointer,  Font_7x10, White);
@@ -192,7 +211,7 @@ void action(void)
 	ssd1306_UpdateScreen();
 	memset(str, 0, sizeof(str));
 
-	currentItem = &items_menu_1[0];	// Redefine pointer
+	//currentItem = &items_menu_1[0];	// Redefine pointer
 
 
 	//char str[30] = {0};
@@ -233,12 +252,13 @@ void return_from_menu(void)
 	clearn_oled();
 
 	// Print "MAIN MENU:"
-	char str[30] = "MAIN MENU:";
+	char str[30] = ">> MAIN MENU <<";
 	//strncpy(str, currentItem -> name, 25);
-	ssd1306_SetCursor(30, 0);
+	ssd1306_SetCursor(10, 0);
 	ssd1306_WriteString(str,  Font_7x10, White);
 	ssd1306_UpdateScreen();
 
+	//action();
 	print_menu_init();
 
 }
@@ -259,74 +279,86 @@ void Menu_Init (void)
 	// Fill in elements(nodes) of list (7 items)
 	// Main menu items
 	/////////////////////////////////////////////////////////////////
+//	В першому рівні меню, одна клавіша ентер переходить на наступне меню
+//	в наступному меню, та сама клавіша ентер, викликає специфічну функцібю певного меню
+
 	items[0].up = 0;
 	items[0].down = &items[1];
+	items[0].child = &items_menu_1[0];
 	items[0].id = 1;
-	items[0].name = "LoRa E220 RX";						// Name of item
+	items[0].name = "LoRa E220 RX";
 	items[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[0].makeAction = p_action;          // <-----------------------------  В функцію передати показник на потрібну структуру меню !!!!!
+	items[0].makeAction = 0;
 
 	items[1].up = &items[0];
 	items[1].down = &items[2];
+	items[1].child = &items_menu_2[0];
 	items[1].id = 2;
 	items[1].name = "LoRa E220 TX";
 	items[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[1].makeAction = p_action;
+	items[1].makeAction = 0;
 
 	items[2].up = &items[1];
 	items[2].down = &items[3];
+	items[2].child = 0;
 	items[2].id = 3;
 	items[2].name = "NRF24L01 RX";
 	items[2].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[2].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[2].makeAction = p_action;
+	items[2].makeAction = 0;
 
 	items[3].up = &items[2];
 	items[3].down = &items[4];
+	items[3].child = 0;
 	items[3].id = 4;
 	items[3].name = "NRF24L01 RX";
 	items[3].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[3].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[3].makeAction = p_action;
+	items[3].makeAction = 0;
 
 	items[4].up = &items[3];
 	items[4].down = &items[5];
+	items[4].child = 0;
 	items[4].id = 5;
 	items[4].name = "Item_5________";
 	items[4].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[4].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[4].makeAction = p_action;
+	items[4].makeAction = 0;
 
 	items[5].up = &items[4];
 	items[5].down = &items[6];
+	items[5].child = 0;
 	items[5].id = 6;
 	items[5].name = "Item_6________";
 	items[5].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[5].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[5].makeAction  = p_action;
+	items[5].makeAction  = 0;
 
 	items[6].up = &items[5];
 	items[6].down = 0;
+	items[5].child = 0;
 	items[6].id = 7;
 	items[6].name = "Item_7________";
 	items[6].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[6].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[6].makeAction  = p_action;
+	items[6].makeAction  = 0;
 
 	///////////////////////////////////////////////////////////////////
 	// Creating second menu
 	items_menu_1[0].up = 0;
 	items_menu_1[0].down = &items_menu_1[1];
 	items_menu_1[0].id = 1;
-	items_menu_1[0].name = "menu_1_1";						// Name of item
+	items_menu_1[0].child = 0;
+	items_menu_1[0].name = "menu_1_1";
 	items_menu_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
 	items_menu_1[0].makeAction = p_action;
 
 	items_menu_1[1].up = &items_menu_1[0];
 	items_menu_1[1].down = &items_menu_1[2];
+	items_menu_1[1].child = 0;
 	items_menu_1[1].id = 2;
 	items_menu_1[1].name = "menu_1_2";						// Name of item
 	items_menu_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -335,6 +367,7 @@ void Menu_Init (void)
 
 	items_menu_1[2].up = &items_menu_1[1];
 	items_menu_1[2].down = &items_menu_1[3];
+	items_menu_1[2].child = 0;
 	items_menu_1[2].id = 3;
 	items_menu_1[2].name = "menu_1_3";						// Name of item
 	items_menu_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -343,6 +376,7 @@ void Menu_Init (void)
 
 	items_menu_1[3].up = &items_menu_1[2];
 	items_menu_1[3].down = &items_menu_1[4];
+	items_menu_1[3].child = 0;
 	items_menu_1[3].id = 4;
 	items_menu_1[3].name = "menu_1_4";						// Name of item
 	items_menu_1[3].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -351,6 +385,7 @@ void Menu_Init (void)
 
 	items_menu_1[4].up = &items_menu_1[3];
 	items_menu_1[4].down = 0;
+	items_menu_1[4].child = 0;
 	items_menu_1[4].id = 5;
 	items_menu_1[4].name = "EXIT";						// Name of item
 	items_menu_1[4].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -361,6 +396,7 @@ void Menu_Init (void)
 	// Creating second menu
 	items_menu_2[0].up = 0;
 	items_menu_2[0].down = &items_menu_2[1];
+	items_menu_2[0].child = 0;
 	items_menu_2[0].id = 1;
 	items_menu_2[0].name = "menu_2_1";						// Name of item
 	items_menu_2[0].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -369,6 +405,7 @@ void Menu_Init (void)
 
 	items_menu_2[1].up = &items_menu_2[0];
 	items_menu_2[1].down = &items_menu_2[2];
+	items_menu_1[1].child = 0;
 	items_menu_2[1].id = 2;
 	items_menu_2[1].name = "menu_2_2";						// Name of item
 	items_menu_2[1].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -377,11 +414,12 @@ void Menu_Init (void)
 
 	items_menu_2[2].up = &items_menu_2[1];
 	items_menu_2[2].down = 0;
+	items_menu_1[2].child = 0;
 	items_menu_2[2].id = 3;
-	items_menu_2[2].name = "menu_2_3";						// Name of item
+	items_menu_2[2].name = "EXIT";						// Name of item
 	items_menu_2[2].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_2[2].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[2].makeAction = p_action;
+	items_menu_2[2].makeAction = p_return_from_menu;
 
 
 }
@@ -412,10 +450,18 @@ void down(void)
 // ----------------------------------------------------------------------------------------
 void enter(void)
 {
+	bool status = true;
+	// Якщо є функція "makeAction" тоді виконати її
 	if (currentItem->makeAction)
 	{
-		//currentItem = currentItem->makeAction();
 		currentItem->makeAction();
+		status = false;
+	}
+	// Якщо є перехід на  "child" і "makeAction" не була виконана, тоді виконати перехід
+	if((currentItem->child) && (status == true))
+	{
+		currentItem = currentItem->child;
+		action();
 	}
 }
 // ----------------------------------------------------------------------------------------
