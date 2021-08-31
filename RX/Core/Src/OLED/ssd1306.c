@@ -7,7 +7,9 @@
 
 
 #include <OLED/ssd1306.h>
-
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Screenbuffer
 static uint8_t SSD1306_Buffer[SSD1306_WIDTH * SSD1306_HEIGHT / 8];
@@ -211,3 +213,110 @@ void ssd1306_SetCursor(uint8_t x, uint8_t y)
 	SSD1306.CurrentX = x;
 	SSD1306.CurrentY = y;
 }
+
+void ssd1306_Line(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color) {
+  int32_t deltaX = abs(x2 - x1);
+  int32_t deltaY = abs(y2 - y1);
+  int32_t signX = ((x1 < x2) ? 1 : -1);
+  int32_t signY = ((y1 < y2) ? 1 : -1);
+  int32_t error = deltaX - deltaY;
+  int32_t error2;
+
+  ssd1306_DrawPixel(x2, y2, color);
+    while((x1 != x2) || (y1 != y2))
+    {
+    ssd1306_DrawPixel(x1, y1, color);
+    error2 = error * 2;
+    if(error2 > -deltaY)
+    {
+      error -= deltaY;
+      x1 += signX;
+    }
+    else
+    {
+    /*nothing to do*/
+    }
+
+    if(error2 < deltaX)
+    {
+      error += deltaX;
+      y1 += signY;
+    }
+    else
+    {
+    /*nothing to do*/
+    }
+  }
+  return;
+}
+void ssd1306_DrawCircle(uint8_t par_x,uint8_t par_y,uint8_t par_r,SSD1306_COLOR par_color) {
+  int32_t x = -par_r;
+  int32_t y = 0;
+  int32_t err = 2 - 2 * par_r;
+  int32_t e2;
+
+  if (par_x >= SSD1306_WIDTH || par_y >= SSD1306_HEIGHT) {
+    return;
+  }
+
+    do {
+      ssd1306_DrawPixel(par_x - x, par_y + y, par_color);
+      ssd1306_DrawPixel(par_x + x, par_y + y, par_color);
+      ssd1306_DrawPixel(par_x + x, par_y - y, par_color);
+      ssd1306_DrawPixel(par_x - x, par_y - y, par_color);
+        e2 = err;
+        if (e2 <= y) {
+            y++;
+            err = err + (y * 2 + 1);
+            if(-x == y && e2 <= x) {
+              e2 = 0;
+            }
+            else
+            {
+              /*nothing to do*/
+            }
+        }
+        else
+        {
+          /*nothing to do*/
+        }
+        if(e2 > x) {
+          x++;
+          err = err + (x * 2 + 1);
+        }
+        else
+        {
+          /*nothing to do*/
+        }
+    } while(x <= 0);
+
+    return;
+}
+
+//Draw rectangle
+void ssd1306_DrawRectangle(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, SSD1306_COLOR color) {
+  ssd1306_Line(x1,y1,x2,y1,color);
+  ssd1306_Line(x2,y1,x2,y2,color);
+  ssd1306_Line(x2,y2,x1,y2,color);
+  ssd1306_Line(x1,y2,x1,y1,color);
+
+  return;
+}
+void ssd1306FillRect(uint8_t x, uint8_t y, uint8_t w, uint8_t h, uint16_t color) {
+    uint8_t x0, x1, y1;
+
+    x0 = x;
+    x1 = x + w;
+    y1 = y + h;
+    for(; y < y1; y++)
+        for(x = x0; x < x1; x++)
+        	ssd1306_DrawPixel(x, y, color);
+            //ssd1306DrawPixel( x, y, color, layer);
+}
+
+//void ssd1306_SetContrast(const uint8_t value) {
+//    const uint8_t kSetContrastControlRegister = 0x81;
+//    ssd1306_WriteCommand(kSetContrastControlRegister);
+//    ssd1306_WriteCommand(value);
+//}
+

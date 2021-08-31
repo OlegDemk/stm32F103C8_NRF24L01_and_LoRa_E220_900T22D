@@ -24,20 +24,19 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <state_machine/state_machine.h>
-extern bool button_was_pressed;
+#include <lists/oled_simulation_menu.h>
+
+#define detected 0
+
 extern uint8_t utton_enter_pressed_flag;
+extern uint8_t button_status;						// Current button status
+bool block_interrupt_form_up_and_down_buttons;		// Flag for lock interrupt from 'up' and 'down' buttons in some cases
 
-extern int pressed_batton_counter;
-
-
-int delay_time = 0;										//	Counter
+int delay_time = 0;									//	Counter
 uint8_t doesent_detected = 1;
 uint8_t dalay_duration = 5;
 
 int button_processed_status = 1;					// For interrupt work only one time
-#define detected 0
-
-extern uint8_t button;
 
 /* USER CODE END Includes */
 
@@ -237,14 +236,18 @@ void EXTI9_5_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI9_5_IRQn 0 */
 	// Detect "DOWN" button
-	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_8))						// If interrupt from GPIOA PIN_8
+	if(block_interrupt_form_up_and_down_buttons == false)				// Block wen function running
 	{
-		if(button_processed_status == doesent_detected)
-		{
-			HAL_TIM_Base_Start_IT(&htim1);							// Turn on Timer 1
-			button_processed_status = detected;						// For interrupt work only one time
-		}
+		if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_8))						// If interrupt from GPIOA PIN_8
+			{
+				if(button_processed_status == doesent_detected)
+				{
+					HAL_TIM_Base_Start_IT(&htim1);							// Turn on Timer 1
+					button_processed_status = detected;						// For interrupt work only one time
+				}
+			}
 	}
+
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_8);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
@@ -279,7 +282,7 @@ void TIM1_UP_IRQHandler(void)
 				button_processed_status = 1;						// Flag for interrupts
 				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 
-				button = BOTTON_UP;
+				button_status = BOTTON_UP;
 				delay_time = 0;
 			}
 		}
@@ -297,7 +300,7 @@ void TIM1_UP_IRQHandler(void)
 				button_processed_status = 1;						// Flag for interrupts
 				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 
-				button = BUTTON_DOWN;
+				button_status = BUTTON_DOWN;
 				delay_time = 0;
 			}
 		}
@@ -313,7 +316,7 @@ void TIM1_UP_IRQHandler(void)
 			if(delay_time >= dalay_duration)						// if button pressed more than dalay_duration time it mean button was pressed
 			{
 				button_processed_status = 1;
-				button = BUTTON_ENTER;
+				button_status = BUTTON_ENTER;
 				delay_time = 0;
 				HAL_TIM_Base_Stop_IT(&htim1);						// Stop timer, because timer has done work above, and timer don't need
 			}
@@ -352,13 +355,16 @@ void USART1_IRQHandler(void)
 void EXTI15_10_IRQHandler(void)
 {
   /* USER CODE BEGIN EXTI15_10_IRQn 0 */
-	// Detect "UP" button
-	if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_14))	// If interrupt from GPIOB PIN_14
+	if(block_interrupt_form_up_and_down_buttons == false)				// Block wen function running
 	{
-		if(button_processed_status == doesent_detected)
+		// Detect "UP" button
+		if(__HAL_GPIO_EXTI_GET_FLAG(GPIO_PIN_14))	// If interrupt from GPIOB PIN_14
 		{
-			HAL_TIM_Base_Start_IT(&htim1);		// Turn on Timer 1
-			button_processed_status = detected;						// For interrupt work only one time
+			if(button_processed_status == doesent_detected)
+			{
+				HAL_TIM_Base_Start_IT(&htim1);		// Turn on Timer 1
+				button_processed_status = detected;						// For interrupt work only one time
+			}
 		}
 	}
 
@@ -371,6 +377,7 @@ void EXTI15_10_IRQHandler(void)
 			button_processed_status = detected;						// For interrupt work only one time
 		}
 	}
+
 
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_14);

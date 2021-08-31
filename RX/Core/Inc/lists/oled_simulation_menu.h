@@ -8,6 +8,12 @@
 #ifndef INC_LISTS_OLED_SIMULATION_MENU_H_
 #define INC_LISTS_OLED_SIMULATION_MENU_H_
 
-void simulation_navigation_on_menu(void);
+// Define button status
+#define BOTTON_DOESENT_PRESS 0
+#define BOTTON_UP 1
+#define BUTTON_ENTER 2
+#define BUTTON_DOWN 3
+
+void menu(void);
 
 #endif /* INC_LISTS_OLED_SIMULATION_MENU_H_ */
