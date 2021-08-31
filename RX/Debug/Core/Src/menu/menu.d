@@ -1,6 +1,5 @@
-Core/Src/lists/oled_simulation_menu.o: \
- ../Core/Src/lists/oled_simulation_menu.c ../Core/Inc/main.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
+Core/Src/menu/menu.o: ../Core/Src/menu/menu.c ../Core/Inc/menu/menu.h \
+ ../Core/Inc/main.h ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h \
@@ -28,8 +27,9 @@ Core/Src/lists/oled_simulation_menu.o: \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  ../Core/Inc/OLED/fonts.h ../Core/Inc/OLED/oled_ssd1306.h \
- ../Core/Inc/OLED/ssd1306.h ../Core/Inc/OLED/oled_main.h \
- ../Core/Inc/lists/oled_simulation_menu.h
+ ../Core/Inc/OLED/ssd1306.h ../Core/Inc/OLED/oled_main.h
+
+../Core/Inc/menu/menu.h:
 
 ../Core/Inc/main.h:
 
@@ -94,5 +94,3 @@ Core/Src/lists/oled_simulation_menu.o: \
 ../Core/Inc/OLED/ssd1306.h:
 
 ../Core/Inc/OLED/oled_main.h:
-
-../Core/Inc/lists/oled_simulation_menu.h:

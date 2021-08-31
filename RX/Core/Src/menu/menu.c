@@ -4,6 +4,7 @@
  *  Created on: Aug 23, 2021
  *      Author: odemki
  */
+#include <menu/menu.h>
 #include "main.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +14,6 @@
 #include <OLED/ssd1306.h>
 #include <OLED/oled_main.h>
 
-#include <lists/oled_simulation_menu.h>
 
 /*							READ ME
  	  	  Дане меню використовує OLED екран з драйвером ssd1306.  0.96 дюйма 128x64 I2C

@@ -5,8 +5,8 @@
  *      Author: odemki
  */
 
-#ifndef INC_LISTS_OLED_SIMULATION_MENU_H_
-#define INC_LISTS_OLED_SIMULATION_MENU_H_
+#ifndef INC_MENU_MENU_H_
+#define INC_MENU_MENU_H_
 
 // Define button status
 #define BOTTON_DOESENT_PRESS 0
@@ -16,4 +16,4 @@
 
 void menu(void);
 
-#endif /* INC_LISTS_OLED_SIMULATION_MENU_H_ */
+#endif /* INC_MENU_MENU_H_ */

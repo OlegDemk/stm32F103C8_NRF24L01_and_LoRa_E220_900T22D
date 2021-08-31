@@ -19,12 +19,12 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include <menu/menu.h>
 #include "main.h"
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <state_machine/state_machine.h>
-#include <lists/oled_simulation_menu.h>
 
 #define detected 0
 

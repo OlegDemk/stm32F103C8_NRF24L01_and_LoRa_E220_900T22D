@@ -33,10 +33,9 @@
 
 #include <keyboard/keyboard.h>
 #include <lists/simply_linked_list.h>
-
+#include <menu/menu.h>
 #include <state_machine/state_machine.h>
 
-#include <lists/oled_simulation_menu.h>
 
 /* USER CODE END Includes */
 
@@ -63,7 +62,7 @@ char test_main[20] = {0};
 #define on 1
 
 #define nrf_on_off off
-#define lora_on_off off
+#define lora_on_off on
 
 void state_machine(void);
 /* USER CODE END PD */
@@ -235,19 +234,8 @@ int main(void)
 	  }
 	#endif
 
-     ///////////////////////////////////////////////////
-//	 // Test phase state mashine
-//	bool  state_machine_status = 1;
-//    if (state_machine_status == 1)
-//	{
-//		state_machine();
-//	}
-    //////////////////////////////////////////////
 
-	  //lists();
 	 menu();
-
-	 // Зробити перемикач на LoRa або UART USB
 
     /* USER CODE END WHILE */
 
