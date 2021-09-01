@@ -62,7 +62,7 @@ char test_main[20] = {0};
 #define on 1
 
 #define nrf_on_off off
-#define lora_on_off on
+#define lora_on_off off
 
 void state_machine(void);
 /* USER CODE END PD */

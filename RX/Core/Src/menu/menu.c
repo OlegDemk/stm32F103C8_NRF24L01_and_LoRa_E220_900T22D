@@ -97,18 +97,18 @@ typedef struct Struct{
 }MenuItem_t;
 
 // How many menu items in menu
-#define MENU_ITEM_NUM 7
-#define MENU_1_ITEM_NUM 5
+#define MENU_ITEM_NUM 3
+#define MENU_1_ITEM_NUM 3
 #define MENU_2_ITEM_NUM 3
 #define MENU_3_ITEM_NUM 2
-#define MENU_4_ITEM_NUM 10
+//#define MENU_4_ITEM_NUM 10
 
 // Create menu item array structure for all menus
 MenuItem_t items[MENU_ITEM_NUM];
 MenuItem_t items_menu_1[MENU_1_ITEM_NUM];
 MenuItem_t items_menu_2[MENU_2_ITEM_NUM];
 MenuItem_t items_menu_3[MENU_3_ITEM_NUM];
-MenuItem_t items_menu_4[MENU_4_ITEM_NUM];
+//MenuItem_t items_menu_4[MENU_4_ITEM_NUM];
 
 MenuItem_t * currentItem = &items[0];			// Create and set pointer on first element of list
 
@@ -194,7 +194,7 @@ void print_rectangle_on_head(void)
 void clear_menu_items (bool first, bool second, bool third, bool fourth)
 {
 	uint8_t start_row_x = 15;
-	char str[16] = "              ";   // Must be 15
+	char str[16] = "               ";   // Must be 15
 
 	if(first == true)
 	{
@@ -331,6 +331,10 @@ void print_menu_init(void)
 		ssd1306_UpdateScreen();
 
 		currentItem_buff = currentItem_buff -> down;
+		if(currentItem_buff == 0)
+		{
+			break;
+		}
 	}
 	scroll_bar();
 }
@@ -401,38 +405,38 @@ void return_from_menu(void)
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
-void do_it_function_menu_1(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Doing something 1", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-		HAL_Delay(200);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-		HAL_Delay(200);
-
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_1[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
+//void do_it_function_menu_1(void)
+//{
+//	clearn_oled();
+//
+//	// Print selected name of menu
+//	char str[16] = {0};
+//	strncpy(str, currentItem -> name, 15);
+//	ssd1306_SetCursor(10, 3);
+//	ssd1306_WriteString(str,  Font_7x10, White);
+//	ssd1306_UpdateScreen();
+//	memset(str, 0, sizeof(str));
+//
+//	strncpy(str, "Doing something 1", sizeof(str));
+//	ssd1306_SetCursor(0, first_menu_row);
+//	ssd1306_WriteString(str,  Font_7x10, White);
+//	ssd1306_UpdateScreen();
+//
+//	button_status = BOTTON_DOESENT_PRESS;
+//	block_interrupt_form_up_and_down_buttons = true;
+//	do{
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+//		HAL_Delay(200);
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+//		HAL_Delay(200);
+//
+//	}while (button_status != BUTTON_ENTER);
+//	block_interrupt_form_up_and_down_buttons = false;
+//
+//	// Return to first item of current menu
+//	currentItem = &items_menu_1[0];										// Set global pointer on first menu
+//	action();															// Print items on OLED
+//}
 // ----------------------------------------------------------------------------------------
 void items_menu_1_set_par_1(void)
 {
@@ -493,68 +497,40 @@ void items_menu_1_set_par_2(void)
 	action();															// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
-void items_menu_1_set_par_3(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 3", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_1[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
-void do_it_function_menu_2(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Doing something 2", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-		HAL_Delay(50);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-		HAL_Delay(50);
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_2[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
+//void do_it_function_menu_2(void)
+//{
+//	clearn_oled();
+//
+//	// Print selected name of menu
+//	char str[16] = {0};
+//	strncpy(str, currentItem -> name, 15);
+//	ssd1306_SetCursor(10, 3);
+//	ssd1306_WriteString(str,  Font_7x10, White);
+//	ssd1306_UpdateScreen();
+//	memset(str, 0, sizeof(str));
+//
+//	strncpy(str, "Doing something 2", sizeof(str));
+//	ssd1306_SetCursor(0, first_menu_row);
+//	ssd1306_WriteString(str,  Font_7x10, White);
+//	ssd1306_UpdateScreen();
+//
+//	button_status = BOTTON_DOESENT_PRESS;
+//	block_interrupt_form_up_and_down_buttons = true;
+//	do{
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+//		HAL_Delay(50);
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+//		HAL_Delay(50);
+//	}while (button_status != BUTTON_ENTER);
+//	block_interrupt_form_up_and_down_buttons = false;
+//
+//	// Return to first item of current menu
+//	currentItem = &items_menu_2[0];										// Set global pointer on first menu
+//	action();															// Print items on OLED
+//}
 // ----------------------------------------------------------------------------------------
 void items_menu_2_set_par_1(void)
 {
@@ -588,7 +564,7 @@ void items_menu_2_set_par_1(void)
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
-void do_it_function_menu_3(void)
+void do_it_function_menu_3(void)        // Print T and H
 {
 	clearn_oled();
 
@@ -624,271 +600,6 @@ void do_it_function_menu_3(void)
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 // ----------------------------------------------------------------------------------------
-void do_it_function_menu_4(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Doing something 4", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-		HAL_Delay(20);
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-		HAL_Delay(500);
-
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_4_set_par_1(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 1", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_4_set_par_2(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 2", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_4_set_par_3(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 3", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_4_set_par_4(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 4", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_4_set_par_5(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 5", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_4_set_par_6(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 6", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_4_set_par_7(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 7", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_4_set_par_8(void)
-{
-	clearn_oled();
-
-	// Print selected name of menu
-	char str[16] = {0};
-	strncpy(str, currentItem -> name, 15);
-	ssd1306_SetCursor(10, 3);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-	memset(str, 0, sizeof(str));
-
-	strncpy(str, "Set parametr 8", sizeof(str));
-	ssd1306_SetCursor(0, first_menu_row);
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
-	block_interrupt_form_up_and_down_buttons = true;
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
-	block_interrupt_form_up_and_down_buttons = false;
-
-	// Return to first item of current menu
-	currentItem = &items_menu_4[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------
 void Menu_Init (void)
 {
@@ -907,8 +618,8 @@ void Menu_Init (void)
 	p_action = action;												// Save function action on pointer action_p
 
 	// items_menu_1 menu functions
-	void (*p_do_it_function_menu_1) (void);						// Function "Do it". Works when select it
-	p_do_it_function_menu_1 = do_it_function_menu_1;
+//	void (*p_do_it_function_menu_1) (void);						// Function "Do it". Works when select it
+//	p_do_it_function_menu_1 = do_it_function_menu_1;
 
 	void (*p_items_menu_1_set_par_1) (void);
 	p_items_menu_1_set_par_1 = items_menu_1_set_par_1;
@@ -916,12 +627,10 @@ void Menu_Init (void)
 	void (*p_items_menu_1_set_par_2) (void);
 	p_items_menu_1_set_par_2 = items_menu_1_set_par_2;
 
-	void (*p_items_menu_1_set_par_3) (void);
-	p_items_menu_1_set_par_3 = items_menu_1_set_par_3;
 
 	// items_menu_2 menu functions
-	void (*p_do_it_function_menu_2) (void);						// Function "Do it". Works when select it
-	p_do_it_function_menu_2 = do_it_function_menu_2;
+//	void (*p_do_it_function_menu_2) (void);						// Function "Do it". Works when select it
+//	p_do_it_function_menu_2 = do_it_function_menu_2;
 
 	void (*p_items_menu_2_set_par_1) (void);
 	p_items_menu_2_set_par_1 = items_menu_2_set_par_1;
@@ -930,33 +639,6 @@ void Menu_Init (void)
 	void (*p_do_it_function_menu_3) (void);						// Function "Do it". Works when select it
 	p_do_it_function_menu_3 = do_it_function_menu_3;
 
-	// items_menu_4 menu functions
-	void (*p_items_menu_4_set_par_1) (void);
-	p_items_menu_4_set_par_1 = items_menu_4_set_par_1;
-
-	void (*p_items_menu_4_set_par_2) (void);
-	p_items_menu_4_set_par_2 = items_menu_4_set_par_2;
-
-	void (*p_items_menu_4_set_par_3) (void);
-	p_items_menu_4_set_par_3 = items_menu_4_set_par_3;
-
-	void (*p_items_menu_4_set_par_4) (void);
-	p_items_menu_4_set_par_4 = items_menu_4_set_par_4;
-
-	void (*p_items_menu_4_set_par_5) (void);
-	p_items_menu_4_set_par_5 = items_menu_4_set_par_5;
-
-	void (*p_items_menu_4_set_par_6) (void);
-	p_items_menu_4_set_par_6 = items_menu_4_set_par_6;
-
-	void (*p_items_menu_4_set_par_7) (void);
-	p_items_menu_4_set_par_7 = items_menu_4_set_par_7;
-
-	void (*p_items_menu_4_set_par_8) (void);
-	p_items_menu_4_set_par_8 = items_menu_4_set_par_8;
-
-	void (*p_do_it_function_menu_4) (void);						// Function "Do it". Works when select it
-	p_do_it_function_menu_4 = do_it_function_menu_4;
 
 	// Fill in elements(nodes) of list (7 items)
 	// Main menu items
@@ -967,7 +649,7 @@ void Menu_Init (void)
 	items[0].child = &items_menu_1[0];
 	items[0].parent = 0;
 	items[0].id = 1;
-	items[0].name = "Menu_1";
+	items[0].name = "LoRa E220";
 	items[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[0].updateScreen_down = p_print_rows_on_oled_if_down;
 	items[0].makeAction = 0;
@@ -977,112 +659,52 @@ void Menu_Init (void)
 	items[1].child = &items_menu_2[0];
 	items[1].parent = 0;
 	items[1].id = 2;
-	items[1].name = "Menu_2";
+	items[1].name = "NRF24L01";
 	items[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[1].updateScreen_down = p_print_rows_on_oled_if_down;
 	items[1].makeAction = 0;
 
 	items[2].up = &items[1];
-	items[2].down = &items[3];
+	items[2].down = 0;
 	items[2].child = &items_menu_3[0];
 	items[2].parent = 0;
 	items[2].id = 3;
-	items[2].name = "Menu_3";
+	items[2].name = "AM2302 sensor";
 	items[2].updateScreen_up = p_print_rows_on_oled_if_up;
 	items[2].updateScreen_down = p_print_rows_on_oled_if_down;
 	items[2].makeAction = 0;
 
-	items[3].up = &items[2];
-	items[3].down = &items[4];
-	items[3].child = &items_menu_4[0];
-	items[3].parent = 0;
-	items[3].id = 4;
-	items[3].name = "Menu_4";
-	items[3].updateScreen_up = p_print_rows_on_oled_if_up;
-	items[3].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[3].makeAction = 0;
-
-	items[4].up = &items[3];
-	items[4].down = &items[5];
-	items[4].child = 0;
-	items[4].parent = 0;
-	items[4].id = 5;
-	items[4].name = "Menu_5";
-	items[4].updateScreen_up = p_print_rows_on_oled_if_up;
-	items[4].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[4].makeAction = 0;
-
-	items[5].up = &items[4];
-	items[5].down = &items[6];
-	items[5].child = 0;
-	items[5].parent = 0;
-	items[5].id = 6;
-	items[5].name = "Menu_6";
-	items[5].updateScreen_up = p_print_rows_on_oled_if_up;
-	items[5].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[5].makeAction  = 0;
-
-	items[6].up = &items[5];
-	items[6].down = 0;
-	items[6].child = 0;
-	items[6].parent = 0;
-	items[6].id = 7;
-	items[6].name = "Menu_7";
-	items[6].updateScreen_up = p_print_rows_on_oled_if_up;
-	items[6].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[6].makeAction  = 0;
-
 	///////////////////////////////////////////////////////////////////
-	// Creating next menu
+	// Creating LoRa menu
 	items_menu_1[0].up = 0;
 	items_menu_1[0].down = &items_menu_1[1];
 	items_menu_1[0].id = 1;
 	items_menu_1[0].child = 0;
 	items_menu_1[0].parent = &items[0];
-	items_menu_1[0].name = "set par 1";
+	items_menu_1[0].name = "LoRa RX";
 	items_menu_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[0].makeAction = p_items_menu_1_set_par_1;
+	items_menu_1[0].makeAction = 0;
 
 	items_menu_1[1].up = &items_menu_1[0];
 	items_menu_1[1].down = &items_menu_1[2];
 	items_menu_1[1].child = 0;
 	items_menu_1[1].parent = &items[0];
 	items_menu_1[1].id = 2;
-	items_menu_1[1].name = "set par 2";
+	items_menu_1[1].name = "LoRa TX";
 	items_menu_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[1].makeAction = p_items_menu_1_set_par_2;
+	items_menu_1[1].makeAction = 0;
 
 	items_menu_1[2].up = &items_menu_1[1];
-	items_menu_1[2].down = &items_menu_1[3];
+	items_menu_1[2].down = 0;
 	items_menu_1[2].child = 0;
 	items_menu_1[2].parent = &items[0];
 	items_menu_1[2].id = 3;
-	items_menu_1[2].name = "set par 3";
+	items_menu_1[2].name = "EXIT";						// Name of item
 	items_menu_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[2].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[2].makeAction = p_items_menu_1_set_par_3;
-
-	items_menu_1[3].up = &items_menu_1[2];
-	items_menu_1[3].down = &items_menu_1[4];
-	items_menu_1[3].child = 0;
-	items_menu_1[3].parent = &items[0];
-	items_menu_1[3].id = 4;
-	items_menu_1[3].name = "DO IT";						// Name of item
-	items_menu_1[3].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_1[3].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[3].makeAction = p_do_it_function_menu_1;
-
-	items_menu_1[4].up = &items_menu_1[3];
-	items_menu_1[4].down = 0;
-	items_menu_1[4].child = 0;
-	items_menu_1[4].parent = &items[0];
-	items_menu_1[4].id = 5;
-	items_menu_1[4].name = "EXIT";						// Name of item
-	items_menu_1[4].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_1[4].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[4].makeAction = p_return_from_menu;
+	items_menu_1[2].makeAction = p_return_from_menu;
 
 	///////////////////////////////////////////////////////////////////
 	// Creating next menu
@@ -1091,20 +713,20 @@ void Menu_Init (void)
 	items_menu_2[0].child = 0;
 	items_menu_2[0].parent = &items[1];
 	items_menu_2[0].id = 1;
-	items_menu_2[0].name = "set par 1";						// Name of item
+	items_menu_2[0].name = "NRF RX";						// Name of item
 	items_menu_2[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_2[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[0].makeAction = p_items_menu_2_set_par_1;
+	items_menu_2[0].makeAction = 0;
 
 	items_menu_2[1].up = &items_menu_2[0];
 	items_menu_2[1].down = &items_menu_2[2];
 	items_menu_2[1].child = 0;
 	items_menu_2[1].parent = &items[1];
 	items_menu_2[1].id = 2;
-	items_menu_2[1].name = "DO IT";						// Name of item
+	items_menu_2[1].name = "NRF TX";						// Name of item
 	items_menu_2[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_2[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[1].makeAction = p_do_it_function_menu_2;
+	items_menu_2[1].makeAction = 0;
 
 	items_menu_2[2].up = &items_menu_2[1];
 	items_menu_2[2].down = 0;
@@ -1117,13 +739,13 @@ void Menu_Init (void)
 	items_menu_2[2].makeAction = p_return_from_menu;
 
 	///////////////////////////////////////////////////////////////////
-	// Creating next menu
+	// Creating sensor menu
 	items_menu_3[0].up = 0;
 	items_menu_3[0].down = &items_menu_3[1];
 	items_menu_3[0].child = 0;
 	items_menu_3[0].parent = &items[2];
 	items_menu_3[0].id = 1;
-	items_menu_3[0].name = "DO IT";						// Name of item
+	items_menu_3[0].name = "Measure T & H";						// Name of item
 	items_menu_3[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_3[0].updateScreen_down = p_print_rows_on_oled_if_down;
 	items_menu_3[0].makeAction = p_do_it_function_menu_3;
@@ -1138,107 +760,6 @@ void Menu_Init (void)
 	items_menu_3[1].updateScreen_down = p_print_rows_on_oled_if_down;
 	items_menu_3[1].makeAction = p_return_from_menu;
 
-	///////////////////////////////////////////////////////////////////
-	// Creating next menu
-	items_menu_4[0].up = 0;
-	items_menu_4[0].down = &items_menu_4[1];
-	items_menu_4[0].child = 0;
-	items_menu_4[0].parent = &items[3];
-	items_menu_4[0].id = 1;
-	items_menu_4[0].name = "set par 1";						// Name of item
-	items_menu_4[0].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[0].makeAction = p_items_menu_4_set_par_1;
-
-	items_menu_4[1].up = &items_menu_4[0];
-	items_menu_4[1].down = &items_menu_4[2];
-	items_menu_4[1].child = 0;
-	items_menu_4[1].parent = &items[3];
-	items_menu_4[1].id = 2;
-	items_menu_4[1].name = "set par 2";						// Name of item
-	items_menu_4[1].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[1].makeAction = p_items_menu_4_set_par_2;
-
-	items_menu_4[2].up = &items_menu_4[1];
-	items_menu_4[2].down = &items_menu_4[3];
-	items_menu_4[2].child = 0;
-	items_menu_4[2].parent = &items[3];
-	items_menu_4[2].id = 3;
-	items_menu_4[2].name = "set par 3";						// Name of item
-	items_menu_4[2].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[2].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[2].makeAction = p_items_menu_4_set_par_3;
-
-	items_menu_4[3].up = &items_menu_4[2];
-	items_menu_4[3].down = &items_menu_4[4];
-	items_menu_4[3].child = 0;
-	items_menu_4[3].parent = &items[3];
-	items_menu_4[3].id = 4;
-	items_menu_4[3].name = "set par 4";						// Name of item
-	items_menu_4[3].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[3].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[3].makeAction = p_items_menu_4_set_par_4;
-
-	items_menu_4[4].up = &items_menu_4[3];
-	items_menu_4[4].down = &items_menu_4[5];
-	items_menu_4[4].child = 0;
-	items_menu_4[4].parent = &items[3];
-	items_menu_4[4].id = 5;
-	items_menu_4[4].name = "set par 5";						// Name of item
-	items_menu_4[4].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[4].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[4].makeAction = p_items_menu_4_set_par_5;
-
-	items_menu_4[5].up = &items_menu_4[4];
-	items_menu_4[5].down = &items_menu_4[6];
-	items_menu_4[5].child = 0;
-	items_menu_4[5].parent = &items[3];
-	items_menu_4[5].id = 6;
-	items_menu_4[5].name = "set par 6";						// Name of item
-	items_menu_4[5].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[5].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[5].makeAction = p_items_menu_4_set_par_6;
-
-	items_menu_4[6].up = &items_menu_4[5];
-	items_menu_4[6].down = &items_menu_4[7];
-	items_menu_4[6].child = 0;
-	items_menu_4[6].parent = &items[3];
-	items_menu_4[6].id = 7;
-	items_menu_4[6].name = "set par 7";						// Name of item
-	items_menu_4[6].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[6].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[6].makeAction = p_items_menu_4_set_par_7;
-
-	items_menu_4[7].up = &items_menu_4[6];
-	items_menu_4[7].down = &items_menu_4[8];
-	items_menu_4[7].child = 0;
-	items_menu_4[7].parent = &items[3];
-	items_menu_4[7].id = 8;
-	items_menu_4[7].name = "set par 8";						// Name of item
-	items_menu_4[7].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[7].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[7].makeAction = p_items_menu_4_set_par_8;
-
-	items_menu_4[8].up = &items_menu_4[7];
-	items_menu_4[8].down = &items_menu_4[9];
-	items_menu_4[8].child = 0;
-	items_menu_4[8].parent = &items[3];
-	items_menu_4[8].id = 9;
-	items_menu_4[8].name = "DO IT";						// Name of item
-	items_menu_4[8].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[8].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[8].makeAction = p_do_it_function_menu_4;
-
-	items_menu_4[9].up = &items_menu_4[8];
-	items_menu_4[9].down = 0;
-	items_menu_4[9].child = 0;
-	items_menu_4[9].parent = &items[3];
-	items_menu_4[9].id = 10;
-	items_menu_4[9].name = "EXIT";						// Name of item
-	items_menu_4[9].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_4[9].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_4[9].makeAction = p_return_from_menu;
 }
 // ----------------------------------------------------------------------------------------
 void up(void)
