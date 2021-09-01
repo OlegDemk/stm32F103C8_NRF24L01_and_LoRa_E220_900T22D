@@ -62,7 +62,7 @@ char test_main[20] = {0};
 #define on 1
 
 #define nrf_on_off off
-#define lora_on_off off
+#define lora_on_off on
 
 void state_machine(void);
 /* USER CODE END PD */
@@ -173,27 +173,27 @@ int main(void)
 #endif
 
 #if lora_on_off
-  ssd1306_SetCursor(0, 0);
-  char test_main[50] = {0};
-  strcpy(test_main, "LoRa RX");
-  ssd1306_WriteString(test_main,  Font_7x10, White);
-  ssd1306_UpdateScreen();
- // state_machine
-  HAL_Delay(1000);
-  init_lora();
-  HAL_Delay(1000);
-
-  ssd1306_SetCursor(65, 0);
-  strcpy(test_main, "Ready");
-  ssd1306_WriteString(test_main,  Font_7x10, White);
-  ssd1306_UpdateScreen();
-
-  ssd1306_SetCursor(0, 16);
-  strcpy(test_main, "RX data: ");
-  ssd1306_WriteString(test_main,  Font_7x10, White);
-  ssd1306_UpdateScreen();
-
-  HAL_UART_Receive_IT(&huart1, str, 1);
+//  ssd1306_SetCursor(0, 0);
+//  char test_main[50] = {0};
+//  strcpy(test_main, "LoRa RX");
+//  ssd1306_WriteString(test_main,  Font_7x10, White);
+//  ssd1306_UpdateScreen();
+// // state_machine
+//  HAL_Delay(1000);
+//  init_lora_RX();
+//  HAL_Delay(1000);
+//
+//  ssd1306_SetCursor(65, 0);
+//  strcpy(test_main, "Ready");
+//  ssd1306_WriteString(test_main,  Font_7x10, White);
+//  ssd1306_UpdateScreen();
+//
+//  ssd1306_SetCursor(0, 16);
+//  strcpy(test_main, "RX data: ");
+//  ssd1306_WriteString(test_main,  Font_7x10, White);
+//  ssd1306_UpdateScreen();
+//
+//  HAL_UART_Receive_IT(&huart1, str, 1);
 #endif
 
 
@@ -207,35 +207,107 @@ int main(void)
 	#endif
 
 	#if lora_on_off
-	  char test_main[30] = {0};
 
-	  if(flag_command_received == true)			// If data is ready
-	  {
-		// Data received
+	uint8_t rx_or_rx = 1;
 
-		//   Print on OLED
-		char clearn_array[10] = "         ";
-		ssd1306_SetCursor(60, 16);
-
-		ssd1306_WriteString(clearn_array,  Font_7x10, White);
+	if(rx_or_rx == 1)				// RX mode
+	{
+		ssd1306_SetCursor(0, 0);
+		char test_main[50] = {0};
+		strcpy(test_main, "LoRa RX");
+		ssd1306_WriteString(test_main,  Font_7x10, White);
 		ssd1306_UpdateScreen();
+		// state_machine
+		HAL_Delay(1000);
+		init_lora_RX();
+		HAL_Delay(1000);
 
-		ssd1306_SetCursor(60, 16);
-		strcpy(test_main, uart_rx_data);
-
+		ssd1306_SetCursor(65, 0);
+		strcpy(test_main, "Ready");
 		ssd1306_WriteString(test_main,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		HAL_Delay(100);
-		memset(uart_rx_data, 0, sizeof(uart_rx_data));
-		flag_command_received = false;
+		ssd1306_SetCursor(0, 16);
+		strcpy(test_main, "RX data: ");
+		ssd1306_WriteString(test_main,  Font_7x10, White);
+		ssd1306_UpdateScreen();
 
-		HAL_UART_Receive_IT(&huart1, str, 1);		// Start interrupt again
-	  }
+		HAL_UART_Receive_IT(&huart1, str, 1);
+		memset(test_main, 0, sizeof(test_main));
+
+		while(1)
+		{
+			if(flag_command_received == true)			// If data is ready
+			{
+				// Data received
+
+				//   Print on OLED
+				char clearn_array[10] = "         ";
+				ssd1306_SetCursor(60, 16);
+
+				ssd1306_WriteString(clearn_array,  Font_7x10, White);
+				ssd1306_UpdateScreen();
+
+				ssd1306_SetCursor(60, 16);
+				strcpy(test_main, uart_rx_data);
+
+				ssd1306_WriteString(test_main,  Font_7x10, White);
+				ssd1306_UpdateScreen();
+
+				HAL_Delay(100);
+				memset(uart_rx_data, 0, sizeof(uart_rx_data));
+				flag_command_received = false;
+
+				HAL_UART_Receive_IT(&huart1, str, 1);		// Start interrupt again
+			}
+		}
+
+		 }
+		 if(rx_or_rx == 0)		// TX mode
+		 {
+			 ssd1306_SetCursor(0, 0);
+			 char test_main[50] = {0};
+			 strcpy(test_main, "LoRa TX:");
+			 ssd1306_WriteString(test_main,  Font_7x10, White);
+			 ssd1306_UpdateScreen();
+
+			 HAL_Delay(1000);
+			 init_lora_TX();
+
+			 ssd1306_SetCursor(65, 0);
+			 strcpy(test_main, "Ready");
+			 ssd1306_WriteString(test_main,  Font_7x10, White);
+			 ssd1306_UpdateScreen();
+
+			 ssd1306_SetCursor(0, 16);
+			 strcpy(test_main, "TX data: ");
+			 ssd1306_WriteString(test_main,  Font_7x10, White);
+			 ssd1306_UpdateScreen();
+
+			 HAL_UART_Receive_IT(&huart1, str, 1);
+
+			 while(1)
+			 {
+				 int count = lora_transmit_data();
+				 // Print transmeeting data
+				 memset(test_main, 0, sizeof(test_main));
+				 ssd1306_SetCursor(60, 16);
+				 sprintf(test_main, "%d", count);
+				 ssd1306_WriteString(test_main,  Font_7x10, White);
+				 ssd1306_UpdateScreen();
+
+				 HAL_Delay(2000);			// Must be more than 1.5 sec
+
+			 }
+
+		 }
+
+
+
 	#endif
 
 
-	 menu();
+	// menu();
 
     /* USER CODE END WHILE */
 

@@ -1,4 +1,8 @@
-e220_900t22d.c:30:6:init_lora	8	static
-e220_900t22d.c:62:6:read_settings_from_module	8	static
-e220_900t22d.c:88:6:set_config_deep_sleep_mode	8	static
-e220_900t22d.c:96:6:set_WOR_RX_mode	8	static
+e220_900t22d.c:27:5:lora_transmit_data	8	static
+e220_900t22d.c:47:6:read_all_settings_from_module	8	static
+e220_900t22d.c:68:6:init_lora_TX	8	static
+e220_900t22d.c:107:6:init_lora_RX	8	static
+e220_900t22d.c:139:6:read_settings_from_module	8	static
+e220_900t22d.c:165:6:set_config_deep_sleep_mode	8	static
+e220_900t22d.c:173:6:set_WOR_RX_mode	8	static
+e220_900t22d.c:180:6:set_WOR_TX_mode	8	static
