@@ -27,7 +27,8 @@ Core/Src/menu/menu.o: ../Core/Src/menu/menu.c ../Core/Inc/menu/menu.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  ../Core/Inc/OLED/fonts.h ../Core/Inc/OLED/oled_ssd1306.h \
- ../Core/Inc/OLED/ssd1306.h ../Core/Inc/OLED/oled_main.h
+ ../Core/Inc/OLED/ssd1306.h ../Core/Inc/OLED/oled_main.h \
+ ../Core/Inc/LoRa_E220_900T22D/e220_900t22d.h
 
 ../Core/Inc/menu/menu.h:
 
@@ -94,3 +95,5 @@ Core/Src/menu/menu.o: ../Core/Src/menu/menu.c ../Core/Inc/menu/menu.h \
 ../Core/Inc/OLED/ssd1306.h:
 
 ../Core/Inc/OLED/oled_main.h:
+
+../Core/Inc/LoRa_E220_900T22D/e220_900t22d.h:

@@ -14,6 +14,8 @@
 #include <OLED/ssd1306.h>
 #include <OLED/oled_main.h>
 
+#include <LoRa_E220_900T22D/e220_900t22d.h>
+
 
 /*							READ ME
  	  	  Дане меню використовує OLED екран з драйвером ssd1306.  0.96 дюйма 128x64 I2C
@@ -405,38 +407,79 @@ void return_from_menu(void)
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
-//void do_it_function_menu_1(void)
-//{
-//	clearn_oled();
-//
-//	// Print selected name of menu
-//	char str[16] = {0};
-//	strncpy(str, currentItem -> name, 15);
-//	ssd1306_SetCursor(10, 3);
-//	ssd1306_WriteString(str,  Font_7x10, White);
-//	ssd1306_UpdateScreen();
-//	memset(str, 0, sizeof(str));
-//
-//	strncpy(str, "Doing something 1", sizeof(str));
+void lora_rx_mode(void)
+{
+	clearn_oled();
+
+	print_rectangle_on_head();
+
+//	1. Додати рамку на верх екрану  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//	2. Додати можливість вийти з режиму
+
+
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+//	strncpy(str, "LoRa RX mode", sizeof(str));
 //	ssd1306_SetCursor(0, first_menu_row);
 //	ssd1306_WriteString(str,  Font_7x10, White);
 //	ssd1306_UpdateScreen();
-//
-//	button_status = BOTTON_DOESENT_PRESS;
-//	block_interrupt_form_up_and_down_buttons = true;
-//	do{
-//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-//		HAL_Delay(200);
-//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-//		HAL_Delay(200);
-//
-//	}while (button_status != BUTTON_ENTER);
-//	block_interrupt_form_up_and_down_buttons = false;
-//
-//	// Return to first item of current menu
-//	currentItem = &items_menu_1[0];										// Set global pointer on first menu
-//	action();															// Print items on OLED
-//}
+
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;
+	do{
+		LoRa_RX(true);
+	}while (button_status != BUTTON_ENTER);
+	LoRa_RX(false);
+
+
+	block_interrupt_form_up_and_down_buttons = false;
+
+	// Return to first item of current menu
+	currentItem = &items_menu_1[0];										// Set global pointer on first menu
+	action();															// Print items on OLED
+}
+// ----------------------------------------------------------------------------------------
+void lora_tx_mode(void)
+{
+	clearn_oled();
+
+//	1. Додати рамку на верх екрану  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//	2. Додати можливість вийти з режиму
+	print_rectangle_on_head();
+
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+//	strncpy(str, "LoRa RX mode", sizeof(str));
+//	ssd1306_SetCursor(0, first_menu_row);
+//	ssd1306_WriteString(str,  Font_7x10, White);
+//	ssd1306_UpdateScreen();
+
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;
+	do{
+		LoRa_TX(true);
+
+	}while (button_status != BUTTON_ENTER);
+	LoRa_TX(false);
+
+	block_interrupt_form_up_and_down_buttons = false;
+
+	// Return to first item of current menu
+	currentItem = &items_menu_1[0];										// Set global pointer on first menu
+	action();															// Print items on OLED
+}
 // ----------------------------------------------------------------------------------------
 void items_menu_1_set_par_1(void)
 {
@@ -617,12 +660,13 @@ void Menu_Init (void)
 	void (*p_action) (void);										// Create pointer on function
 	p_action = action;												// Save function action on pointer action_p
 
-	// items_menu_1 menu functions
-//	void (*p_do_it_function_menu_1) (void);						// Function "Do it". Works when select it
-//	p_do_it_function_menu_1 = do_it_function_menu_1;
+	// LoRa  menu functions
+	void (*p_lora_rx_mode) (void);						// Function "Do it". Works when select it
+	p_lora_rx_mode = lora_rx_mode;
 
-	void (*p_items_menu_1_set_par_1) (void);
-	p_items_menu_1_set_par_1 = items_menu_1_set_par_1;
+	void (*p_lora_tx_mode) (void);						// Function "Do it". Works when select it
+	p_lora_tx_mode = lora_tx_mode;
+
 
 	void (*p_items_menu_1_set_par_2) (void);
 	p_items_menu_1_set_par_2 = items_menu_1_set_par_2;
@@ -684,7 +728,7 @@ void Menu_Init (void)
 	items_menu_1[0].name = "LoRa RX";
 	items_menu_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[0].makeAction = 0;
+	items_menu_1[0].makeAction = lora_rx_mode;
 
 	items_menu_1[1].up = &items_menu_1[0];
 	items_menu_1[1].down = &items_menu_1[2];
@@ -694,7 +738,7 @@ void Menu_Init (void)
 	items_menu_1[1].name = "LoRa TX";
 	items_menu_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[1].makeAction = 0;
+	items_menu_1[1].makeAction = p_lora_tx_mode;
 
 	items_menu_1[2].up = &items_menu_1[1];
 	items_menu_1[2].down = 0;

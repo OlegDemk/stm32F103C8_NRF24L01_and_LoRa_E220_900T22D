@@ -10,8 +10,8 @@
 
 bool init_lora_RX(void);
 bool init_lora_TX(void);
-void lora_test_module(void);
 
-
+void LoRa_RX(bool flag);
+void LoRa_TX(bool flag);
 
 #endif /* INC_LORA_E220_900T22D_E220_900T22D_H_ */
