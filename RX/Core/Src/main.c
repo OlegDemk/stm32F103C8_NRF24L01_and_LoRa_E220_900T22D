@@ -61,9 +61,6 @@ uint8_t rx_data_counter = 0;
 #define off 0
 #define on 1
 
-#define nrf_on_off off
-#define lora_on_off on
-
 void state_machine(void);
 /* USER CODE END PD */
 
@@ -145,174 +142,17 @@ int main(void)
 
   HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
 
-  // Init interrupp
+  // Init interrupt (For LoRa)
   HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(USART1_IRQn);
-
 
   // OLED init
   ssd1306_Init();
   ssd1306_Fill(Black);
   ssd1306_UpdateScreen();
 
-
- // HAL_TIM_Base_Start_IT(&htim1);
-
-
-
-#if nrf_on_off
-  // Test write on OLED
-  ssd1306_SetCursor(0, 0);
-  char test_main[20] = {0};
-  strcpy(test_main, "NRF24L01 RX");
-  ssd1306_WriteString(test_main,  Font_7x10, White);
-  ssd1306_UpdateScreen();
-
-  NRF24_ini();
-  read_config_registers();
-#endif
-
-#if lora_on_off
-//  ssd1306_SetCursor(0, 0);
-//  char test_main[50] = {0};
-//  strcpy(test_main, "LoRa RX");
-//  ssd1306_WriteString(test_main,  Font_7x10, White);
-//  ssd1306_UpdateScreen();
-// // state_machine
-//  HAL_Delay(1000);
-//  init_lora_RX();
-//  HAL_Delay(1000);
-//
-//  ssd1306_SetCursor(65, 0);
-//  strcpy(test_main, "Ready");
-//  ssd1306_WriteString(test_main,  Font_7x10, White);
-//  ssd1306_UpdateScreen();
-//
-//  ssd1306_SetCursor(0, 16);
-//  strcpy(test_main, "RX data: ");
-//  ssd1306_WriteString(test_main,  Font_7x10, White);
-//  ssd1306_UpdateScreen();
-//
-//  HAL_UART_Receive_IT(&huart1, str, 1);
-#endif
-
-
-
   while (1)
   {
-
-	#if nrf_on_off
-	  bool init_nrf_status = init_nrf();    // For debug
-	  nrf_communication_test();      // Main function LORA
-	#endif
-
-	#if lora_on_off
-//	  LoRa_RX();
-//	  while(1)
-//	  {
-//
-//	  }
-
-
-//	uint8_t rx_or_rx = 1;
-//
-//	if(rx_or_rx == 1)				// RX mode
-//	{
-//		ssd1306_SetCursor(0, 0);
-//		char test_main[50] = {0};
-//		strcpy(test_main, "LoRa RX");
-//		ssd1306_WriteString(test_main,  Font_7x10, White);
-//		ssd1306_UpdateScreen();
-//		// state_machine
-//		HAL_Delay(1000);
-//		init_lora_RX();
-//		HAL_Delay(1000);
-//
-//		ssd1306_SetCursor(65, 0);
-//		strcpy(test_main, "Ready");
-//		ssd1306_WriteString(test_main,  Font_7x10, White);
-//		ssd1306_UpdateScreen();
-//
-//		ssd1306_SetCursor(0, 16);
-//		strcpy(test_main, "RX data: ");
-//		ssd1306_WriteString(test_main,  Font_7x10, White);
-//		ssd1306_UpdateScreen();
-//
-//		HAL_UART_Receive_IT(&huart1, str, 1);
-//		memset(test_main, 0, sizeof(test_main));
-//
-//		while(1)
-//		{
-//			if(flag_command_received == true)			// If data is ready
-//			{
-//				// Data received
-//
-//				//   Print on OLED
-//				char clearn_array[10] = "         ";
-//				ssd1306_SetCursor(60, 16);
-//
-//				ssd1306_WriteString(clearn_array,  Font_7x10, White);
-//				ssd1306_UpdateScreen();
-//
-//				ssd1306_SetCursor(60, 16);
-//				strcpy(test_main, uart_rx_data);
-//
-//				ssd1306_WriteString(test_main,  Font_7x10, White);
-//				ssd1306_UpdateScreen();
-//
-//				HAL_Delay(100);
-//				memset(uart_rx_data, 0, sizeof(uart_rx_data));
-//				flag_command_received = false;
-//
-//				HAL_UART_Receive_IT(&huart1, str, 1);		// Start interrupt again
-//			}
-//		}
-//
-//		 }
-//		 if(rx_or_rx == 0)		// TX mode
-//		 {
-//			 ssd1306_SetCursor(0, 0);
-//			 char test_main[50] = {0};
-//			 strcpy(test_main, "LoRa TX:");
-//			 ssd1306_WriteString(test_main,  Font_7x10, White);
-//			 ssd1306_UpdateScreen();
-//
-//			 HAL_Delay(1000);
-//			 init_lora_TX();
-//
-//			 ssd1306_SetCursor(65, 0);
-//			 strcpy(test_main, "Ready");
-//			 ssd1306_WriteString(test_main,  Font_7x10, White);
-//			 ssd1306_UpdateScreen();
-//
-//			 ssd1306_SetCursor(0, 16);
-//			 strcpy(test_main, "TX data: ");
-//			 ssd1306_WriteString(test_main,  Font_7x10, White);
-//			 ssd1306_UpdateScreen();
-//
-//			 HAL_UART_Receive_IT(&huart1, str, 1);
-//
-//			 while(1)
-//			 {
-//				 int count = lora_transmit_data();
-//				 // Print transmeeting data
-//				 memset(test_main, 0, sizeof(test_main));
-//				 ssd1306_SetCursor(60, 16);
-//				 sprintf(test_main, "%d", count);
-//				 ssd1306_WriteString(test_main,  Font_7x10, White);
-//				 ssd1306_UpdateScreen();
-//
-//				 HAL_Delay(2000);			// Must be more than 1.5 sec
-//
-//			 }
-//
-//		 }
-
-
-
-	#endif
-
-
 	menu();
 
     /* USER CODE END WHILE */
@@ -642,8 +482,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     __NOP();
   }
 }
-
 //----------------------------------------------------------------------------------------
+// Receive data from LoRa module
 // If data received (Received 1 bytes)        Define in: HAL_UART_Receive_IT(&huart1, str, 1);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -663,28 +503,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		}
 	}
 }
-
 //----------------------------------------------------------------------------------------
-//uint8_t read_buttons_state(uint8_t  button_pressed)
-//{
-//	if(HAL_GPIO_ReadPin(GPIOB, SW1_Pin) == 0)		// if button pressed
-//	{
-//		return button_pressed = 1;
-//	}
-//	else if(HAL_GPIO_ReadPin(GPIOB, SW2_Pin) == 0)		// if button pressed
-//	{
-//		return button_pressed = 2;
-//	}
-//	else if(HAL_GPIO_ReadPin(GPIOA, SW3_Pin) == 0)		// if button pressed
-//	{
-//		return button_pressed = 3;
-//	}
-//	else		// buttons toesen't press
-//	{
-//		return button_pressed = 0;
-//	}
-//
-//}
 
 
 /* USER CODE END 4 */

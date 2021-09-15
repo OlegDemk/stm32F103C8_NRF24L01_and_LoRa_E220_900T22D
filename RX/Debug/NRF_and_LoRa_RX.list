@@ -27,23 +27,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000029  00000000  00000000  0002009c  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0001786a  00000000  00000000  000200c5  2**0
+ 12 .debug_info   00017870  00000000  00000000  000200c5  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00002fcb  00000000  00000000  0003792f  2**0
+ 13 .debug_abbrev 00002f9c  00000000  00000000  00037935  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00001320  00000000  00000000  0003a900  2**3
+ 14 .debug_aranges 00001320  00000000  00000000  0003a8d8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_ranges 00001260  00000000  00000000  0003bc20  2**3
+ 15 .debug_ranges 00001260  00000000  00000000  0003bbf8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  000199c1  00000000  00000000  0003ce80  2**0
+ 16 .debug_macro  000199b5  00000000  00000000  0003ce58  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00017d76  00000000  00000000  00056841  2**0
+ 17 .debug_line   00017d73  00000000  00000000  0005680d  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    0009035b  00000000  00000000  0006e5b7  2**0
+ 18 .debug_str    0009033d  00000000  00000000  0006e580  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  000fe912  2**0
+ 19 .comment      00000053  00000000  00000000  000fe8bd  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000054b8  00000000  00000000  000fe968  2**2
+ 20 .debug_frame  000054b8  00000000  00000000  000fe910  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -233,8 +233,6 @@ void LoRa_RX(bool flag)
  8000242:	2201      	movs	r2, #1
  8000244:	701a      	strb	r2, [r3, #0]
 	}
-
-
 }
  8000246:	bf00      	nop
  8000248:	3718      	adds	r7, #24
@@ -2178,7 +2176,7 @@ int main(void)
  8000e66:	480a      	ldr	r0, [pc, #40]	; (8000e90 <main+0x54>)
  8000e68:	f002 f893 	bl	8002f92 <HAL_GPIO_WritePin>
 
-  // Init interrupp
+  // Init interrupt (For LoRa)
   HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
  8000e6c:	2200      	movs	r2, #0
  8000e6e:	2100      	movs	r1, #0
@@ -2187,7 +2185,6 @@ int main(void)
   HAL_NVIC_EnableIRQ(USART1_IRQn);
  8000e76:	2025      	movs	r0, #37	; 0x25
  8000e78:	f001 fe25 	bl	8002ac6 <HAL_NVIC_EnableIRQ>
-
 
   // OLED init
   ssd1306_Init();
@@ -2198,10 +2195,8 @@ int main(void)
   ssd1306_UpdateScreen();
  8000e86:	f7ff fdb1 	bl	80009ec <ssd1306_UpdateScreen>
 
-
-	#endif
-
-
+  while (1)
+  {
 	menu();
  8000e8a:	f001 fc51 	bl	8002730 <menu>
  8000e8e:	e7fc      	b.n	8000e8a <main+0x4e>
@@ -2993,8 +2988,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  80012f6:	bd80      	pop	{r7, pc}
 
 080012f8 <HAL_UART_RxCpltCallback>:
-
 //----------------------------------------------------------------------------------------
+// Receive data from LoRa module
 // If data received (Received 1 bytes)        Define in: HAL_UART_Receive_IT(&huart1, str, 1);
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -4221,2091 +4216,2078 @@ void SystemInit (void)
  800191c:	bc80      	pop	{r7}
  800191e:	4770      	bx	lr
 
-08001920 <scroll_bar>:
-/*
-This function print scrollbar on right part of OLED.
+08001920 <Menu_Init>:
+void items_menu_2_set_par_1(void);
+void do_it_function_menu_3(void);        // Print T and H
 
- */
-void scroll_bar(void)
-{
- 8001920:	b590      	push	{r4, r7, lr}
- 8001922:	b089      	sub	sp, #36	; 0x24
- 8001924:	af02      	add	r7, sp, #8
-	// Work size scrollbar
-	uint16_t start_x_scrollbar = 124;
- 8001926:	237c      	movs	r3, #124	; 0x7c
- 8001928:	81fb      	strh	r3, [r7, #14]
-	uint16_t start_y_scrollbar = 17;
- 800192a:	2311      	movs	r3, #17
- 800192c:	81bb      	strh	r3, [r7, #12]
-	uint16_t active_width = 3;
- 800192e:	2303      	movs	r3, #3
- 8001930:	817b      	strh	r3, [r7, #10]
-	uint16_t lenght_all_scrollbar = 48;
- 8001932:	2330      	movs	r3, #48	; 0x30
- 8001934:	813b      	strh	r3, [r7, #8]
-
-	uint8_t menu_items_counter = 1;
- 8001936:	2301      	movs	r3, #1
- 8001938:	75fb      	strb	r3, [r7, #23]
-	// 1. Скопіювати показник на меню в буффер
-	// 2. Піднятися до останнього елемента меню
-	// 3. Інкрементувати лічильник елементів меню, до останього елемента меню
-	// 4. записати нараховані емементи в
-
-	MenuItem_t * currentItem_buff = currentItem;
- 800193a:	4b32      	ldr	r3, [pc, #200]	; (8001a04 <scroll_bar+0xe4>)
- 800193c:	681b      	ldr	r3, [r3, #0]
- 800193e:	613b      	str	r3, [r7, #16]
-
-	if ((currentItem_buff -> up) != 0)							// Step up if existing up
- 8001940:	693b      	ldr	r3, [r7, #16]
- 8001942:	681b      	ldr	r3, [r3, #0]
- 8001944:	2b00      	cmp	r3, #0
- 8001946:	d006      	beq.n	8001956 <scroll_bar+0x36>
-	{
-		do{
-			currentItem_buff = currentItem_buff -> up;			// Step up to the top of menu
- 8001948:	693b      	ldr	r3, [r7, #16]
- 800194a:	681b      	ldr	r3, [r3, #0]
- 800194c:	613b      	str	r3, [r7, #16]
-		}
-		while ((currentItem_buff -> up) != 0);					// If the top of item doesen't found
- 800194e:	693b      	ldr	r3, [r7, #16]
- 8001950:	681b      	ldr	r3, [r3, #0]
- 8001952:	2b00      	cmp	r3, #0
- 8001954:	d1f8      	bne.n	8001948 <scroll_bar+0x28>
-	}
-
-	if ((currentItem_buff -> up) == 0)							// If found top of menu item
- 8001956:	693b      	ldr	r3, [r7, #16]
- 8001958:	681b      	ldr	r3, [r3, #0]
- 800195a:	2b00      	cmp	r3, #0
- 800195c:	d109      	bne.n	8001972 <scroll_bar+0x52>
-	{
-		do{
-			currentItem_buff = currentItem_buff -> down;
- 800195e:	693b      	ldr	r3, [r7, #16]
- 8001960:	685b      	ldr	r3, [r3, #4]
- 8001962:	613b      	str	r3, [r7, #16]
-			menu_items_counter++;								// Count how many list on menu
- 8001964:	7dfb      	ldrb	r3, [r7, #23]
- 8001966:	3301      	adds	r3, #1
- 8001968:	75fb      	strb	r3, [r7, #23]
-		}
-		while ((currentItem_buff -> down) != 0);
- 800196a:	693b      	ldr	r3, [r7, #16]
- 800196c:	685b      	ldr	r3, [r3, #4]
- 800196e:	2b00      	cmp	r3, #0
- 8001970:	d1f5      	bne.n	800195e <scroll_bar+0x3e>
-	}
-	 // Очистити частину керану де є скролбар
-	ssd1306FillRect(start_x_scrollbar, start_y_scrollbar, active_width, lenght_all_scrollbar - 2, Black);
- 8001972:	89fb      	ldrh	r3, [r7, #14]
- 8001974:	b2d8      	uxtb	r0, r3
- 8001976:	89bb      	ldrh	r3, [r7, #12]
- 8001978:	b2d9      	uxtb	r1, r3
- 800197a:	897b      	ldrh	r3, [r7, #10]
- 800197c:	b2da      	uxtb	r2, r3
- 800197e:	893b      	ldrh	r3, [r7, #8]
- 8001980:	b2db      	uxtb	r3, r3
- 8001982:	3b02      	subs	r3, #2
- 8001984:	b2db      	uxtb	r3, r3
- 8001986:	2400      	movs	r4, #0
- 8001988:	9400      	str	r4, [sp, #0]
- 800198a:	f7ff fa20 	bl	8000dce <ssd1306FillRect>
-
-	// Вивести подовгастий квадрат на край екрану
-	ssd1306_DrawRectangle(start_x_scrollbar - 1, start_y_scrollbar - 1, start_x_scrollbar + active_width, 63, White);
- 800198e:	89fb      	ldrh	r3, [r7, #14]
- 8001990:	b2db      	uxtb	r3, r3
- 8001992:	3b01      	subs	r3, #1
- 8001994:	b2d8      	uxtb	r0, r3
- 8001996:	89bb      	ldrh	r3, [r7, #12]
- 8001998:	b2db      	uxtb	r3, r3
- 800199a:	3b01      	subs	r3, #1
- 800199c:	b2d9      	uxtb	r1, r3
- 800199e:	89fb      	ldrh	r3, [r7, #14]
- 80019a0:	b2da      	uxtb	r2, r3
- 80019a2:	897b      	ldrh	r3, [r7, #10]
- 80019a4:	b2db      	uxtb	r3, r3
- 80019a6:	4413      	add	r3, r2
- 80019a8:	b2da      	uxtb	r2, r3
- 80019aa:	2301      	movs	r3, #1
- 80019ac:	9300      	str	r3, [sp, #0]
- 80019ae:	233f      	movs	r3, #63	; 0x3f
- 80019b0:	f7ff f9d6 	bl	8000d60 <ssd1306_DrawRectangle>
-	ssd1306_UpdateScreen();
- 80019b4:	f7ff f81a 	bl	80009ec <ssd1306_UpdateScreen>
-
-	 // Print scroling line
-	int id_for_line = currentItem -> id;				// Скопіювати порядковий номер меню
- 80019b8:	4b12      	ldr	r3, [pc, #72]	; (8001a04 <scroll_bar+0xe4>)
- 80019ba:	681b      	ldr	r3, [r3, #0]
- 80019bc:	7c1b      	ldrb	r3, [r3, #16]
- 80019be:	607b      	str	r3, [r7, #4]
-	// Print scroling line
-	uint16_t line_lenght = (lenght_all_scrollbar/menu_items_counter + 1);					   	// Довжина лінії яка відповідає одному меню
- 80019c0:	893a      	ldrh	r2, [r7, #8]
- 80019c2:	7dfb      	ldrb	r3, [r7, #23]
- 80019c4:	fb92 f3f3 	sdiv	r3, r2, r3
- 80019c8:	b29b      	uxth	r3, r3
- 80019ca:	3301      	adds	r3, #1
- 80019cc:	807b      	strh	r3, [r7, #2]
-	uint16_t start_lenght = 16 + ((id_for_line - 1)*line_lenght);			// Початок лінії
- 80019ce:	687b      	ldr	r3, [r7, #4]
- 80019d0:	3b01      	subs	r3, #1
- 80019d2:	b29b      	uxth	r3, r3
- 80019d4:	887a      	ldrh	r2, [r7, #2]
- 80019d6:	fb02 f303 	mul.w	r3, r2, r3
- 80019da:	b29b      	uxth	r3, r3
- 80019dc:	3310      	adds	r3, #16
- 80019de:	803b      	strh	r3, [r7, #0]
-	// Print active scrollbar part (line)
-	ssd1306FillRect(start_x_scrollbar, start_lenght, active_width, line_lenght, White);
- 80019e0:	89fb      	ldrh	r3, [r7, #14]
- 80019e2:	b2d8      	uxtb	r0, r3
- 80019e4:	883b      	ldrh	r3, [r7, #0]
- 80019e6:	b2d9      	uxtb	r1, r3
- 80019e8:	897b      	ldrh	r3, [r7, #10]
- 80019ea:	b2da      	uxtb	r2, r3
- 80019ec:	887b      	ldrh	r3, [r7, #2]
- 80019ee:	b2db      	uxtb	r3, r3
- 80019f0:	2401      	movs	r4, #1
- 80019f2:	9400      	str	r4, [sp, #0]
- 80019f4:	f7ff f9eb 	bl	8000dce <ssd1306FillRect>
-
-	ssd1306_UpdateScreen();
- 80019f8:	f7fe fff8 	bl	80009ec <ssd1306_UpdateScreen>
-}
- 80019fc:	bf00      	nop
- 80019fe:	371c      	adds	r7, #28
- 8001a00:	46bd      	mov	sp, r7
- 8001a02:	bd90      	pop	{r4, r7, pc}
- 8001a04:	20000018 	.word	0x20000018
-
-08001a08 <print_rectangle_on_head>:
-// ----------------------------------------------------------------------------------------
-void print_rectangle_on_head(void)
-{
- 8001a08:	b580      	push	{r7, lr}
- 8001a0a:	b082      	sub	sp, #8
- 8001a0c:	af02      	add	r7, sp, #8
-	ssd1306_DrawRectangle(0, 0, 127 , 15, White);
- 8001a0e:	2301      	movs	r3, #1
- 8001a10:	9300      	str	r3, [sp, #0]
- 8001a12:	230f      	movs	r3, #15
- 8001a14:	227f      	movs	r2, #127	; 0x7f
- 8001a16:	2100      	movs	r1, #0
- 8001a18:	2000      	movs	r0, #0
- 8001a1a:	f7ff f9a1 	bl	8000d60 <ssd1306_DrawRectangle>
-	ssd1306_UpdateScreen();
- 8001a1e:	f7fe ffe5 	bl	80009ec <ssd1306_UpdateScreen>
-}
- 8001a22:	bf00      	nop
- 8001a24:	46bd      	mov	sp, r7
- 8001a26:	bd80      	pop	{r7, pc}
-
-08001a28 <clear_menu_items>:
-// ----------------------------------------------------------------------------------------
-// Clear some menu items.
-void clear_menu_items (bool first, bool second, bool third, bool fourth)
-{
- 8001a28:	b590      	push	{r4, r7, lr}
- 8001a2a:	b089      	sub	sp, #36	; 0x24
- 8001a2c:	af00      	add	r7, sp, #0
- 8001a2e:	4604      	mov	r4, r0
- 8001a30:	4608      	mov	r0, r1
- 8001a32:	4611      	mov	r1, r2
- 8001a34:	461a      	mov	r2, r3
- 8001a36:	4623      	mov	r3, r4
- 8001a38:	71fb      	strb	r3, [r7, #7]
- 8001a3a:	4603      	mov	r3, r0
- 8001a3c:	71bb      	strb	r3, [r7, #6]
- 8001a3e:	460b      	mov	r3, r1
- 8001a40:	717b      	strb	r3, [r7, #5]
- 8001a42:	4613      	mov	r3, r2
- 8001a44:	713b      	strb	r3, [r7, #4]
-	uint8_t start_row_x = 15;
- 8001a46:	230f      	movs	r3, #15
- 8001a48:	77fb      	strb	r3, [r7, #31]
-	char str[16] = "               ";   // Must be 15
- 8001a4a:	4b2a      	ldr	r3, [pc, #168]	; (8001af4 <clear_menu_items+0xcc>)
- 8001a4c:	f107 040c 	add.w	r4, r7, #12
- 8001a50:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
- 8001a52:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
-
-	if(first == true)
- 8001a56:	79fb      	ldrb	r3, [r7, #7]
- 8001a58:	2b00      	cmp	r3, #0
- 8001a5a:	d00e      	beq.n	8001a7a <clear_menu_items+0x52>
-	{
-		ssd1306_SetCursor(start_row_x, first_menu_row);
- 8001a5c:	4b26      	ldr	r3, [pc, #152]	; (8001af8 <clear_menu_items+0xd0>)
- 8001a5e:	881b      	ldrh	r3, [r3, #0]
- 8001a60:	b2da      	uxtb	r2, r3
- 8001a62:	7ffb      	ldrb	r3, [r7, #31]
- 8001a64:	4611      	mov	r1, r2
- 8001a66:	4618      	mov	r0, r3
- 8001a68:	f7ff f8f6 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001a6c:	4a23      	ldr	r2, [pc, #140]	; (8001afc <clear_menu_items+0xd4>)
- 8001a6e:	f107 000c 	add.w	r0, r7, #12
- 8001a72:	2301      	movs	r3, #1
- 8001a74:	ca06      	ldmia	r2, {r1, r2}
- 8001a76:	f7ff f8c9 	bl	8000c0c <ssd1306_WriteString>
-	}
-	if(second == true)
- 8001a7a:	79bb      	ldrb	r3, [r7, #6]
- 8001a7c:	2b00      	cmp	r3, #0
- 8001a7e:	d00e      	beq.n	8001a9e <clear_menu_items+0x76>
-	{
-		ssd1306_SetCursor(start_row_x, second_menu_row);
- 8001a80:	4b1f      	ldr	r3, [pc, #124]	; (8001b00 <clear_menu_items+0xd8>)
- 8001a82:	881b      	ldrh	r3, [r3, #0]
- 8001a84:	b2da      	uxtb	r2, r3
- 8001a86:	7ffb      	ldrb	r3, [r7, #31]
- 8001a88:	4611      	mov	r1, r2
- 8001a8a:	4618      	mov	r0, r3
- 8001a8c:	f7ff f8e4 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001a90:	4a1a      	ldr	r2, [pc, #104]	; (8001afc <clear_menu_items+0xd4>)
- 8001a92:	f107 000c 	add.w	r0, r7, #12
- 8001a96:	2301      	movs	r3, #1
- 8001a98:	ca06      	ldmia	r2, {r1, r2}
- 8001a9a:	f7ff f8b7 	bl	8000c0c <ssd1306_WriteString>
-	}
-	if(first == true)
- 8001a9e:	79fb      	ldrb	r3, [r7, #7]
- 8001aa0:	2b00      	cmp	r3, #0
- 8001aa2:	d00e      	beq.n	8001ac2 <clear_menu_items+0x9a>
-	{
-		ssd1306_SetCursor(start_row_x, third_menu_row);
- 8001aa4:	4b17      	ldr	r3, [pc, #92]	; (8001b04 <clear_menu_items+0xdc>)
- 8001aa6:	881b      	ldrh	r3, [r3, #0]
- 8001aa8:	b2da      	uxtb	r2, r3
- 8001aaa:	7ffb      	ldrb	r3, [r7, #31]
- 8001aac:	4611      	mov	r1, r2
- 8001aae:	4618      	mov	r0, r3
- 8001ab0:	f7ff f8d2 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001ab4:	4a11      	ldr	r2, [pc, #68]	; (8001afc <clear_menu_items+0xd4>)
- 8001ab6:	f107 000c 	add.w	r0, r7, #12
- 8001aba:	2301      	movs	r3, #1
- 8001abc:	ca06      	ldmia	r2, {r1, r2}
- 8001abe:	f7ff f8a5 	bl	8000c0c <ssd1306_WriteString>
-	}
-	if(fourth == true)
- 8001ac2:	793b      	ldrb	r3, [r7, #4]
- 8001ac4:	2b00      	cmp	r3, #0
- 8001ac6:	d00e      	beq.n	8001ae6 <clear_menu_items+0xbe>
-	{
-		ssd1306_SetCursor(start_row_x, fourth_menu_row);
- 8001ac8:	4b0f      	ldr	r3, [pc, #60]	; (8001b08 <clear_menu_items+0xe0>)
- 8001aca:	881b      	ldrh	r3, [r3, #0]
- 8001acc:	b2da      	uxtb	r2, r3
- 8001ace:	7ffb      	ldrb	r3, [r7, #31]
- 8001ad0:	4611      	mov	r1, r2
- 8001ad2:	4618      	mov	r0, r3
- 8001ad4:	f7ff f8c0 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001ad8:	4a08      	ldr	r2, [pc, #32]	; (8001afc <clear_menu_items+0xd4>)
- 8001ada:	f107 000c 	add.w	r0, r7, #12
- 8001ade:	2301      	movs	r3, #1
- 8001ae0:	ca06      	ldmia	r2, {r1, r2}
- 8001ae2:	f7ff f893 	bl	8000c0c <ssd1306_WriteString>
-	}
-	ssd1306_UpdateScreen();
- 8001ae6:	f7fe ff81 	bl	80009ec <ssd1306_UpdateScreen>
-}
- 8001aea:	bf00      	nop
- 8001aec:	3724      	adds	r7, #36	; 0x24
- 8001aee:	46bd      	mov	sp, r7
- 8001af0:	bd90      	pop	{r4, r7, pc}
- 8001af2:	bf00      	nop
- 8001af4:	08006790 	.word	0x08006790
- 8001af8:	20000020 	.word	0x20000020
- 8001afc:	20000004 	.word	0x20000004
- 8001b00:	20000022 	.word	0x20000022
- 8001b04:	20000024 	.word	0x20000024
- 8001b08:	20000026 	.word	0x20000026
-
-08001b0c <print_rows_on_oled_if_up>:
-// ----------------------------------------------------------------------------------------
-void print_rows_on_oled_if_up(void)
-{
- 8001b0c:	b580      	push	{r7, lr}
- 8001b0e:	b086      	sub	sp, #24
- 8001b10:	af00      	add	r7, sp, #0
-	char str[16] = {0};
- 8001b12:	2300      	movs	r3, #0
- 8001b14:	603b      	str	r3, [r7, #0]
- 8001b16:	1d3b      	adds	r3, r7, #4
- 8001b18:	2200      	movs	r2, #0
- 8001b1a:	601a      	str	r2, [r3, #0]
- 8001b1c:	605a      	str	r2, [r3, #4]
- 8001b1e:	609a      	str	r2, [r3, #8]
-
-	clear_menu_items (true , true , true , true );
- 8001b20:	2301      	movs	r3, #1
- 8001b22:	2201      	movs	r2, #1
- 8001b24:	2101      	movs	r1, #1
- 8001b26:	2001      	movs	r0, #1
- 8001b28:	f7ff ff7e 	bl	8001a28 <clear_menu_items>
-
-	print_rectangle_on_head();
- 8001b2c:	f7ff ff6c 	bl	8001a08 <print_rectangle_on_head>
-
-	// Print pointer on first item menu
-	ssd1306_SetCursor(0, first_menu_row);
- 8001b30:	4b2c      	ldr	r3, [pc, #176]	; (8001be4 <print_rows_on_oled_if_up+0xd8>)
- 8001b32:	881b      	ldrh	r3, [r3, #0]
- 8001b34:	b2db      	uxtb	r3, r3
- 8001b36:	4619      	mov	r1, r3
- 8001b38:	2000      	movs	r0, #0
- 8001b3a:	f7ff f88d 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str_pointer,  Font_7x10, White);
- 8001b3e:	4a2a      	ldr	r2, [pc, #168]	; (8001be8 <print_rows_on_oled_if_up+0xdc>)
- 8001b40:	2301      	movs	r3, #1
- 8001b42:	ca06      	ldmia	r2, {r1, r2}
- 8001b44:	4829      	ldr	r0, [pc, #164]	; (8001bec <print_rows_on_oled_if_up+0xe0>)
- 8001b46:	f7ff f861 	bl	8000c0c <ssd1306_WriteString>
-
-	MenuItem_t * currentItem_buff_up = currentItem;				// Create buffer on selected current item pointer.
- 8001b4a:	4b29      	ldr	r3, [pc, #164]	; (8001bf0 <print_rows_on_oled_if_up+0xe4>)
- 8001b4c:	681b      	ldr	r3, [r3, #0]
- 8001b4e:	617b      	str	r3, [r7, #20]
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
- 8001b50:	4b24      	ldr	r3, [pc, #144]	; (8001be4 <print_rows_on_oled_if_up+0xd8>)
- 8001b52:	881b      	ldrh	r3, [r3, #0]
- 8001b54:	74fb      	strb	r3, [r7, #19]
- 8001b56:	e035      	b.n	8001bc4 <print_rows_on_oled_if_up+0xb8>
-	{
-		// Print number of menu item
-		itoa(currentItem_buff_up -> id, str, 10);
- 8001b58:	697b      	ldr	r3, [r7, #20]
- 8001b5a:	7c1b      	ldrb	r3, [r3, #16]
- 8001b5c:	4618      	mov	r0, r3
- 8001b5e:	463b      	mov	r3, r7
- 8001b60:	220a      	movs	r2, #10
- 8001b62:	4619      	mov	r1, r3
- 8001b64:	f004 f952 	bl	8005e0c <itoa>
-		ssd1306_SetCursor(start_print_id_menu_x, row);
- 8001b68:	4b22      	ldr	r3, [pc, #136]	; (8001bf4 <print_rows_on_oled_if_up+0xe8>)
- 8001b6a:	881b      	ldrh	r3, [r3, #0]
- 8001b6c:	b2db      	uxtb	r3, r3
- 8001b6e:	7cfa      	ldrb	r2, [r7, #19]
- 8001b70:	4611      	mov	r1, r2
- 8001b72:	4618      	mov	r0, r3
- 8001b74:	f7ff f870 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001b78:	4a1b      	ldr	r2, [pc, #108]	; (8001be8 <print_rows_on_oled_if_up+0xdc>)
- 8001b7a:	4638      	mov	r0, r7
- 8001b7c:	2301      	movs	r3, #1
- 8001b7e:	ca06      	ldmia	r2, {r1, r2}
- 8001b80:	f7ff f844 	bl	8000c0c <ssd1306_WriteString>
-
-		// Print name of menu item
-		strncpy(str, currentItem_buff_up -> name, 15);
- 8001b84:	697b      	ldr	r3, [r7, #20]
- 8001b86:	6959      	ldr	r1, [r3, #20]
- 8001b88:	463b      	mov	r3, r7
- 8001b8a:	220f      	movs	r2, #15
- 8001b8c:	4618      	mov	r0, r3
- 8001b8e:	f004 fa33 	bl	8005ff8 <strncpy>
-		ssd1306_SetCursor(start_print_name_menu_x, row);
- 8001b92:	4b19      	ldr	r3, [pc, #100]	; (8001bf8 <print_rows_on_oled_if_up+0xec>)
- 8001b94:	881b      	ldrh	r3, [r3, #0]
- 8001b96:	b2db      	uxtb	r3, r3
- 8001b98:	7cfa      	ldrb	r2, [r7, #19]
- 8001b9a:	4611      	mov	r1, r2
- 8001b9c:	4618      	mov	r0, r3
- 8001b9e:	f7ff f85b 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001ba2:	4a11      	ldr	r2, [pc, #68]	; (8001be8 <print_rows_on_oled_if_up+0xdc>)
- 8001ba4:	4638      	mov	r0, r7
- 8001ba6:	2301      	movs	r3, #1
- 8001ba8:	ca06      	ldmia	r2, {r1, r2}
- 8001baa:	f7ff f82f 	bl	8000c0c <ssd1306_WriteString>
-
-		currentItem_buff_up = currentItem_buff_up -> down;		// Make a step down
- 8001bae:	697b      	ldr	r3, [r7, #20]
- 8001bb0:	685b      	ldr	r3, [r3, #4]
- 8001bb2:	617b      	str	r3, [r7, #20]
-
-		// Print only existing items
-		if(currentItem_buff_up == 0)							// If no next item
- 8001bb4:	697b      	ldr	r3, [r7, #20]
- 8001bb6:	2b00      	cmp	r3, #0
- 8001bb8:	d00b      	beq.n	8001bd2 <print_rows_on_oled_if_up+0xc6>
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
- 8001bba:	4b10      	ldr	r3, [pc, #64]	; (8001bfc <print_rows_on_oled_if_up+0xf0>)
- 8001bbc:	781a      	ldrb	r2, [r3, #0]
- 8001bbe:	7cfb      	ldrb	r3, [r7, #19]
- 8001bc0:	4413      	add	r3, r2
- 8001bc2:	74fb      	strb	r3, [r7, #19]
- 8001bc4:	7cfb      	ldrb	r3, [r7, #19]
- 8001bc6:	b29a      	uxth	r2, r3
- 8001bc8:	4b0d      	ldr	r3, [pc, #52]	; (8001c00 <print_rows_on_oled_if_up+0xf4>)
- 8001bca:	881b      	ldrh	r3, [r3, #0]
- 8001bcc:	429a      	cmp	r2, r3
- 8001bce:	d9c3      	bls.n	8001b58 <print_rows_on_oled_if_up+0x4c>
- 8001bd0:	e000      	b.n	8001bd4 <print_rows_on_oled_if_up+0xc8>
-		{
-			break;
- 8001bd2:	bf00      	nop
-		}
-	}
-	ssd1306_UpdateScreen();
- 8001bd4:	f7fe ff0a 	bl	80009ec <ssd1306_UpdateScreen>
-	scroll_bar();
- 8001bd8:	f7ff fea2 	bl	8001920 <scroll_bar>
-}
- 8001bdc:	bf00      	nop
- 8001bde:	3718      	adds	r7, #24
- 8001be0:	46bd      	mov	sp, r7
- 8001be2:	bd80      	pop	{r7, pc}
- 8001be4:	20000020 	.word	0x20000020
- 8001be8:	20000004 	.word	0x20000004
- 8001bec:	2000001c 	.word	0x2000001c
- 8001bf0:	20000018 	.word	0x20000018
- 8001bf4:	2000002a 	.word	0x2000002a
- 8001bf8:	2000002c 	.word	0x2000002c
- 8001bfc:	20000028 	.word	0x20000028
- 8001c00:	20000026 	.word	0x20000026
-
-08001c04 <print_rows_on_oled_if_down>:
-// ----------------------------------------------------------------------------------------
-void print_rows_on_oled_if_down(void)	// print text menu item
-{
- 8001c04:	b580      	push	{r7, lr}
- 8001c06:	b086      	sub	sp, #24
- 8001c08:	af00      	add	r7, sp, #0
-	char str[16] = {0};
- 8001c0a:	2300      	movs	r3, #0
- 8001c0c:	603b      	str	r3, [r7, #0]
- 8001c0e:	1d3b      	adds	r3, r7, #4
- 8001c10:	2200      	movs	r2, #0
- 8001c12:	601a      	str	r2, [r3, #0]
- 8001c14:	605a      	str	r2, [r3, #4]
- 8001c16:	609a      	str	r2, [r3, #8]
-
-	clear_menu_items (true , true , true , true );
- 8001c18:	2301      	movs	r3, #1
- 8001c1a:	2201      	movs	r2, #1
- 8001c1c:	2101      	movs	r1, #1
- 8001c1e:	2001      	movs	r0, #1
- 8001c20:	f7ff ff02 	bl	8001a28 <clear_menu_items>
-
-	print_rectangle_on_head();
- 8001c24:	f7ff fef0 	bl	8001a08 <print_rectangle_on_head>
-
-	// Print pointer on first item menu
-	ssd1306_SetCursor(0, first_menu_row);
- 8001c28:	4b2f      	ldr	r3, [pc, #188]	; (8001ce8 <print_rows_on_oled_if_down+0xe4>)
- 8001c2a:	881b      	ldrh	r3, [r3, #0]
- 8001c2c:	b2db      	uxtb	r3, r3
- 8001c2e:	4619      	mov	r1, r3
- 8001c30:	2000      	movs	r0, #0
- 8001c32:	f7ff f811 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str_pointer,  Font_7x10, White);
- 8001c36:	4a2d      	ldr	r2, [pc, #180]	; (8001cec <print_rows_on_oled_if_down+0xe8>)
- 8001c38:	2301      	movs	r3, #1
- 8001c3a:	ca06      	ldmia	r2, {r1, r2}
- 8001c3c:	482c      	ldr	r0, [pc, #176]	; (8001cf0 <print_rows_on_oled_if_down+0xec>)
- 8001c3e:	f7fe ffe5 	bl	8000c0c <ssd1306_WriteString>
-
-	MenuItem_t * currentItem_buff = currentItem;
- 8001c42:	4b2c      	ldr	r3, [pc, #176]	; (8001cf4 <print_rows_on_oled_if_down+0xf0>)
- 8001c44:	681b      	ldr	r3, [r3, #0]
- 8001c46:	617b      	str	r3, [r7, #20]
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
- 8001c48:	4b27      	ldr	r3, [pc, #156]	; (8001ce8 <print_rows_on_oled_if_down+0xe4>)
- 8001c4a:	881b      	ldrh	r3, [r3, #0]
- 8001c4c:	74fb      	strb	r3, [r7, #19]
- 8001c4e:	e03b      	b.n	8001cc8 <print_rows_on_oled_if_down+0xc4>
-	{
-		// Print number of menu item
-        itoa(currentItem_buff -> id, str, 10);
- 8001c50:	697b      	ldr	r3, [r7, #20]
- 8001c52:	7c1b      	ldrb	r3, [r3, #16]
- 8001c54:	4618      	mov	r0, r3
- 8001c56:	463b      	mov	r3, r7
- 8001c58:	220a      	movs	r2, #10
- 8001c5a:	4619      	mov	r1, r3
- 8001c5c:	f004 f8d6 	bl	8005e0c <itoa>
-		ssd1306_SetCursor(start_print_id_menu_x, row);
- 8001c60:	4b25      	ldr	r3, [pc, #148]	; (8001cf8 <print_rows_on_oled_if_down+0xf4>)
- 8001c62:	881b      	ldrh	r3, [r3, #0]
- 8001c64:	b2db      	uxtb	r3, r3
- 8001c66:	7cfa      	ldrb	r2, [r7, #19]
- 8001c68:	4611      	mov	r1, r2
- 8001c6a:	4618      	mov	r0, r3
- 8001c6c:	f7fe fff4 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001c70:	4a1e      	ldr	r2, [pc, #120]	; (8001cec <print_rows_on_oled_if_down+0xe8>)
- 8001c72:	4638      	mov	r0, r7
- 8001c74:	2301      	movs	r3, #1
- 8001c76:	ca06      	ldmia	r2, {r1, r2}
- 8001c78:	f7fe ffc8 	bl	8000c0c <ssd1306_WriteString>
-
-		// Print name of menu item
-		memset(str, 0, sizeof(str));
- 8001c7c:	463b      	mov	r3, r7
- 8001c7e:	2210      	movs	r2, #16
- 8001c80:	2100      	movs	r1, #0
- 8001c82:	4618      	mov	r0, r3
- 8001c84:	f004 f8d2 	bl	8005e2c <memset>
-	    strncpy(str, currentItem_buff -> name, 15);
- 8001c88:	697b      	ldr	r3, [r7, #20]
- 8001c8a:	6959      	ldr	r1, [r3, #20]
- 8001c8c:	463b      	mov	r3, r7
- 8001c8e:	220f      	movs	r2, #15
- 8001c90:	4618      	mov	r0, r3
- 8001c92:	f004 f9b1 	bl	8005ff8 <strncpy>
-	    ssd1306_SetCursor(start_print_name_menu_x, row);
- 8001c96:	4b19      	ldr	r3, [pc, #100]	; (8001cfc <print_rows_on_oled_if_down+0xf8>)
- 8001c98:	881b      	ldrh	r3, [r3, #0]
- 8001c9a:	b2db      	uxtb	r3, r3
- 8001c9c:	7cfa      	ldrb	r2, [r7, #19]
- 8001c9e:	4611      	mov	r1, r2
- 8001ca0:	4618      	mov	r0, r3
- 8001ca2:	f7fe ffd9 	bl	8000c58 <ssd1306_SetCursor>
-	    ssd1306_WriteString(str,  Font_7x10, White);
- 8001ca6:	4a11      	ldr	r2, [pc, #68]	; (8001cec <print_rows_on_oled_if_down+0xe8>)
- 8001ca8:	4638      	mov	r0, r7
- 8001caa:	2301      	movs	r3, #1
- 8001cac:	ca06      	ldmia	r2, {r1, r2}
- 8001cae:	f7fe ffad 	bl	8000c0c <ssd1306_WriteString>
-
-	    currentItem_buff = currentItem_buff -> down;			// Make a step down
- 8001cb2:	697b      	ldr	r3, [r7, #20]
- 8001cb4:	685b      	ldr	r3, [r3, #4]
- 8001cb6:	617b      	str	r3, [r7, #20]
-
-	    // Print only existing items
-	    if(currentItem_buff == 0)		 						// If no next item
- 8001cb8:	697b      	ldr	r3, [r7, #20]
- 8001cba:	2b00      	cmp	r3, #0
- 8001cbc:	d00b      	beq.n	8001cd6 <print_rows_on_oled_if_down+0xd2>
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
- 8001cbe:	4b10      	ldr	r3, [pc, #64]	; (8001d00 <print_rows_on_oled_if_down+0xfc>)
- 8001cc0:	781a      	ldrb	r2, [r3, #0]
- 8001cc2:	7cfb      	ldrb	r3, [r7, #19]
- 8001cc4:	4413      	add	r3, r2
- 8001cc6:	74fb      	strb	r3, [r7, #19]
- 8001cc8:	7cfb      	ldrb	r3, [r7, #19]
- 8001cca:	b29a      	uxth	r2, r3
- 8001ccc:	4b0d      	ldr	r3, [pc, #52]	; (8001d04 <print_rows_on_oled_if_down+0x100>)
- 8001cce:	881b      	ldrh	r3, [r3, #0]
- 8001cd0:	429a      	cmp	r2, r3
- 8001cd2:	d9bd      	bls.n	8001c50 <print_rows_on_oled_if_down+0x4c>
- 8001cd4:	e000      	b.n	8001cd8 <print_rows_on_oled_if_down+0xd4>
-	    {
-	    	break;
- 8001cd6:	bf00      	nop
-	    }
-	 }
-	 ssd1306_UpdateScreen();
- 8001cd8:	f7fe fe88 	bl	80009ec <ssd1306_UpdateScreen>
-	 scroll_bar();
- 8001cdc:	f7ff fe20 	bl	8001920 <scroll_bar>
-}
- 8001ce0:	bf00      	nop
- 8001ce2:	3718      	adds	r7, #24
- 8001ce4:	46bd      	mov	sp, r7
- 8001ce6:	bd80      	pop	{r7, pc}
- 8001ce8:	20000020 	.word	0x20000020
- 8001cec:	20000004 	.word	0x20000004
- 8001cf0:	2000001c 	.word	0x2000001c
- 8001cf4:	20000018 	.word	0x20000018
- 8001cf8:	2000002a 	.word	0x2000002a
- 8001cfc:	2000002c 	.word	0x2000002c
- 8001d00:	20000028 	.word	0x20000028
- 8001d04:	20000026 	.word	0x20000026
-
-08001d08 <print_menu_init>:
-// ----------------------------------------------------------------------------------------
-// Print first 4 items of menu (only first time)
-void print_menu_init(void)
-{
- 8001d08:	b590      	push	{r4, r7, lr}
- 8001d0a:	b089      	sub	sp, #36	; 0x24
- 8001d0c:	af00      	add	r7, sp, #0
-	MenuItem_t * currentItem_buff = currentItem;
- 8001d0e:	4b41      	ldr	r3, [pc, #260]	; (8001e14 <print_menu_init+0x10c>)
- 8001d10:	681b      	ldr	r3, [r3, #0]
- 8001d12:	61fb      	str	r3, [r7, #28]
-
-	print_rectangle_on_head();
- 8001d14:	f7ff fe78 	bl	8001a08 <print_rectangle_on_head>
-
-	//Print selected name of menu
-	char str[20] = ">> MAIN MENU <<";
- 8001d18:	4b3f      	ldr	r3, [pc, #252]	; (8001e18 <print_menu_init+0x110>)
- 8001d1a:	1d3c      	adds	r4, r7, #4
- 8001d1c:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
- 8001d1e:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
- 8001d22:	2300      	movs	r3, #0
- 8001d24:	617b      	str	r3, [r7, #20]
-	ssd1306_SetCursor(10, 3);
- 8001d26:	2103      	movs	r1, #3
- 8001d28:	200a      	movs	r0, #10
- 8001d2a:	f7fe ff95 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 8001d2e:	4a3b      	ldr	r2, [pc, #236]	; (8001e1c <print_menu_init+0x114>)
- 8001d30:	1d38      	adds	r0, r7, #4
- 8001d32:	2301      	movs	r3, #1
- 8001d34:	ca06      	ldmia	r2, {r1, r2}
- 8001d36:	f7fe ff69 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 8001d3a:	f7fe fe57 	bl	80009ec <ssd1306_UpdateScreen>
-	memset(str, 0, sizeof(str));
- 8001d3e:	1d3b      	adds	r3, r7, #4
- 8001d40:	2214      	movs	r2, #20
- 8001d42:	2100      	movs	r1, #0
- 8001d44:	4618      	mov	r0, r3
- 8001d46:	f004 f871 	bl	8005e2c <memset>
-
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
- 8001d4a:	4b35      	ldr	r3, [pc, #212]	; (8001e20 <print_menu_init+0x118>)
- 8001d4c:	881b      	ldrh	r3, [r3, #0]
- 8001d4e:	76fb      	strb	r3, [r7, #27]
- 8001d50:	e051      	b.n	8001df6 <print_menu_init+0xee>
-	{
-		if(row == first_menu_row)
- 8001d52:	7efb      	ldrb	r3, [r7, #27]
- 8001d54:	b29a      	uxth	r2, r3
- 8001d56:	4b32      	ldr	r3, [pc, #200]	; (8001e20 <print_menu_init+0x118>)
- 8001d58:	881b      	ldrh	r3, [r3, #0]
- 8001d5a:	429a      	cmp	r2, r3
- 8001d5c:	d10d      	bne.n	8001d7a <print_menu_init+0x72>
-		{
-			// Print pointer on menu (On top)
-			char str_pointer[4] = "->";
- 8001d5e:	f643 632d 	movw	r3, #15917	; 0x3e2d
- 8001d62:	603b      	str	r3, [r7, #0]
-			ssd1306_SetCursor(0, row);
- 8001d64:	7efb      	ldrb	r3, [r7, #27]
- 8001d66:	4619      	mov	r1, r3
- 8001d68:	2000      	movs	r0, #0
- 8001d6a:	f7fe ff75 	bl	8000c58 <ssd1306_SetCursor>
-			ssd1306_WriteString(str_pointer,  Font_7x10, White);
- 8001d6e:	4a2b      	ldr	r2, [pc, #172]	; (8001e1c <print_menu_init+0x114>)
- 8001d70:	4638      	mov	r0, r7
- 8001d72:	2301      	movs	r3, #1
- 8001d74:	ca06      	ldmia	r2, {r1, r2}
- 8001d76:	f7fe ff49 	bl	8000c0c <ssd1306_WriteString>
-		}
-		// Print number of menu item
-		itoa(currentItem_buff -> id, str, 10);
- 8001d7a:	69fb      	ldr	r3, [r7, #28]
- 8001d7c:	7c1b      	ldrb	r3, [r3, #16]
- 8001d7e:	4618      	mov	r0, r3
- 8001d80:	1d3b      	adds	r3, r7, #4
- 8001d82:	220a      	movs	r2, #10
- 8001d84:	4619      	mov	r1, r3
- 8001d86:	f004 f841 	bl	8005e0c <itoa>
-		ssd1306_SetCursor(start_print_id_menu_x, row);
- 8001d8a:	4b26      	ldr	r3, [pc, #152]	; (8001e24 <print_menu_init+0x11c>)
- 8001d8c:	881b      	ldrh	r3, [r3, #0]
- 8001d8e:	b2db      	uxtb	r3, r3
- 8001d90:	7efa      	ldrb	r2, [r7, #27]
- 8001d92:	4611      	mov	r1, r2
- 8001d94:	4618      	mov	r0, r3
- 8001d96:	f7fe ff5f 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001d9a:	4a20      	ldr	r2, [pc, #128]	; (8001e1c <print_menu_init+0x114>)
- 8001d9c:	1d38      	adds	r0, r7, #4
- 8001d9e:	2301      	movs	r3, #1
- 8001da0:	ca06      	ldmia	r2, {r1, r2}
- 8001da2:	f7fe ff33 	bl	8000c0c <ssd1306_WriteString>
-		memset(str, 0, sizeof(str));
- 8001da6:	1d3b      	adds	r3, r7, #4
- 8001da8:	2214      	movs	r2, #20
- 8001daa:	2100      	movs	r1, #0
- 8001dac:	4618      	mov	r0, r3
- 8001dae:	f004 f83d 	bl	8005e2c <memset>
-
-		// Print menu of menu item
-		strncpy(str, currentItem_buff -> name, 15);
- 8001db2:	69fb      	ldr	r3, [r7, #28]
- 8001db4:	6959      	ldr	r1, [r3, #20]
- 8001db6:	1d3b      	adds	r3, r7, #4
- 8001db8:	220f      	movs	r2, #15
- 8001dba:	4618      	mov	r0, r3
- 8001dbc:	f004 f91c 	bl	8005ff8 <strncpy>
-		ssd1306_SetCursor(start_print_name_menu_x, row);
- 8001dc0:	4b19      	ldr	r3, [pc, #100]	; (8001e28 <print_menu_init+0x120>)
- 8001dc2:	881b      	ldrh	r3, [r3, #0]
- 8001dc4:	b2db      	uxtb	r3, r3
- 8001dc6:	7efa      	ldrb	r2, [r7, #27]
- 8001dc8:	4611      	mov	r1, r2
- 8001dca:	4618      	mov	r0, r3
- 8001dcc:	f7fe ff44 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001dd0:	4a12      	ldr	r2, [pc, #72]	; (8001e1c <print_menu_init+0x114>)
- 8001dd2:	1d38      	adds	r0, r7, #4
- 8001dd4:	2301      	movs	r3, #1
- 8001dd6:	ca06      	ldmia	r2, {r1, r2}
- 8001dd8:	f7fe ff18 	bl	8000c0c <ssd1306_WriteString>
-
-		ssd1306_UpdateScreen();
- 8001ddc:	f7fe fe06 	bl	80009ec <ssd1306_UpdateScreen>
-
-		currentItem_buff = currentItem_buff -> down;
- 8001de0:	69fb      	ldr	r3, [r7, #28]
- 8001de2:	685b      	ldr	r3, [r3, #4]
- 8001de4:	61fb      	str	r3, [r7, #28]
-		if(currentItem_buff == 0)
- 8001de6:	69fb      	ldr	r3, [r7, #28]
- 8001de8:	2b00      	cmp	r3, #0
- 8001dea:	d00b      	beq.n	8001e04 <print_menu_init+0xfc>
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
- 8001dec:	4b0f      	ldr	r3, [pc, #60]	; (8001e2c <print_menu_init+0x124>)
- 8001dee:	781a      	ldrb	r2, [r3, #0]
- 8001df0:	7efb      	ldrb	r3, [r7, #27]
- 8001df2:	4413      	add	r3, r2
- 8001df4:	76fb      	strb	r3, [r7, #27]
- 8001df6:	7efb      	ldrb	r3, [r7, #27]
- 8001df8:	b29a      	uxth	r2, r3
- 8001dfa:	4b0d      	ldr	r3, [pc, #52]	; (8001e30 <print_menu_init+0x128>)
- 8001dfc:	881b      	ldrh	r3, [r3, #0]
- 8001dfe:	429a      	cmp	r2, r3
- 8001e00:	d9a7      	bls.n	8001d52 <print_menu_init+0x4a>
- 8001e02:	e000      	b.n	8001e06 <print_menu_init+0xfe>
-		{
-			break;
- 8001e04:	bf00      	nop
-		}
-	}
-	scroll_bar();
- 8001e06:	f7ff fd8b 	bl	8001920 <scroll_bar>
-}
- 8001e0a:	bf00      	nop
- 8001e0c:	3724      	adds	r7, #36	; 0x24
- 8001e0e:	46bd      	mov	sp, r7
- 8001e10:	bd90      	pop	{r4, r7, pc}
- 8001e12:	bf00      	nop
- 8001e14:	20000018 	.word	0x20000018
- 8001e18:	080067a0 	.word	0x080067a0
- 8001e1c:	20000004 	.word	0x20000004
- 8001e20:	20000020 	.word	0x20000020
- 8001e24:	2000002a 	.word	0x2000002a
- 8001e28:	2000002c 	.word	0x2000002c
- 8001e2c:	20000028 	.word	0x20000028
- 8001e30:	20000026 	.word	0x20000026
-
-08001e34 <action>:
-// ----------------------------------------------------------------------------------------
-void action(void)
-{
- 8001e34:	b580      	push	{r7, lr}
- 8001e36:	b088      	sub	sp, #32
- 8001e38:	af00      	add	r7, sp, #0
-	char str[16] = {0};
- 8001e3a:	2300      	movs	r3, #0
- 8001e3c:	607b      	str	r3, [r7, #4]
- 8001e3e:	f107 0308 	add.w	r3, r7, #8
- 8001e42:	2200      	movs	r2, #0
- 8001e44:	601a      	str	r2, [r3, #0]
- 8001e46:	605a      	str	r2, [r3, #4]
- 8001e48:	609a      	str	r2, [r3, #8]
-
-	clearn_oled();
- 8001e4a:	f7fe fd1f 	bl	800088c <clearn_oled>
-
-	print_rectangle_on_head();
- 8001e4e:	f7ff fddb 	bl	8001a08 <print_rectangle_on_head>
-
-	//Print selected name of menu on top of OLED
-	MenuItem_t * currentItem_buff_parent = currentItem;
- 8001e52:	4b40      	ldr	r3, [pc, #256]	; (8001f54 <action+0x120>)
- 8001e54:	681b      	ldr	r3, [r3, #0]
- 8001e56:	617b      	str	r3, [r7, #20]
-	currentItem_buff_parent = currentItem_buff_parent -> parent;
- 8001e58:	697b      	ldr	r3, [r7, #20]
- 8001e5a:	68db      	ldr	r3, [r3, #12]
- 8001e5c:	617b      	str	r3, [r7, #20]
-
-	strncpy(str, currentItem_buff_parent -> name, 15);
- 8001e5e:	697b      	ldr	r3, [r7, #20]
- 8001e60:	6959      	ldr	r1, [r3, #20]
- 8001e62:	1d3b      	adds	r3, r7, #4
- 8001e64:	220f      	movs	r2, #15
- 8001e66:	4618      	mov	r0, r3
- 8001e68:	f004 f8c6 	bl	8005ff8 <strncpy>
-	ssd1306_SetCursor(10, 3);
- 8001e6c:	2103      	movs	r1, #3
- 8001e6e:	200a      	movs	r0, #10
- 8001e70:	f7fe fef2 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 8001e74:	4a38      	ldr	r2, [pc, #224]	; (8001f58 <action+0x124>)
- 8001e76:	1d38      	adds	r0, r7, #4
- 8001e78:	2301      	movs	r3, #1
- 8001e7a:	ca06      	ldmia	r2, {r1, r2}
- 8001e7c:	f7fe fec6 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 8001e80:	f7fe fdb4 	bl	80009ec <ssd1306_UpdateScreen>
-	memset(str, 0, sizeof(str));
- 8001e84:	1d3b      	adds	r3, r7, #4
- 8001e86:	2210      	movs	r2, #16
- 8001e88:	2100      	movs	r1, #0
- 8001e8a:	4618      	mov	r0, r3
- 8001e8c:	f003 ffce 	bl	8005e2c <memset>
-
-	MenuItem_t * currentItem_buff = currentItem;
- 8001e90:	4b30      	ldr	r3, [pc, #192]	; (8001f54 <action+0x120>)
- 8001e92:	681b      	ldr	r3, [r3, #0]
- 8001e94:	61fb      	str	r3, [r7, #28]
-
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
- 8001e96:	4b31      	ldr	r3, [pc, #196]	; (8001f5c <action+0x128>)
- 8001e98:	881b      	ldrh	r3, [r3, #0]
- 8001e9a:	76fb      	strb	r3, [r7, #27]
- 8001e9c:	e04b      	b.n	8001f36 <action+0x102>
-	{
-		if(row == first_menu_row)
- 8001e9e:	7efb      	ldrb	r3, [r7, #27]
- 8001ea0:	b29a      	uxth	r2, r3
- 8001ea2:	4b2e      	ldr	r3, [pc, #184]	; (8001f5c <action+0x128>)
- 8001ea4:	881b      	ldrh	r3, [r3, #0]
- 8001ea6:	429a      	cmp	r2, r3
- 8001ea8:	d10d      	bne.n	8001ec6 <action+0x92>
-		{
-			// Print pointer on menu
-			char str_pointer[4] = "->";
- 8001eaa:	f643 632d 	movw	r3, #15917	; 0x3e2d
- 8001eae:	603b      	str	r3, [r7, #0]
-			ssd1306_SetCursor(0, row);
- 8001eb0:	7efb      	ldrb	r3, [r7, #27]
- 8001eb2:	4619      	mov	r1, r3
- 8001eb4:	2000      	movs	r0, #0
- 8001eb6:	f7fe fecf 	bl	8000c58 <ssd1306_SetCursor>
-			ssd1306_WriteString(str_pointer,  Font_7x10, White);
- 8001eba:	4a27      	ldr	r2, [pc, #156]	; (8001f58 <action+0x124>)
- 8001ebc:	4638      	mov	r0, r7
- 8001ebe:	2301      	movs	r3, #1
- 8001ec0:	ca06      	ldmia	r2, {r1, r2}
- 8001ec2:	f7fe fea3 	bl	8000c0c <ssd1306_WriteString>
-		}
-		// Print number of menu item
-		itoa(currentItem_buff -> id, str, 10);
- 8001ec6:	69fb      	ldr	r3, [r7, #28]
- 8001ec8:	7c1b      	ldrb	r3, [r3, #16]
- 8001eca:	4618      	mov	r0, r3
- 8001ecc:	1d3b      	adds	r3, r7, #4
- 8001ece:	220a      	movs	r2, #10
- 8001ed0:	4619      	mov	r1, r3
- 8001ed2:	f003 ff9b 	bl	8005e0c <itoa>
-		ssd1306_SetCursor(start_print_id_menu_x, row);
- 8001ed6:	4b22      	ldr	r3, [pc, #136]	; (8001f60 <action+0x12c>)
- 8001ed8:	881b      	ldrh	r3, [r3, #0]
- 8001eda:	b2db      	uxtb	r3, r3
- 8001edc:	7efa      	ldrb	r2, [r7, #27]
- 8001ede:	4611      	mov	r1, r2
- 8001ee0:	4618      	mov	r0, r3
- 8001ee2:	f7fe feb9 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001ee6:	4a1c      	ldr	r2, [pc, #112]	; (8001f58 <action+0x124>)
- 8001ee8:	1d38      	adds	r0, r7, #4
- 8001eea:	2301      	movs	r3, #1
- 8001eec:	ca06      	ldmia	r2, {r1, r2}
- 8001eee:	f7fe fe8d 	bl	8000c0c <ssd1306_WriteString>
-
-		// Print menu of menu item
-		strncpy(str, currentItem_buff -> name, 15);
- 8001ef2:	69fb      	ldr	r3, [r7, #28]
- 8001ef4:	6959      	ldr	r1, [r3, #20]
- 8001ef6:	1d3b      	adds	r3, r7, #4
- 8001ef8:	220f      	movs	r2, #15
- 8001efa:	4618      	mov	r0, r3
- 8001efc:	f004 f87c 	bl	8005ff8 <strncpy>
-		ssd1306_SetCursor(start_print_name_menu_x, row);
- 8001f00:	4b18      	ldr	r3, [pc, #96]	; (8001f64 <action+0x130>)
- 8001f02:	881b      	ldrh	r3, [r3, #0]
- 8001f04:	b2db      	uxtb	r3, r3
- 8001f06:	7efa      	ldrb	r2, [r7, #27]
- 8001f08:	4611      	mov	r1, r2
- 8001f0a:	4618      	mov	r0, r3
- 8001f0c:	f7fe fea4 	bl	8000c58 <ssd1306_SetCursor>
-		ssd1306_WriteString(str,  Font_7x10, White);
- 8001f10:	4a11      	ldr	r2, [pc, #68]	; (8001f58 <action+0x124>)
- 8001f12:	1d38      	adds	r0, r7, #4
- 8001f14:	2301      	movs	r3, #1
- 8001f16:	ca06      	ldmia	r2, {r1, r2}
- 8001f18:	f7fe fe78 	bl	8000c0c <ssd1306_WriteString>
-		ssd1306_UpdateScreen();
- 8001f1c:	f7fe fd66 	bl	80009ec <ssd1306_UpdateScreen>
-
-		currentItem_buff = currentItem_buff -> down;
- 8001f20:	69fb      	ldr	r3, [r7, #28]
- 8001f22:	685b      	ldr	r3, [r3, #4]
- 8001f24:	61fb      	str	r3, [r7, #28]
-		if(currentItem_buff == 0)
- 8001f26:	69fb      	ldr	r3, [r7, #28]
- 8001f28:	2b00      	cmp	r3, #0
- 8001f2a:	d00b      	beq.n	8001f44 <action+0x110>
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
- 8001f2c:	4b0e      	ldr	r3, [pc, #56]	; (8001f68 <action+0x134>)
- 8001f2e:	781a      	ldrb	r2, [r3, #0]
- 8001f30:	7efb      	ldrb	r3, [r7, #27]
- 8001f32:	4413      	add	r3, r2
- 8001f34:	76fb      	strb	r3, [r7, #27]
- 8001f36:	7efb      	ldrb	r3, [r7, #27]
- 8001f38:	b29a      	uxth	r2, r3
- 8001f3a:	4b0c      	ldr	r3, [pc, #48]	; (8001f6c <action+0x138>)
- 8001f3c:	881b      	ldrh	r3, [r3, #0]
- 8001f3e:	429a      	cmp	r2, r3
- 8001f40:	d9ad      	bls.n	8001e9e <action+0x6a>
- 8001f42:	e000      	b.n	8001f46 <action+0x112>
-		{
-			break;
- 8001f44:	bf00      	nop
-		}
-	}
-	scroll_bar();
- 8001f46:	f7ff fceb 	bl	8001920 <scroll_bar>
-}
- 8001f4a:	bf00      	nop
- 8001f4c:	3720      	adds	r7, #32
- 8001f4e:	46bd      	mov	sp, r7
- 8001f50:	bd80      	pop	{r7, pc}
- 8001f52:	bf00      	nop
- 8001f54:	20000018 	.word	0x20000018
- 8001f58:	20000004 	.word	0x20000004
- 8001f5c:	20000020 	.word	0x20000020
- 8001f60:	2000002a 	.word	0x2000002a
- 8001f64:	2000002c 	.word	0x2000002c
- 8001f68:	20000028 	.word	0x20000028
- 8001f6c:	20000026 	.word	0x20000026
-
-08001f70 <return_from_menu>:
-// ----------------------------------------------------------------------------------------
-void return_from_menu(void)
-{
- 8001f70:	b590      	push	{r4, r7, lr}
- 8001f72:	b087      	sub	sp, #28
- 8001f74:	af00      	add	r7, sp, #0
-	currentItem = &items[0];											// Jump to main menu
- 8001f76:	4b0f      	ldr	r3, [pc, #60]	; (8001fb4 <return_from_menu+0x44>)
- 8001f78:	4a0f      	ldr	r2, [pc, #60]	; (8001fb8 <return_from_menu+0x48>)
- 8001f7a:	601a      	str	r2, [r3, #0]
-	clearn_oled();
- 8001f7c:	f7fe fc86 	bl	800088c <clearn_oled>
-
-	// Print "MAIN MENU:"
-	char str[20] = ">> MAIN MENU <<";
- 8001f80:	4b0e      	ldr	r3, [pc, #56]	; (8001fbc <return_from_menu+0x4c>)
- 8001f82:	1d3c      	adds	r4, r7, #4
- 8001f84:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
- 8001f86:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
- 8001f8a:	2300      	movs	r3, #0
- 8001f8c:	617b      	str	r3, [r7, #20]
-	ssd1306_SetCursor(10, 3);
- 8001f8e:	2103      	movs	r1, #3
- 8001f90:	200a      	movs	r0, #10
- 8001f92:	f7fe fe61 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 8001f96:	4a0a      	ldr	r2, [pc, #40]	; (8001fc0 <return_from_menu+0x50>)
- 8001f98:	1d38      	adds	r0, r7, #4
- 8001f9a:	2301      	movs	r3, #1
- 8001f9c:	ca06      	ldmia	r2, {r1, r2}
- 8001f9e:	f7fe fe35 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 8001fa2:	f7fe fd23 	bl	80009ec <ssd1306_UpdateScreen>
-
-	print_menu_init();													// Print all start menu
- 8001fa6:	f7ff feaf 	bl	8001d08 <print_menu_init>
-}
- 8001faa:	bf00      	nop
- 8001fac:	371c      	adds	r7, #28
- 8001fae:	46bd      	mov	sp, r7
- 8001fb0:	bd90      	pop	{r4, r7, pc}
- 8001fb2:	bf00      	nop
- 8001fb4:	20000018 	.word	0x20000018
- 8001fb8:	20000808 	.word	0x20000808
- 8001fbc:	080067a0 	.word	0x080067a0
- 8001fc0:	20000004 	.word	0x20000004
-
-08001fc4 <lora_rx_mode>:
-// ----------------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
-void lora_rx_mode(void)
-{
- 8001fc4:	b580      	push	{r7, lr}
- 8001fc6:	b084      	sub	sp, #16
- 8001fc8:	af00      	add	r7, sp, #0
-	clearn_oled();
- 8001fca:	f7fe fc5f 	bl	800088c <clearn_oled>
-
-	print_rectangle_on_head();
- 8001fce:	f7ff fd1b 	bl	8001a08 <print_rectangle_on_head>
-//	1. Додати рамку на верх екрану  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//	2. Додати можливість вийти з режиму
-
-
-	// Print selected name of menu
-	char str[16] = {0};
- 8001fd2:	2300      	movs	r3, #0
- 8001fd4:	603b      	str	r3, [r7, #0]
- 8001fd6:	1d3b      	adds	r3, r7, #4
- 8001fd8:	2200      	movs	r2, #0
- 8001fda:	601a      	str	r2, [r3, #0]
- 8001fdc:	605a      	str	r2, [r3, #4]
- 8001fde:	609a      	str	r2, [r3, #8]
-	strncpy(str, currentItem -> name, 15);
- 8001fe0:	4b1a      	ldr	r3, [pc, #104]	; (800204c <lora_rx_mode+0x88>)
- 8001fe2:	681b      	ldr	r3, [r3, #0]
- 8001fe4:	6959      	ldr	r1, [r3, #20]
- 8001fe6:	463b      	mov	r3, r7
- 8001fe8:	220f      	movs	r2, #15
- 8001fea:	4618      	mov	r0, r3
- 8001fec:	f004 f804 	bl	8005ff8 <strncpy>
-	ssd1306_SetCursor(10, 3);
- 8001ff0:	2103      	movs	r1, #3
- 8001ff2:	200a      	movs	r0, #10
- 8001ff4:	f7fe fe30 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 8001ff8:	4a15      	ldr	r2, [pc, #84]	; (8002050 <lora_rx_mode+0x8c>)
- 8001ffa:	4638      	mov	r0, r7
- 8001ffc:	2301      	movs	r3, #1
- 8001ffe:	ca06      	ldmia	r2, {r1, r2}
- 8002000:	f7fe fe04 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 8002004:	f7fe fcf2 	bl	80009ec <ssd1306_UpdateScreen>
-	memset(str, 0, sizeof(str));
- 8002008:	463b      	mov	r3, r7
- 800200a:	2210      	movs	r2, #16
- 800200c:	2100      	movs	r1, #0
- 800200e:	4618      	mov	r0, r3
- 8002010:	f003 ff0c 	bl	8005e2c <memset>
-//	strncpy(str, "LoRa RX mode", sizeof(str));
-//	ssd1306_SetCursor(0, first_menu_row);
-//	ssd1306_WriteString(str,  Font_7x10, White);
-//	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
- 8002014:	4b0f      	ldr	r3, [pc, #60]	; (8002054 <lora_rx_mode+0x90>)
- 8002016:	2200      	movs	r2, #0
- 8002018:	701a      	strb	r2, [r3, #0]
-	block_interrupt_form_up_and_down_buttons = true;
- 800201a:	4b0f      	ldr	r3, [pc, #60]	; (8002058 <lora_rx_mode+0x94>)
- 800201c:	2201      	movs	r2, #1
- 800201e:	701a      	strb	r2, [r3, #0]
-	do{
-		LoRa_RX(true);
- 8002020:	2001      	movs	r0, #1
- 8002022:	f7fe f893 	bl	800014c <LoRa_RX>
-	}while (button_status != BUTTON_ENTER);
- 8002026:	4b0b      	ldr	r3, [pc, #44]	; (8002054 <lora_rx_mode+0x90>)
- 8002028:	781b      	ldrb	r3, [r3, #0]
- 800202a:	2b02      	cmp	r3, #2
- 800202c:	d1f8      	bne.n	8002020 <lora_rx_mode+0x5c>
-	LoRa_RX(false);
- 800202e:	2000      	movs	r0, #0
- 8002030:	f7fe f88c 	bl	800014c <LoRa_RX>
-
-
-	block_interrupt_form_up_and_down_buttons = false;
- 8002034:	4b08      	ldr	r3, [pc, #32]	; (8002058 <lora_rx_mode+0x94>)
- 8002036:	2200      	movs	r2, #0
- 8002038:	701a      	strb	r2, [r3, #0]
-
-	// Return to first item of current menu
-	currentItem = &items_menu_1[0];										// Set global pointer on first menu
- 800203a:	4b04      	ldr	r3, [pc, #16]	; (800204c <lora_rx_mode+0x88>)
- 800203c:	4a07      	ldr	r2, [pc, #28]	; (800205c <lora_rx_mode+0x98>)
- 800203e:	601a      	str	r2, [r3, #0]
-	action();															// Print items on OLED
- 8002040:	f7ff fef8 	bl	8001e34 <action>
-}
- 8002044:	bf00      	nop
- 8002046:	3710      	adds	r7, #16
- 8002048:	46bd      	mov	sp, r7
- 800204a:	bd80      	pop	{r7, pc}
- 800204c:	20000018 	.word	0x20000018
- 8002050:	20000004 	.word	0x20000004
- 8002054:	20000561 	.word	0x20000561
- 8002058:	20000560 	.word	0x20000560
- 800205c:	20000754 	.word	0x20000754
-
-08002060 <lora_tx_mode>:
-// ----------------------------------------------------------------------------------------
-void lora_tx_mode(void)
-{
- 8002060:	b580      	push	{r7, lr}
- 8002062:	b084      	sub	sp, #16
- 8002064:	af00      	add	r7, sp, #0
-	clearn_oled();
- 8002066:	f7fe fc11 	bl	800088c <clearn_oled>
-
-//	1. Додати рамку на верх екрану  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//	2. Додати можливість вийти з режиму
-	print_rectangle_on_head();
- 800206a:	f7ff fccd 	bl	8001a08 <print_rectangle_on_head>
-
-	// Print selected name of menu
-	char str[16] = {0};
- 800206e:	2300      	movs	r3, #0
- 8002070:	603b      	str	r3, [r7, #0]
- 8002072:	1d3b      	adds	r3, r7, #4
- 8002074:	2200      	movs	r2, #0
- 8002076:	601a      	str	r2, [r3, #0]
- 8002078:	605a      	str	r2, [r3, #4]
- 800207a:	609a      	str	r2, [r3, #8]
-	strncpy(str, currentItem -> name, 15);
- 800207c:	4b1a      	ldr	r3, [pc, #104]	; (80020e8 <lora_tx_mode+0x88>)
- 800207e:	681b      	ldr	r3, [r3, #0]
- 8002080:	6959      	ldr	r1, [r3, #20]
- 8002082:	463b      	mov	r3, r7
- 8002084:	220f      	movs	r2, #15
- 8002086:	4618      	mov	r0, r3
- 8002088:	f003 ffb6 	bl	8005ff8 <strncpy>
-	ssd1306_SetCursor(10, 3);
- 800208c:	2103      	movs	r1, #3
- 800208e:	200a      	movs	r0, #10
- 8002090:	f7fe fde2 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 8002094:	4a15      	ldr	r2, [pc, #84]	; (80020ec <lora_tx_mode+0x8c>)
- 8002096:	4638      	mov	r0, r7
- 8002098:	2301      	movs	r3, #1
- 800209a:	ca06      	ldmia	r2, {r1, r2}
- 800209c:	f7fe fdb6 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 80020a0:	f7fe fca4 	bl	80009ec <ssd1306_UpdateScreen>
-	memset(str, 0, sizeof(str));
- 80020a4:	463b      	mov	r3, r7
- 80020a6:	2210      	movs	r2, #16
- 80020a8:	2100      	movs	r1, #0
- 80020aa:	4618      	mov	r0, r3
- 80020ac:	f003 febe 	bl	8005e2c <memset>
-//	strncpy(str, "LoRa RX mode", sizeof(str));
-//	ssd1306_SetCursor(0, first_menu_row);
-//	ssd1306_WriteString(str,  Font_7x10, White);
-//	ssd1306_UpdateScreen();
-
-	button_status = BOTTON_DOESENT_PRESS;
- 80020b0:	4b0f      	ldr	r3, [pc, #60]	; (80020f0 <lora_tx_mode+0x90>)
- 80020b2:	2200      	movs	r2, #0
- 80020b4:	701a      	strb	r2, [r3, #0]
-	block_interrupt_form_up_and_down_buttons = true;
- 80020b6:	4b0f      	ldr	r3, [pc, #60]	; (80020f4 <lora_tx_mode+0x94>)
- 80020b8:	2201      	movs	r2, #1
- 80020ba:	701a      	strb	r2, [r3, #0]
-	do{
-		LoRa_TX(true);
- 80020bc:	2001      	movs	r0, #1
- 80020be:	f7fe f8d9 	bl	8000274 <LoRa_TX>
-
-	}while (button_status != BUTTON_ENTER);
- 80020c2:	4b0b      	ldr	r3, [pc, #44]	; (80020f0 <lora_tx_mode+0x90>)
- 80020c4:	781b      	ldrb	r3, [r3, #0]
- 80020c6:	2b02      	cmp	r3, #2
- 80020c8:	d1f8      	bne.n	80020bc <lora_tx_mode+0x5c>
-	LoRa_TX(false);
- 80020ca:	2000      	movs	r0, #0
- 80020cc:	f7fe f8d2 	bl	8000274 <LoRa_TX>
-
-	block_interrupt_form_up_and_down_buttons = false;
- 80020d0:	4b08      	ldr	r3, [pc, #32]	; (80020f4 <lora_tx_mode+0x94>)
- 80020d2:	2200      	movs	r2, #0
- 80020d4:	701a      	strb	r2, [r3, #0]
-
-	// Return to first item of current menu
-	currentItem = &items_menu_1[0];										// Set global pointer on first menu
- 80020d6:	4b04      	ldr	r3, [pc, #16]	; (80020e8 <lora_tx_mode+0x88>)
- 80020d8:	4a07      	ldr	r2, [pc, #28]	; (80020f8 <lora_tx_mode+0x98>)
- 80020da:	601a      	str	r2, [r3, #0]
-	action();															// Print items on OLED
- 80020dc:	f7ff feaa 	bl	8001e34 <action>
-}
- 80020e0:	bf00      	nop
- 80020e2:	3710      	adds	r7, #16
- 80020e4:	46bd      	mov	sp, r7
- 80020e6:	bd80      	pop	{r7, pc}
- 80020e8:	20000018 	.word	0x20000018
- 80020ec:	20000004 	.word	0x20000004
- 80020f0:	20000561 	.word	0x20000561
- 80020f4:	20000560 	.word	0x20000560
- 80020f8:	20000754 	.word	0x20000754
-
-080020fc <items_menu_1_set_par_2>:
-	currentItem = &items_menu_1[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-}
-// ----------------------------------------------------------------------------------------
-void items_menu_1_set_par_2(void)
-{
- 80020fc:	b580      	push	{r7, lr}
- 80020fe:	b084      	sub	sp, #16
- 8002100:	af00      	add	r7, sp, #0
-	clearn_oled();
- 8002102:	f7fe fbc3 	bl	800088c <clearn_oled>
-
-	// Print selected name of menu
-	char str[16] = {0};
- 8002106:	2300      	movs	r3, #0
- 8002108:	603b      	str	r3, [r7, #0]
- 800210a:	1d3b      	adds	r3, r7, #4
- 800210c:	2200      	movs	r2, #0
- 800210e:	601a      	str	r2, [r3, #0]
- 8002110:	605a      	str	r2, [r3, #4]
- 8002112:	609a      	str	r2, [r3, #8]
-	strncpy(str, currentItem -> name, 15);
- 8002114:	4b22      	ldr	r3, [pc, #136]	; (80021a0 <items_menu_1_set_par_2+0xa4>)
- 8002116:	681b      	ldr	r3, [r3, #0]
- 8002118:	6959      	ldr	r1, [r3, #20]
- 800211a:	463b      	mov	r3, r7
- 800211c:	220f      	movs	r2, #15
- 800211e:	4618      	mov	r0, r3
- 8002120:	f003 ff6a 	bl	8005ff8 <strncpy>
-	ssd1306_SetCursor(10, 3);
- 8002124:	2103      	movs	r1, #3
- 8002126:	200a      	movs	r0, #10
- 8002128:	f7fe fd96 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 800212c:	4a1d      	ldr	r2, [pc, #116]	; (80021a4 <items_menu_1_set_par_2+0xa8>)
- 800212e:	4638      	mov	r0, r7
- 8002130:	2301      	movs	r3, #1
- 8002132:	ca06      	ldmia	r2, {r1, r2}
- 8002134:	f7fe fd6a 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 8002138:	f7fe fc58 	bl	80009ec <ssd1306_UpdateScreen>
-	memset(str, 0, sizeof(str));
- 800213c:	463b      	mov	r3, r7
- 800213e:	2210      	movs	r2, #16
- 8002140:	2100      	movs	r1, #0
- 8002142:	4618      	mov	r0, r3
- 8002144:	f003 fe72 	bl	8005e2c <memset>
-
-	strncpy(str, "Set parametr 2", sizeof(str));
- 8002148:	463b      	mov	r3, r7
- 800214a:	2210      	movs	r2, #16
- 800214c:	4916      	ldr	r1, [pc, #88]	; (80021a8 <items_menu_1_set_par_2+0xac>)
- 800214e:	4618      	mov	r0, r3
- 8002150:	f003 ff52 	bl	8005ff8 <strncpy>
-	ssd1306_SetCursor(0, first_menu_row);
- 8002154:	4b15      	ldr	r3, [pc, #84]	; (80021ac <items_menu_1_set_par_2+0xb0>)
- 8002156:	881b      	ldrh	r3, [r3, #0]
- 8002158:	b2db      	uxtb	r3, r3
- 800215a:	4619      	mov	r1, r3
- 800215c:	2000      	movs	r0, #0
- 800215e:	f7fe fd7b 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 8002162:	4a10      	ldr	r2, [pc, #64]	; (80021a4 <items_menu_1_set_par_2+0xa8>)
- 8002164:	4638      	mov	r0, r7
- 8002166:	2301      	movs	r3, #1
- 8002168:	ca06      	ldmia	r2, {r1, r2}
- 800216a:	f7fe fd4f 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 800216e:	f7fe fc3d 	bl	80009ec <ssd1306_UpdateScreen>
-
-	button_status = BOTTON_DOESENT_PRESS;
- 8002172:	4b0f      	ldr	r3, [pc, #60]	; (80021b0 <items_menu_1_set_par_2+0xb4>)
- 8002174:	2200      	movs	r2, #0
- 8002176:	701a      	strb	r2, [r3, #0]
-	block_interrupt_form_up_and_down_buttons = true;
- 8002178:	4b0e      	ldr	r3, [pc, #56]	; (80021b4 <items_menu_1_set_par_2+0xb8>)
- 800217a:	2201      	movs	r2, #1
- 800217c:	701a      	strb	r2, [r3, #0]
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
- 800217e:	4b0c      	ldr	r3, [pc, #48]	; (80021b0 <items_menu_1_set_par_2+0xb4>)
- 8002180:	781b      	ldrb	r3, [r3, #0]
- 8002182:	2b02      	cmp	r3, #2
- 8002184:	d1fb      	bne.n	800217e <items_menu_1_set_par_2+0x82>
-	block_interrupt_form_up_and_down_buttons = false;
- 8002186:	4b0b      	ldr	r3, [pc, #44]	; (80021b4 <items_menu_1_set_par_2+0xb8>)
- 8002188:	2200      	movs	r2, #0
- 800218a:	701a      	strb	r2, [r3, #0]
-
-	// Return to first item of current menu
-	currentItem = &items_menu_1[0];										// Set global pointer on first menu
- 800218c:	4b04      	ldr	r3, [pc, #16]	; (80021a0 <items_menu_1_set_par_2+0xa4>)
- 800218e:	4a0a      	ldr	r2, [pc, #40]	; (80021b8 <items_menu_1_set_par_2+0xbc>)
- 8002190:	601a      	str	r2, [r3, #0]
-	action();															// Print items on OLED
- 8002192:	f7ff fe4f 	bl	8001e34 <action>
-}
- 8002196:	bf00      	nop
- 8002198:	3710      	adds	r7, #16
- 800219a:	46bd      	mov	sp, r7
- 800219c:	bd80      	pop	{r7, pc}
- 800219e:	bf00      	nop
- 80021a0:	20000018 	.word	0x20000018
- 80021a4:	20000004 	.word	0x20000004
- 80021a8:	080067c4 	.word	0x080067c4
- 80021ac:	20000020 	.word	0x20000020
- 80021b0:	20000561 	.word	0x20000561
- 80021b4:	20000560 	.word	0x20000560
- 80021b8:	20000754 	.word	0x20000754
-
-080021bc <items_menu_2_set_par_1>:
-//	currentItem = &items_menu_2[0];										// Set global pointer on first menu
-//	action();															// Print items on OLED
-//}
-// ----------------------------------------------------------------------------------------
-void items_menu_2_set_par_1(void)
-{
- 80021bc:	b580      	push	{r7, lr}
- 80021be:	b084      	sub	sp, #16
- 80021c0:	af00      	add	r7, sp, #0
-	clearn_oled();
- 80021c2:	f7fe fb63 	bl	800088c <clearn_oled>
-
-	// Print selected name of menu
-	char str[16] = {0};
- 80021c6:	2300      	movs	r3, #0
- 80021c8:	603b      	str	r3, [r7, #0]
- 80021ca:	1d3b      	adds	r3, r7, #4
- 80021cc:	2200      	movs	r2, #0
- 80021ce:	601a      	str	r2, [r3, #0]
- 80021d0:	605a      	str	r2, [r3, #4]
- 80021d2:	609a      	str	r2, [r3, #8]
-	strncpy(str, currentItem -> name, 15);
- 80021d4:	4b22      	ldr	r3, [pc, #136]	; (8002260 <items_menu_2_set_par_1+0xa4>)
- 80021d6:	681b      	ldr	r3, [r3, #0]
- 80021d8:	6959      	ldr	r1, [r3, #20]
- 80021da:	463b      	mov	r3, r7
- 80021dc:	220f      	movs	r2, #15
- 80021de:	4618      	mov	r0, r3
- 80021e0:	f003 ff0a 	bl	8005ff8 <strncpy>
-	ssd1306_SetCursor(10, 3);
- 80021e4:	2103      	movs	r1, #3
- 80021e6:	200a      	movs	r0, #10
- 80021e8:	f7fe fd36 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 80021ec:	4a1d      	ldr	r2, [pc, #116]	; (8002264 <items_menu_2_set_par_1+0xa8>)
- 80021ee:	4638      	mov	r0, r7
- 80021f0:	2301      	movs	r3, #1
- 80021f2:	ca06      	ldmia	r2, {r1, r2}
- 80021f4:	f7fe fd0a 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 80021f8:	f7fe fbf8 	bl	80009ec <ssd1306_UpdateScreen>
-	memset(str, 0, sizeof(str));
- 80021fc:	463b      	mov	r3, r7
- 80021fe:	2210      	movs	r2, #16
- 8002200:	2100      	movs	r1, #0
- 8002202:	4618      	mov	r0, r3
- 8002204:	f003 fe12 	bl	8005e2c <memset>
-
-	strncpy(str, "Set parametr 1", sizeof(str));
- 8002208:	463b      	mov	r3, r7
- 800220a:	2210      	movs	r2, #16
- 800220c:	4916      	ldr	r1, [pc, #88]	; (8002268 <items_menu_2_set_par_1+0xac>)
- 800220e:	4618      	mov	r0, r3
- 8002210:	f003 fef2 	bl	8005ff8 <strncpy>
-	ssd1306_SetCursor(0, first_menu_row);
- 8002214:	4b15      	ldr	r3, [pc, #84]	; (800226c <items_menu_2_set_par_1+0xb0>)
- 8002216:	881b      	ldrh	r3, [r3, #0]
- 8002218:	b2db      	uxtb	r3, r3
- 800221a:	4619      	mov	r1, r3
- 800221c:	2000      	movs	r0, #0
- 800221e:	f7fe fd1b 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 8002222:	4a10      	ldr	r2, [pc, #64]	; (8002264 <items_menu_2_set_par_1+0xa8>)
- 8002224:	4638      	mov	r0, r7
- 8002226:	2301      	movs	r3, #1
- 8002228:	ca06      	ldmia	r2, {r1, r2}
- 800222a:	f7fe fcef 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 800222e:	f7fe fbdd 	bl	80009ec <ssd1306_UpdateScreen>
-
-	button_status = BOTTON_DOESENT_PRESS;
- 8002232:	4b0f      	ldr	r3, [pc, #60]	; (8002270 <items_menu_2_set_par_1+0xb4>)
- 8002234:	2200      	movs	r2, #0
- 8002236:	701a      	strb	r2, [r3, #0]
-	block_interrupt_form_up_and_down_buttons = true;
- 8002238:	4b0e      	ldr	r3, [pc, #56]	; (8002274 <items_menu_2_set_par_1+0xb8>)
- 800223a:	2201      	movs	r2, #1
- 800223c:	701a      	strb	r2, [r3, #0]
-	do{
-		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-	}while (button_status != BUTTON_ENTER);
- 800223e:	4b0c      	ldr	r3, [pc, #48]	; (8002270 <items_menu_2_set_par_1+0xb4>)
- 8002240:	781b      	ldrb	r3, [r3, #0]
- 8002242:	2b02      	cmp	r3, #2
- 8002244:	d1fb      	bne.n	800223e <items_menu_2_set_par_1+0x82>
-	block_interrupt_form_up_and_down_buttons = false;
- 8002246:	4b0b      	ldr	r3, [pc, #44]	; (8002274 <items_menu_2_set_par_1+0xb8>)
- 8002248:	2200      	movs	r2, #0
- 800224a:	701a      	strb	r2, [r3, #0]
-
-	// Return to first item of current menu
-	currentItem = &items_menu_2[0];										// Set global pointer on first menu
- 800224c:	4b04      	ldr	r3, [pc, #16]	; (8002260 <items_menu_2_set_par_1+0xa4>)
- 800224e:	4a0a      	ldr	r2, [pc, #40]	; (8002278 <items_menu_2_set_par_1+0xbc>)
- 8002250:	601a      	str	r2, [r3, #0]
-	action();															// Print items on OLED
- 8002252:	f7ff fdef 	bl	8001e34 <action>
-}
- 8002256:	bf00      	nop
- 8002258:	3710      	adds	r7, #16
- 800225a:	46bd      	mov	sp, r7
- 800225c:	bd80      	pop	{r7, pc}
- 800225e:	bf00      	nop
- 8002260:	20000018 	.word	0x20000018
- 8002264:	20000004 	.word	0x20000004
- 8002268:	080067b4 	.word	0x080067b4
- 800226c:	20000020 	.word	0x20000020
- 8002270:	20000561 	.word	0x20000561
- 8002274:	20000560 	.word	0x20000560
- 8002278:	200006e8 	.word	0x200006e8
-
-0800227c <do_it_function_menu_3>:
-// ----------------------------------------------------------------------------------------
-////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
-void do_it_function_menu_3(void)        // Print T and H
-{
- 800227c:	b590      	push	{r4, r7, lr}
- 800227e:	b085      	sub	sp, #20
- 8002280:	af00      	add	r7, sp, #0
-	clearn_oled();
- 8002282:	f7fe fb03 	bl	800088c <clearn_oled>
-
-	// Print selected name of menu
-	char str[16] = {0};
- 8002286:	2300      	movs	r3, #0
- 8002288:	603b      	str	r3, [r7, #0]
- 800228a:	1d3b      	adds	r3, r7, #4
- 800228c:	2200      	movs	r2, #0
- 800228e:	601a      	str	r2, [r3, #0]
- 8002290:	605a      	str	r2, [r3, #4]
- 8002292:	609a      	str	r2, [r3, #8]
-	strncpy(str, currentItem -> name, 15);
- 8002294:	4b2b      	ldr	r3, [pc, #172]	; (8002344 <do_it_function_menu_3+0xc8>)
- 8002296:	681b      	ldr	r3, [r3, #0]
- 8002298:	6959      	ldr	r1, [r3, #20]
- 800229a:	463b      	mov	r3, r7
- 800229c:	220f      	movs	r2, #15
- 800229e:	4618      	mov	r0, r3
- 80022a0:	f003 feaa 	bl	8005ff8 <strncpy>
-	ssd1306_SetCursor(10, 3);
- 80022a4:	2103      	movs	r1, #3
- 80022a6:	200a      	movs	r0, #10
- 80022a8:	f7fe fcd6 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 80022ac:	4a26      	ldr	r2, [pc, #152]	; (8002348 <do_it_function_menu_3+0xcc>)
- 80022ae:	4638      	mov	r0, r7
- 80022b0:	2301      	movs	r3, #1
- 80022b2:	ca06      	ldmia	r2, {r1, r2}
- 80022b4:	f7fe fcaa 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 80022b8:	f7fe fb98 	bl	80009ec <ssd1306_UpdateScreen>
-	memset(str, 0, sizeof(str));
- 80022bc:	463b      	mov	r3, r7
- 80022be:	2210      	movs	r2, #16
- 80022c0:	2100      	movs	r1, #0
- 80022c2:	4618      	mov	r0, r3
- 80022c4:	f003 fdb2 	bl	8005e2c <memset>
-
-	strncpy(str, "Doing something 3", sizeof(str));
- 80022c8:	4b20      	ldr	r3, [pc, #128]	; (800234c <do_it_function_menu_3+0xd0>)
- 80022ca:	463c      	mov	r4, r7
- 80022cc:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
- 80022ce:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
-	ssd1306_SetCursor(0, first_menu_row);
- 80022d2:	4b1f      	ldr	r3, [pc, #124]	; (8002350 <do_it_function_menu_3+0xd4>)
- 80022d4:	881b      	ldrh	r3, [r3, #0]
- 80022d6:	b2db      	uxtb	r3, r3
- 80022d8:	4619      	mov	r1, r3
- 80022da:	2000      	movs	r0, #0
- 80022dc:	f7fe fcbc 	bl	8000c58 <ssd1306_SetCursor>
-	ssd1306_WriteString(str,  Font_7x10, White);
- 80022e0:	4a19      	ldr	r2, [pc, #100]	; (8002348 <do_it_function_menu_3+0xcc>)
- 80022e2:	4638      	mov	r0, r7
- 80022e4:	2301      	movs	r3, #1
- 80022e6:	ca06      	ldmia	r2, {r1, r2}
- 80022e8:	f7fe fc90 	bl	8000c0c <ssd1306_WriteString>
-	ssd1306_UpdateScreen();
- 80022ec:	f7fe fb7e 	bl	80009ec <ssd1306_UpdateScreen>
-
-	button_status = BOTTON_DOESENT_PRESS;
- 80022f0:	4b18      	ldr	r3, [pc, #96]	; (8002354 <do_it_function_menu_3+0xd8>)
- 80022f2:	2200      	movs	r2, #0
- 80022f4:	701a      	strb	r2, [r3, #0]
-	block_interrupt_form_up_and_down_buttons = true;
- 80022f6:	4b18      	ldr	r3, [pc, #96]	; (8002358 <do_it_function_menu_3+0xdc>)
- 80022f8:	2201      	movs	r2, #1
- 80022fa:	701a      	strb	r2, [r3, #0]
-	do{
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
- 80022fc:	2200      	movs	r2, #0
- 80022fe:	f44f 5100 	mov.w	r1, #8192	; 0x2000
- 8002302:	4816      	ldr	r0, [pc, #88]	; (800235c <do_it_function_menu_3+0xe0>)
- 8002304:	f000 fe45 	bl	8002f92 <HAL_GPIO_WritePin>
-		HAL_Delay(500);
- 8002308:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
- 800230c:	f000 fac4 	bl	8002898 <HAL_Delay>
-		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
- 8002310:	2201      	movs	r2, #1
- 8002312:	f44f 5100 	mov.w	r1, #8192	; 0x2000
- 8002316:	4811      	ldr	r0, [pc, #68]	; (800235c <do_it_function_menu_3+0xe0>)
- 8002318:	f000 fe3b 	bl	8002f92 <HAL_GPIO_WritePin>
-		HAL_Delay(500);
- 800231c:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
- 8002320:	f000 faba 	bl	8002898 <HAL_Delay>
-
-	}while (button_status != BUTTON_ENTER);
- 8002324:	4b0b      	ldr	r3, [pc, #44]	; (8002354 <do_it_function_menu_3+0xd8>)
- 8002326:	781b      	ldrb	r3, [r3, #0]
- 8002328:	2b02      	cmp	r3, #2
- 800232a:	d1e7      	bne.n	80022fc <do_it_function_menu_3+0x80>
-	block_interrupt_form_up_and_down_buttons = false;
- 800232c:	4b0a      	ldr	r3, [pc, #40]	; (8002358 <do_it_function_menu_3+0xdc>)
- 800232e:	2200      	movs	r2, #0
- 8002330:	701a      	strb	r2, [r3, #0]
-
-	// Return to first item of current menu
-	currentItem = &items_menu_3[0];										// Set global pointer on first menu
- 8002332:	4b04      	ldr	r3, [pc, #16]	; (8002344 <do_it_function_menu_3+0xc8>)
- 8002334:	4a0a      	ldr	r2, [pc, #40]	; (8002360 <do_it_function_menu_3+0xe4>)
- 8002336:	601a      	str	r2, [r3, #0]
-	action();															// Print items on OLED
- 8002338:	f7ff fd7c 	bl	8001e34 <action>
-}
- 800233c:	bf00      	nop
- 800233e:	3714      	adds	r7, #20
- 8002340:	46bd      	mov	sp, r7
- 8002342:	bd90      	pop	{r4, r7, pc}
- 8002344:	20000018 	.word	0x20000018
- 8002348:	20000004 	.word	0x20000004
- 800234c:	080067d4 	.word	0x080067d4
- 8002350:	20000020 	.word	0x20000020
- 8002354:	20000561 	.word	0x20000561
- 8002358:	20000560 	.word	0x20000560
- 800235c:	40011000 	.word	0x40011000
- 8002360:	200007c0 	.word	0x200007c0
-
-08002364 <Menu_Init>:
-////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
-// ----------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------
 void Menu_Init (void)
 {
- 8002364:	b480      	push	{r7}
- 8002366:	b08b      	sub	sp, #44	; 0x2c
- 8002368:	af00      	add	r7, sp, #0
+ 8001920:	b480      	push	{r7}
+ 8001922:	b08b      	sub	sp, #44	; 0x2c
+ 8001924:	af00      	add	r7, sp, #0
 	// Make pointers on funsctions
 	// Main functions
 	void (*p_print_rows_on_oled_if_up) (void);
 	p_print_rows_on_oled_if_up = print_rows_on_oled_if_up;
- 800236a:	4b8a      	ldr	r3, [pc, #552]	; (8002594 <Menu_Init+0x230>)
- 800236c:	627b      	str	r3, [r7, #36]	; 0x24
+ 8001926:	4b8a      	ldr	r3, [pc, #552]	; (8001b50 <Menu_Init+0x230>)
+ 8001928:	627b      	str	r3, [r7, #36]	; 0x24
 
 	void (*p_print_rows_on_oled_if_down) (void);					// Create pointer on function
 	p_print_rows_on_oled_if_down = print_rows_on_oled_if_down;		// Save function print on pointer print_p
- 800236e:	4b8a      	ldr	r3, [pc, #552]	; (8002598 <Menu_Init+0x234>)
- 8002370:	623b      	str	r3, [r7, #32]
+ 800192a:	4b8a      	ldr	r3, [pc, #552]	; (8001b54 <Menu_Init+0x234>)
+ 800192c:	623b      	str	r3, [r7, #32]
 
 	void (*p_return_from_menu)(void);
 	p_return_from_menu = return_from_menu;
- 8002372:	4b8a      	ldr	r3, [pc, #552]	; (800259c <Menu_Init+0x238>)
- 8002374:	61fb      	str	r3, [r7, #28]
+ 800192e:	4b8a      	ldr	r3, [pc, #552]	; (8001b58 <Menu_Init+0x238>)
+ 8001930:	61fb      	str	r3, [r7, #28]
 
 	void (*p_action) (void);										// Create pointer on function
 	p_action = action;												// Save function action on pointer action_p
- 8002376:	4b8a      	ldr	r3, [pc, #552]	; (80025a0 <Menu_Init+0x23c>)
- 8002378:	61bb      	str	r3, [r7, #24]
+ 8001932:	4b8a      	ldr	r3, [pc, #552]	; (8001b5c <Menu_Init+0x23c>)
+ 8001934:	61bb      	str	r3, [r7, #24]
 
 	// LoRa  menu functions
 	void (*p_lora_rx_mode) (void);						// Function "Do it". Works when select it
 	p_lora_rx_mode = lora_rx_mode;
- 800237a:	4b8a      	ldr	r3, [pc, #552]	; (80025a4 <Menu_Init+0x240>)
- 800237c:	617b      	str	r3, [r7, #20]
+ 8001936:	4b8a      	ldr	r3, [pc, #552]	; (8001b60 <Menu_Init+0x240>)
+ 8001938:	617b      	str	r3, [r7, #20]
 
 	void (*p_lora_tx_mode) (void);						// Function "Do it". Works when select it
 	p_lora_tx_mode = lora_tx_mode;
- 800237e:	4b8a      	ldr	r3, [pc, #552]	; (80025a8 <Menu_Init+0x244>)
- 8002380:	613b      	str	r3, [r7, #16]
+ 800193a:	4b8a      	ldr	r3, [pc, #552]	; (8001b64 <Menu_Init+0x244>)
+ 800193c:	613b      	str	r3, [r7, #16]
 
 
-	void (*p_items_menu_1_set_par_2) (void);
+	void (*p_items_menu_1_set_par_2) (void);			// Doesen't use yet
 	p_items_menu_1_set_par_2 = items_menu_1_set_par_2;
- 8002382:	4b8a      	ldr	r3, [pc, #552]	; (80025ac <Menu_Init+0x248>)
- 8002384:	60fb      	str	r3, [r7, #12]
+ 800193e:	4b8a      	ldr	r3, [pc, #552]	; (8001b68 <Menu_Init+0x248>)
+ 8001940:	60fb      	str	r3, [r7, #12]
 	// items_menu_2 menu functions
 //	void (*p_do_it_function_menu_2) (void);						// Function "Do it". Works when select it
 //	p_do_it_function_menu_2 = do_it_function_menu_2;
 
 	void (*p_items_menu_2_set_par_1) (void);
 	p_items_menu_2_set_par_1 = items_menu_2_set_par_1;
- 8002386:	4b8a      	ldr	r3, [pc, #552]	; (80025b0 <Menu_Init+0x24c>)
- 8002388:	60bb      	str	r3, [r7, #8]
+ 8001942:	4b8a      	ldr	r3, [pc, #552]	; (8001b6c <Menu_Init+0x24c>)
+ 8001944:	60bb      	str	r3, [r7, #8]
 
 	// items_menu_3 menu functions
 	void (*p_do_it_function_menu_3) (void);						// Function "Do it". Works when select it
 	p_do_it_function_menu_3 = do_it_function_menu_3;
- 800238a:	4b8a      	ldr	r3, [pc, #552]	; (80025b4 <Menu_Init+0x250>)
- 800238c:	607b      	str	r3, [r7, #4]
+ 8001946:	4b8a      	ldr	r3, [pc, #552]	; (8001b70 <Menu_Init+0x250>)
+ 8001948:	607b      	str	r3, [r7, #4]
 
 	// Fill in elements(nodes) of list (7 items)
 	// Main menu items
 	/////////////////////////////////////////////////////////////////
 
 	items[0].up = 0;
- 800238e:	4b8a      	ldr	r3, [pc, #552]	; (80025b8 <Menu_Init+0x254>)
- 8002390:	2200      	movs	r2, #0
- 8002392:	601a      	str	r2, [r3, #0]
+ 800194a:	4b8a      	ldr	r3, [pc, #552]	; (8001b74 <Menu_Init+0x254>)
+ 800194c:	2200      	movs	r2, #0
+ 800194e:	601a      	str	r2, [r3, #0]
 	items[0].down = &items[1];
- 8002394:	4b88      	ldr	r3, [pc, #544]	; (80025b8 <Menu_Init+0x254>)
- 8002396:	4a89      	ldr	r2, [pc, #548]	; (80025bc <Menu_Init+0x258>)
- 8002398:	605a      	str	r2, [r3, #4]
+ 8001950:	4b88      	ldr	r3, [pc, #544]	; (8001b74 <Menu_Init+0x254>)
+ 8001952:	4a89      	ldr	r2, [pc, #548]	; (8001b78 <Menu_Init+0x258>)
+ 8001954:	605a      	str	r2, [r3, #4]
 	items[0].child = &items_menu_1[0];
- 800239a:	4b87      	ldr	r3, [pc, #540]	; (80025b8 <Menu_Init+0x254>)
- 800239c:	4a88      	ldr	r2, [pc, #544]	; (80025c0 <Menu_Init+0x25c>)
- 800239e:	609a      	str	r2, [r3, #8]
+ 8001956:	4b87      	ldr	r3, [pc, #540]	; (8001b74 <Menu_Init+0x254>)
+ 8001958:	4a88      	ldr	r2, [pc, #544]	; (8001b7c <Menu_Init+0x25c>)
+ 800195a:	609a      	str	r2, [r3, #8]
 	items[0].parent = 0;
- 80023a0:	4b85      	ldr	r3, [pc, #532]	; (80025b8 <Menu_Init+0x254>)
- 80023a2:	2200      	movs	r2, #0
- 80023a4:	60da      	str	r2, [r3, #12]
+ 800195c:	4b85      	ldr	r3, [pc, #532]	; (8001b74 <Menu_Init+0x254>)
+ 800195e:	2200      	movs	r2, #0
+ 8001960:	60da      	str	r2, [r3, #12]
 	items[0].id = 1;
- 80023a6:	4b84      	ldr	r3, [pc, #528]	; (80025b8 <Menu_Init+0x254>)
- 80023a8:	2201      	movs	r2, #1
- 80023aa:	741a      	strb	r2, [r3, #16]
+ 8001962:	4b84      	ldr	r3, [pc, #528]	; (8001b74 <Menu_Init+0x254>)
+ 8001964:	2201      	movs	r2, #1
+ 8001966:	741a      	strb	r2, [r3, #16]
 	items[0].name = "LoRa E220";
- 80023ac:	4b82      	ldr	r3, [pc, #520]	; (80025b8 <Menu_Init+0x254>)
- 80023ae:	4a85      	ldr	r2, [pc, #532]	; (80025c4 <Menu_Init+0x260>)
- 80023b0:	615a      	str	r2, [r3, #20]
+ 8001968:	4b82      	ldr	r3, [pc, #520]	; (8001b74 <Menu_Init+0x254>)
+ 800196a:	4a85      	ldr	r2, [pc, #532]	; (8001b80 <Menu_Init+0x260>)
+ 800196c:	615a      	str	r2, [r3, #20]
 	items[0].updateScreen_up = p_print_rows_on_oled_if_up;
- 80023b2:	4a81      	ldr	r2, [pc, #516]	; (80025b8 <Menu_Init+0x254>)
- 80023b4:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80023b6:	6193      	str	r3, [r2, #24]
+ 800196e:	4a81      	ldr	r2, [pc, #516]	; (8001b74 <Menu_Init+0x254>)
+ 8001970:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001972:	6193      	str	r3, [r2, #24]
 	items[0].updateScreen_down = p_print_rows_on_oled_if_down;
- 80023b8:	4a7f      	ldr	r2, [pc, #508]	; (80025b8 <Menu_Init+0x254>)
- 80023ba:	6a3b      	ldr	r3, [r7, #32]
- 80023bc:	61d3      	str	r3, [r2, #28]
+ 8001974:	4a7f      	ldr	r2, [pc, #508]	; (8001b74 <Menu_Init+0x254>)
+ 8001976:	6a3b      	ldr	r3, [r7, #32]
+ 8001978:	61d3      	str	r3, [r2, #28]
 	items[0].makeAction = 0;
- 80023be:	4b7e      	ldr	r3, [pc, #504]	; (80025b8 <Menu_Init+0x254>)
- 80023c0:	2200      	movs	r2, #0
- 80023c2:	621a      	str	r2, [r3, #32]
+ 800197a:	4b7e      	ldr	r3, [pc, #504]	; (8001b74 <Menu_Init+0x254>)
+ 800197c:	2200      	movs	r2, #0
+ 800197e:	621a      	str	r2, [r3, #32]
 
 	items[1].up = &items[0];
- 80023c4:	4b7c      	ldr	r3, [pc, #496]	; (80025b8 <Menu_Init+0x254>)
- 80023c6:	4a7c      	ldr	r2, [pc, #496]	; (80025b8 <Menu_Init+0x254>)
- 80023c8:	625a      	str	r2, [r3, #36]	; 0x24
+ 8001980:	4b7c      	ldr	r3, [pc, #496]	; (8001b74 <Menu_Init+0x254>)
+ 8001982:	4a7c      	ldr	r2, [pc, #496]	; (8001b74 <Menu_Init+0x254>)
+ 8001984:	625a      	str	r2, [r3, #36]	; 0x24
 	items[1].down = &items[2];
- 80023ca:	4b7b      	ldr	r3, [pc, #492]	; (80025b8 <Menu_Init+0x254>)
- 80023cc:	4a7e      	ldr	r2, [pc, #504]	; (80025c8 <Menu_Init+0x264>)
- 80023ce:	629a      	str	r2, [r3, #40]	; 0x28
+ 8001986:	4b7b      	ldr	r3, [pc, #492]	; (8001b74 <Menu_Init+0x254>)
+ 8001988:	4a7e      	ldr	r2, [pc, #504]	; (8001b84 <Menu_Init+0x264>)
+ 800198a:	629a      	str	r2, [r3, #40]	; 0x28
 	items[1].child = &items_menu_2[0];
- 80023d0:	4b79      	ldr	r3, [pc, #484]	; (80025b8 <Menu_Init+0x254>)
- 80023d2:	4a7e      	ldr	r2, [pc, #504]	; (80025cc <Menu_Init+0x268>)
- 80023d4:	62da      	str	r2, [r3, #44]	; 0x2c
+ 800198c:	4b79      	ldr	r3, [pc, #484]	; (8001b74 <Menu_Init+0x254>)
+ 800198e:	4a7e      	ldr	r2, [pc, #504]	; (8001b88 <Menu_Init+0x268>)
+ 8001990:	62da      	str	r2, [r3, #44]	; 0x2c
 	items[1].parent = 0;
- 80023d6:	4b78      	ldr	r3, [pc, #480]	; (80025b8 <Menu_Init+0x254>)
- 80023d8:	2200      	movs	r2, #0
- 80023da:	631a      	str	r2, [r3, #48]	; 0x30
+ 8001992:	4b78      	ldr	r3, [pc, #480]	; (8001b74 <Menu_Init+0x254>)
+ 8001994:	2200      	movs	r2, #0
+ 8001996:	631a      	str	r2, [r3, #48]	; 0x30
 	items[1].id = 2;
- 80023dc:	4b76      	ldr	r3, [pc, #472]	; (80025b8 <Menu_Init+0x254>)
- 80023de:	2202      	movs	r2, #2
- 80023e0:	f883 2034 	strb.w	r2, [r3, #52]	; 0x34
+ 8001998:	4b76      	ldr	r3, [pc, #472]	; (8001b74 <Menu_Init+0x254>)
+ 800199a:	2202      	movs	r2, #2
+ 800199c:	f883 2034 	strb.w	r2, [r3, #52]	; 0x34
 	items[1].name = "NRF24L01";
- 80023e4:	4b74      	ldr	r3, [pc, #464]	; (80025b8 <Menu_Init+0x254>)
- 80023e6:	4a7a      	ldr	r2, [pc, #488]	; (80025d0 <Menu_Init+0x26c>)
- 80023e8:	639a      	str	r2, [r3, #56]	; 0x38
+ 80019a0:	4b74      	ldr	r3, [pc, #464]	; (8001b74 <Menu_Init+0x254>)
+ 80019a2:	4a7a      	ldr	r2, [pc, #488]	; (8001b8c <Menu_Init+0x26c>)
+ 80019a4:	639a      	str	r2, [r3, #56]	; 0x38
 	items[1].updateScreen_up = p_print_rows_on_oled_if_up;
- 80023ea:	4a73      	ldr	r2, [pc, #460]	; (80025b8 <Menu_Init+0x254>)
- 80023ec:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80023ee:	63d3      	str	r3, [r2, #60]	; 0x3c
+ 80019a6:	4a73      	ldr	r2, [pc, #460]	; (8001b74 <Menu_Init+0x254>)
+ 80019a8:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80019aa:	63d3      	str	r3, [r2, #60]	; 0x3c
 	items[1].updateScreen_down = p_print_rows_on_oled_if_down;
- 80023f0:	4a71      	ldr	r2, [pc, #452]	; (80025b8 <Menu_Init+0x254>)
- 80023f2:	6a3b      	ldr	r3, [r7, #32]
- 80023f4:	6413      	str	r3, [r2, #64]	; 0x40
+ 80019ac:	4a71      	ldr	r2, [pc, #452]	; (8001b74 <Menu_Init+0x254>)
+ 80019ae:	6a3b      	ldr	r3, [r7, #32]
+ 80019b0:	6413      	str	r3, [r2, #64]	; 0x40
 	items[1].makeAction = 0;
- 80023f6:	4b70      	ldr	r3, [pc, #448]	; (80025b8 <Menu_Init+0x254>)
- 80023f8:	2200      	movs	r2, #0
- 80023fa:	645a      	str	r2, [r3, #68]	; 0x44
+ 80019b2:	4b70      	ldr	r3, [pc, #448]	; (8001b74 <Menu_Init+0x254>)
+ 80019b4:	2200      	movs	r2, #0
+ 80019b6:	645a      	str	r2, [r3, #68]	; 0x44
 
 	items[2].up = &items[1];
- 80023fc:	4b6e      	ldr	r3, [pc, #440]	; (80025b8 <Menu_Init+0x254>)
- 80023fe:	4a6f      	ldr	r2, [pc, #444]	; (80025bc <Menu_Init+0x258>)
- 8002400:	649a      	str	r2, [r3, #72]	; 0x48
+ 80019b8:	4b6e      	ldr	r3, [pc, #440]	; (8001b74 <Menu_Init+0x254>)
+ 80019ba:	4a6f      	ldr	r2, [pc, #444]	; (8001b78 <Menu_Init+0x258>)
+ 80019bc:	649a      	str	r2, [r3, #72]	; 0x48
 	items[2].down = 0;
- 8002402:	4b6d      	ldr	r3, [pc, #436]	; (80025b8 <Menu_Init+0x254>)
- 8002404:	2200      	movs	r2, #0
- 8002406:	64da      	str	r2, [r3, #76]	; 0x4c
+ 80019be:	4b6d      	ldr	r3, [pc, #436]	; (8001b74 <Menu_Init+0x254>)
+ 80019c0:	2200      	movs	r2, #0
+ 80019c2:	64da      	str	r2, [r3, #76]	; 0x4c
 	items[2].child = &items_menu_3[0];
- 8002408:	4b6b      	ldr	r3, [pc, #428]	; (80025b8 <Menu_Init+0x254>)
- 800240a:	4a72      	ldr	r2, [pc, #456]	; (80025d4 <Menu_Init+0x270>)
- 800240c:	651a      	str	r2, [r3, #80]	; 0x50
+ 80019c4:	4b6b      	ldr	r3, [pc, #428]	; (8001b74 <Menu_Init+0x254>)
+ 80019c6:	4a72      	ldr	r2, [pc, #456]	; (8001b90 <Menu_Init+0x270>)
+ 80019c8:	651a      	str	r2, [r3, #80]	; 0x50
 	items[2].parent = 0;
- 800240e:	4b6a      	ldr	r3, [pc, #424]	; (80025b8 <Menu_Init+0x254>)
- 8002410:	2200      	movs	r2, #0
- 8002412:	655a      	str	r2, [r3, #84]	; 0x54
+ 80019ca:	4b6a      	ldr	r3, [pc, #424]	; (8001b74 <Menu_Init+0x254>)
+ 80019cc:	2200      	movs	r2, #0
+ 80019ce:	655a      	str	r2, [r3, #84]	; 0x54
 	items[2].id = 3;
- 8002414:	4b68      	ldr	r3, [pc, #416]	; (80025b8 <Menu_Init+0x254>)
- 8002416:	2203      	movs	r2, #3
- 8002418:	f883 2058 	strb.w	r2, [r3, #88]	; 0x58
+ 80019d0:	4b68      	ldr	r3, [pc, #416]	; (8001b74 <Menu_Init+0x254>)
+ 80019d2:	2203      	movs	r2, #3
+ 80019d4:	f883 2058 	strb.w	r2, [r3, #88]	; 0x58
 	items[2].name = "AM2302 sensor";
- 800241c:	4b66      	ldr	r3, [pc, #408]	; (80025b8 <Menu_Init+0x254>)
- 800241e:	4a6e      	ldr	r2, [pc, #440]	; (80025d8 <Menu_Init+0x274>)
- 8002420:	65da      	str	r2, [r3, #92]	; 0x5c
+ 80019d8:	4b66      	ldr	r3, [pc, #408]	; (8001b74 <Menu_Init+0x254>)
+ 80019da:	4a6e      	ldr	r2, [pc, #440]	; (8001b94 <Menu_Init+0x274>)
+ 80019dc:	65da      	str	r2, [r3, #92]	; 0x5c
 	items[2].updateScreen_up = p_print_rows_on_oled_if_up;
- 8002422:	4a65      	ldr	r2, [pc, #404]	; (80025b8 <Menu_Init+0x254>)
- 8002424:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8002426:	6613      	str	r3, [r2, #96]	; 0x60
+ 80019de:	4a65      	ldr	r2, [pc, #404]	; (8001b74 <Menu_Init+0x254>)
+ 80019e0:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80019e2:	6613      	str	r3, [r2, #96]	; 0x60
 	items[2].updateScreen_down = p_print_rows_on_oled_if_down;
- 8002428:	4a63      	ldr	r2, [pc, #396]	; (80025b8 <Menu_Init+0x254>)
- 800242a:	6a3b      	ldr	r3, [r7, #32]
- 800242c:	6653      	str	r3, [r2, #100]	; 0x64
+ 80019e4:	4a63      	ldr	r2, [pc, #396]	; (8001b74 <Menu_Init+0x254>)
+ 80019e6:	6a3b      	ldr	r3, [r7, #32]
+ 80019e8:	6653      	str	r3, [r2, #100]	; 0x64
 	items[2].makeAction = 0;
- 800242e:	4b62      	ldr	r3, [pc, #392]	; (80025b8 <Menu_Init+0x254>)
- 8002430:	2200      	movs	r2, #0
- 8002432:	669a      	str	r2, [r3, #104]	; 0x68
+ 80019ea:	4b62      	ldr	r3, [pc, #392]	; (8001b74 <Menu_Init+0x254>)
+ 80019ec:	2200      	movs	r2, #0
+ 80019ee:	669a      	str	r2, [r3, #104]	; 0x68
 
 	///////////////////////////////////////////////////////////////////
 	// Creating LoRa menu
 	items_menu_1[0].up = 0;
- 8002434:	4b62      	ldr	r3, [pc, #392]	; (80025c0 <Menu_Init+0x25c>)
- 8002436:	2200      	movs	r2, #0
- 8002438:	601a      	str	r2, [r3, #0]
+ 80019f0:	4b62      	ldr	r3, [pc, #392]	; (8001b7c <Menu_Init+0x25c>)
+ 80019f2:	2200      	movs	r2, #0
+ 80019f4:	601a      	str	r2, [r3, #0]
 	items_menu_1[0].down = &items_menu_1[1];
- 800243a:	4b61      	ldr	r3, [pc, #388]	; (80025c0 <Menu_Init+0x25c>)
- 800243c:	4a67      	ldr	r2, [pc, #412]	; (80025dc <Menu_Init+0x278>)
- 800243e:	605a      	str	r2, [r3, #4]
+ 80019f6:	4b61      	ldr	r3, [pc, #388]	; (8001b7c <Menu_Init+0x25c>)
+ 80019f8:	4a67      	ldr	r2, [pc, #412]	; (8001b98 <Menu_Init+0x278>)
+ 80019fa:	605a      	str	r2, [r3, #4]
 	items_menu_1[0].id = 1;
- 8002440:	4b5f      	ldr	r3, [pc, #380]	; (80025c0 <Menu_Init+0x25c>)
- 8002442:	2201      	movs	r2, #1
- 8002444:	741a      	strb	r2, [r3, #16]
+ 80019fc:	4b5f      	ldr	r3, [pc, #380]	; (8001b7c <Menu_Init+0x25c>)
+ 80019fe:	2201      	movs	r2, #1
+ 8001a00:	741a      	strb	r2, [r3, #16]
 	items_menu_1[0].child = 0;
- 8002446:	4b5e      	ldr	r3, [pc, #376]	; (80025c0 <Menu_Init+0x25c>)
- 8002448:	2200      	movs	r2, #0
- 800244a:	609a      	str	r2, [r3, #8]
+ 8001a02:	4b5e      	ldr	r3, [pc, #376]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a04:	2200      	movs	r2, #0
+ 8001a06:	609a      	str	r2, [r3, #8]
 	items_menu_1[0].parent = &items[0];
- 800244c:	4b5c      	ldr	r3, [pc, #368]	; (80025c0 <Menu_Init+0x25c>)
- 800244e:	4a5a      	ldr	r2, [pc, #360]	; (80025b8 <Menu_Init+0x254>)
- 8002450:	60da      	str	r2, [r3, #12]
+ 8001a08:	4b5c      	ldr	r3, [pc, #368]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a0a:	4a5a      	ldr	r2, [pc, #360]	; (8001b74 <Menu_Init+0x254>)
+ 8001a0c:	60da      	str	r2, [r3, #12]
 	items_menu_1[0].name = "LoRa RX";
- 8002452:	4b5b      	ldr	r3, [pc, #364]	; (80025c0 <Menu_Init+0x25c>)
- 8002454:	4a62      	ldr	r2, [pc, #392]	; (80025e0 <Menu_Init+0x27c>)
- 8002456:	615a      	str	r2, [r3, #20]
+ 8001a0e:	4b5b      	ldr	r3, [pc, #364]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a10:	4a62      	ldr	r2, [pc, #392]	; (8001b9c <Menu_Init+0x27c>)
+ 8001a12:	615a      	str	r2, [r3, #20]
 	items_menu_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
- 8002458:	4a59      	ldr	r2, [pc, #356]	; (80025c0 <Menu_Init+0x25c>)
- 800245a:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 800245c:	6193      	str	r3, [r2, #24]
+ 8001a14:	4a59      	ldr	r2, [pc, #356]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a16:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001a18:	6193      	str	r3, [r2, #24]
 	items_menu_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
- 800245e:	4a58      	ldr	r2, [pc, #352]	; (80025c0 <Menu_Init+0x25c>)
- 8002460:	6a3b      	ldr	r3, [r7, #32]
- 8002462:	61d3      	str	r3, [r2, #28]
+ 8001a1a:	4a58      	ldr	r2, [pc, #352]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a1c:	6a3b      	ldr	r3, [r7, #32]
+ 8001a1e:	61d3      	str	r3, [r2, #28]
 	items_menu_1[0].makeAction = lora_rx_mode;
- 8002464:	4b56      	ldr	r3, [pc, #344]	; (80025c0 <Menu_Init+0x25c>)
- 8002466:	4a4f      	ldr	r2, [pc, #316]	; (80025a4 <Menu_Init+0x240>)
- 8002468:	621a      	str	r2, [r3, #32]
+ 8001a20:	4b56      	ldr	r3, [pc, #344]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a22:	4a4f      	ldr	r2, [pc, #316]	; (8001b60 <Menu_Init+0x240>)
+ 8001a24:	621a      	str	r2, [r3, #32]
 
 	items_menu_1[1].up = &items_menu_1[0];
- 800246a:	4b55      	ldr	r3, [pc, #340]	; (80025c0 <Menu_Init+0x25c>)
- 800246c:	4a54      	ldr	r2, [pc, #336]	; (80025c0 <Menu_Init+0x25c>)
- 800246e:	625a      	str	r2, [r3, #36]	; 0x24
+ 8001a26:	4b55      	ldr	r3, [pc, #340]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a28:	4a54      	ldr	r2, [pc, #336]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a2a:	625a      	str	r2, [r3, #36]	; 0x24
 	items_menu_1[1].down = &items_menu_1[2];
- 8002470:	4b53      	ldr	r3, [pc, #332]	; (80025c0 <Menu_Init+0x25c>)
- 8002472:	4a5c      	ldr	r2, [pc, #368]	; (80025e4 <Menu_Init+0x280>)
- 8002474:	629a      	str	r2, [r3, #40]	; 0x28
+ 8001a2c:	4b53      	ldr	r3, [pc, #332]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a2e:	4a5c      	ldr	r2, [pc, #368]	; (8001ba0 <Menu_Init+0x280>)
+ 8001a30:	629a      	str	r2, [r3, #40]	; 0x28
 	items_menu_1[1].child = 0;
- 8002476:	4b52      	ldr	r3, [pc, #328]	; (80025c0 <Menu_Init+0x25c>)
- 8002478:	2200      	movs	r2, #0
- 800247a:	62da      	str	r2, [r3, #44]	; 0x2c
+ 8001a32:	4b52      	ldr	r3, [pc, #328]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a34:	2200      	movs	r2, #0
+ 8001a36:	62da      	str	r2, [r3, #44]	; 0x2c
 	items_menu_1[1].parent = &items[0];
- 800247c:	4b50      	ldr	r3, [pc, #320]	; (80025c0 <Menu_Init+0x25c>)
- 800247e:	4a4e      	ldr	r2, [pc, #312]	; (80025b8 <Menu_Init+0x254>)
- 8002480:	631a      	str	r2, [r3, #48]	; 0x30
+ 8001a38:	4b50      	ldr	r3, [pc, #320]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a3a:	4a4e      	ldr	r2, [pc, #312]	; (8001b74 <Menu_Init+0x254>)
+ 8001a3c:	631a      	str	r2, [r3, #48]	; 0x30
 	items_menu_1[1].id = 2;
- 8002482:	4b4f      	ldr	r3, [pc, #316]	; (80025c0 <Menu_Init+0x25c>)
- 8002484:	2202      	movs	r2, #2
- 8002486:	f883 2034 	strb.w	r2, [r3, #52]	; 0x34
+ 8001a3e:	4b4f      	ldr	r3, [pc, #316]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a40:	2202      	movs	r2, #2
+ 8001a42:	f883 2034 	strb.w	r2, [r3, #52]	; 0x34
 	items_menu_1[1].name = "LoRa TX";
- 800248a:	4b4d      	ldr	r3, [pc, #308]	; (80025c0 <Menu_Init+0x25c>)
- 800248c:	4a56      	ldr	r2, [pc, #344]	; (80025e8 <Menu_Init+0x284>)
- 800248e:	639a      	str	r2, [r3, #56]	; 0x38
+ 8001a46:	4b4d      	ldr	r3, [pc, #308]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a48:	4a56      	ldr	r2, [pc, #344]	; (8001ba4 <Menu_Init+0x284>)
+ 8001a4a:	639a      	str	r2, [r3, #56]	; 0x38
 	items_menu_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
- 8002490:	4a4b      	ldr	r2, [pc, #300]	; (80025c0 <Menu_Init+0x25c>)
- 8002492:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8002494:	63d3      	str	r3, [r2, #60]	; 0x3c
+ 8001a4c:	4a4b      	ldr	r2, [pc, #300]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a4e:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001a50:	63d3      	str	r3, [r2, #60]	; 0x3c
 	items_menu_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
- 8002496:	4a4a      	ldr	r2, [pc, #296]	; (80025c0 <Menu_Init+0x25c>)
- 8002498:	6a3b      	ldr	r3, [r7, #32]
- 800249a:	6413      	str	r3, [r2, #64]	; 0x40
+ 8001a52:	4a4a      	ldr	r2, [pc, #296]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a54:	6a3b      	ldr	r3, [r7, #32]
+ 8001a56:	6413      	str	r3, [r2, #64]	; 0x40
 	items_menu_1[1].makeAction = p_lora_tx_mode;
- 800249c:	4a48      	ldr	r2, [pc, #288]	; (80025c0 <Menu_Init+0x25c>)
- 800249e:	693b      	ldr	r3, [r7, #16]
- 80024a0:	6453      	str	r3, [r2, #68]	; 0x44
+ 8001a58:	4a48      	ldr	r2, [pc, #288]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a5a:	693b      	ldr	r3, [r7, #16]
+ 8001a5c:	6453      	str	r3, [r2, #68]	; 0x44
 
 	items_menu_1[2].up = &items_menu_1[1];
- 80024a2:	4b47      	ldr	r3, [pc, #284]	; (80025c0 <Menu_Init+0x25c>)
- 80024a4:	4a4d      	ldr	r2, [pc, #308]	; (80025dc <Menu_Init+0x278>)
- 80024a6:	649a      	str	r2, [r3, #72]	; 0x48
+ 8001a5e:	4b47      	ldr	r3, [pc, #284]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a60:	4a4d      	ldr	r2, [pc, #308]	; (8001b98 <Menu_Init+0x278>)
+ 8001a62:	649a      	str	r2, [r3, #72]	; 0x48
 	items_menu_1[2].down = 0;
- 80024a8:	4b45      	ldr	r3, [pc, #276]	; (80025c0 <Menu_Init+0x25c>)
- 80024aa:	2200      	movs	r2, #0
- 80024ac:	64da      	str	r2, [r3, #76]	; 0x4c
+ 8001a64:	4b45      	ldr	r3, [pc, #276]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a66:	2200      	movs	r2, #0
+ 8001a68:	64da      	str	r2, [r3, #76]	; 0x4c
 	items_menu_1[2].child = 0;
- 80024ae:	4b44      	ldr	r3, [pc, #272]	; (80025c0 <Menu_Init+0x25c>)
- 80024b0:	2200      	movs	r2, #0
- 80024b2:	651a      	str	r2, [r3, #80]	; 0x50
+ 8001a6a:	4b44      	ldr	r3, [pc, #272]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a6c:	2200      	movs	r2, #0
+ 8001a6e:	651a      	str	r2, [r3, #80]	; 0x50
 	items_menu_1[2].parent = &items[0];
- 80024b4:	4b42      	ldr	r3, [pc, #264]	; (80025c0 <Menu_Init+0x25c>)
- 80024b6:	4a40      	ldr	r2, [pc, #256]	; (80025b8 <Menu_Init+0x254>)
- 80024b8:	655a      	str	r2, [r3, #84]	; 0x54
+ 8001a70:	4b42      	ldr	r3, [pc, #264]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a72:	4a40      	ldr	r2, [pc, #256]	; (8001b74 <Menu_Init+0x254>)
+ 8001a74:	655a      	str	r2, [r3, #84]	; 0x54
 	items_menu_1[2].id = 3;
- 80024ba:	4b41      	ldr	r3, [pc, #260]	; (80025c0 <Menu_Init+0x25c>)
- 80024bc:	2203      	movs	r2, #3
- 80024be:	f883 2058 	strb.w	r2, [r3, #88]	; 0x58
+ 8001a76:	4b41      	ldr	r3, [pc, #260]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a78:	2203      	movs	r2, #3
+ 8001a7a:	f883 2058 	strb.w	r2, [r3, #88]	; 0x58
 	items_menu_1[2].name = "EXIT";						// Name of item
- 80024c2:	4b3f      	ldr	r3, [pc, #252]	; (80025c0 <Menu_Init+0x25c>)
- 80024c4:	4a49      	ldr	r2, [pc, #292]	; (80025ec <Menu_Init+0x288>)
- 80024c6:	65da      	str	r2, [r3, #92]	; 0x5c
+ 8001a7e:	4b3f      	ldr	r3, [pc, #252]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a80:	4a49      	ldr	r2, [pc, #292]	; (8001ba8 <Menu_Init+0x288>)
+ 8001a82:	65da      	str	r2, [r3, #92]	; 0x5c
 	items_menu_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
- 80024c8:	4a3d      	ldr	r2, [pc, #244]	; (80025c0 <Menu_Init+0x25c>)
- 80024ca:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 80024cc:	6613      	str	r3, [r2, #96]	; 0x60
+ 8001a84:	4a3d      	ldr	r2, [pc, #244]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a86:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001a88:	6613      	str	r3, [r2, #96]	; 0x60
 	items_menu_1[2].updateScreen_down = p_print_rows_on_oled_if_down;
- 80024ce:	4a3c      	ldr	r2, [pc, #240]	; (80025c0 <Menu_Init+0x25c>)
- 80024d0:	6a3b      	ldr	r3, [r7, #32]
- 80024d2:	6653      	str	r3, [r2, #100]	; 0x64
+ 8001a8a:	4a3c      	ldr	r2, [pc, #240]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a8c:	6a3b      	ldr	r3, [r7, #32]
+ 8001a8e:	6653      	str	r3, [r2, #100]	; 0x64
 	items_menu_1[2].makeAction = p_return_from_menu;
- 80024d4:	4a3a      	ldr	r2, [pc, #232]	; (80025c0 <Menu_Init+0x25c>)
- 80024d6:	69fb      	ldr	r3, [r7, #28]
- 80024d8:	6693      	str	r3, [r2, #104]	; 0x68
+ 8001a90:	4a3a      	ldr	r2, [pc, #232]	; (8001b7c <Menu_Init+0x25c>)
+ 8001a92:	69fb      	ldr	r3, [r7, #28]
+ 8001a94:	6693      	str	r3, [r2, #104]	; 0x68
 
 	///////////////////////////////////////////////////////////////////
 	// Creating next menu
 	items_menu_2[0].up = 0;
- 80024da:	4b3c      	ldr	r3, [pc, #240]	; (80025cc <Menu_Init+0x268>)
- 80024dc:	2200      	movs	r2, #0
- 80024de:	601a      	str	r2, [r3, #0]
+ 8001a96:	4b3c      	ldr	r3, [pc, #240]	; (8001b88 <Menu_Init+0x268>)
+ 8001a98:	2200      	movs	r2, #0
+ 8001a9a:	601a      	str	r2, [r3, #0]
 	items_menu_2[0].down = &items_menu_2[1];
- 80024e0:	4b3a      	ldr	r3, [pc, #232]	; (80025cc <Menu_Init+0x268>)
- 80024e2:	4a43      	ldr	r2, [pc, #268]	; (80025f0 <Menu_Init+0x28c>)
- 80024e4:	605a      	str	r2, [r3, #4]
+ 8001a9c:	4b3a      	ldr	r3, [pc, #232]	; (8001b88 <Menu_Init+0x268>)
+ 8001a9e:	4a43      	ldr	r2, [pc, #268]	; (8001bac <Menu_Init+0x28c>)
+ 8001aa0:	605a      	str	r2, [r3, #4]
 	items_menu_2[0].child = 0;
- 80024e6:	4b39      	ldr	r3, [pc, #228]	; (80025cc <Menu_Init+0x268>)
- 80024e8:	2200      	movs	r2, #0
- 80024ea:	609a      	str	r2, [r3, #8]
+ 8001aa2:	4b39      	ldr	r3, [pc, #228]	; (8001b88 <Menu_Init+0x268>)
+ 8001aa4:	2200      	movs	r2, #0
+ 8001aa6:	609a      	str	r2, [r3, #8]
 	items_menu_2[0].parent = &items[1];
- 80024ec:	4b37      	ldr	r3, [pc, #220]	; (80025cc <Menu_Init+0x268>)
- 80024ee:	4a33      	ldr	r2, [pc, #204]	; (80025bc <Menu_Init+0x258>)
- 80024f0:	60da      	str	r2, [r3, #12]
+ 8001aa8:	4b37      	ldr	r3, [pc, #220]	; (8001b88 <Menu_Init+0x268>)
+ 8001aaa:	4a33      	ldr	r2, [pc, #204]	; (8001b78 <Menu_Init+0x258>)
+ 8001aac:	60da      	str	r2, [r3, #12]
 	items_menu_2[0].id = 1;
- 80024f2:	4b36      	ldr	r3, [pc, #216]	; (80025cc <Menu_Init+0x268>)
- 80024f4:	2201      	movs	r2, #1
- 80024f6:	741a      	strb	r2, [r3, #16]
+ 8001aae:	4b36      	ldr	r3, [pc, #216]	; (8001b88 <Menu_Init+0x268>)
+ 8001ab0:	2201      	movs	r2, #1
+ 8001ab2:	741a      	strb	r2, [r3, #16]
 	items_menu_2[0].name = "NRF RX";						// Name of item
- 80024f8:	4b34      	ldr	r3, [pc, #208]	; (80025cc <Menu_Init+0x268>)
- 80024fa:	4a3e      	ldr	r2, [pc, #248]	; (80025f4 <Menu_Init+0x290>)
- 80024fc:	615a      	str	r2, [r3, #20]
+ 8001ab4:	4b34      	ldr	r3, [pc, #208]	; (8001b88 <Menu_Init+0x268>)
+ 8001ab6:	4a3e      	ldr	r2, [pc, #248]	; (8001bb0 <Menu_Init+0x290>)
+ 8001ab8:	615a      	str	r2, [r3, #20]
 	items_menu_2[0].updateScreen_up = p_print_rows_on_oled_if_up;
- 80024fe:	4a33      	ldr	r2, [pc, #204]	; (80025cc <Menu_Init+0x268>)
- 8002500:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8002502:	6193      	str	r3, [r2, #24]
+ 8001aba:	4a33      	ldr	r2, [pc, #204]	; (8001b88 <Menu_Init+0x268>)
+ 8001abc:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001abe:	6193      	str	r3, [r2, #24]
 	items_menu_2[0].updateScreen_down = p_print_rows_on_oled_if_down;
- 8002504:	4a31      	ldr	r2, [pc, #196]	; (80025cc <Menu_Init+0x268>)
- 8002506:	6a3b      	ldr	r3, [r7, #32]
- 8002508:	61d3      	str	r3, [r2, #28]
+ 8001ac0:	4a31      	ldr	r2, [pc, #196]	; (8001b88 <Menu_Init+0x268>)
+ 8001ac2:	6a3b      	ldr	r3, [r7, #32]
+ 8001ac4:	61d3      	str	r3, [r2, #28]
 	items_menu_2[0].makeAction = 0;
- 800250a:	4b30      	ldr	r3, [pc, #192]	; (80025cc <Menu_Init+0x268>)
- 800250c:	2200      	movs	r2, #0
- 800250e:	621a      	str	r2, [r3, #32]
+ 8001ac6:	4b30      	ldr	r3, [pc, #192]	; (8001b88 <Menu_Init+0x268>)
+ 8001ac8:	2200      	movs	r2, #0
+ 8001aca:	621a      	str	r2, [r3, #32]
 
 	items_menu_2[1].up = &items_menu_2[0];
- 8002510:	4b2e      	ldr	r3, [pc, #184]	; (80025cc <Menu_Init+0x268>)
- 8002512:	4a2e      	ldr	r2, [pc, #184]	; (80025cc <Menu_Init+0x268>)
- 8002514:	625a      	str	r2, [r3, #36]	; 0x24
+ 8001acc:	4b2e      	ldr	r3, [pc, #184]	; (8001b88 <Menu_Init+0x268>)
+ 8001ace:	4a2e      	ldr	r2, [pc, #184]	; (8001b88 <Menu_Init+0x268>)
+ 8001ad0:	625a      	str	r2, [r3, #36]	; 0x24
 	items_menu_2[1].down = &items_menu_2[2];
- 8002516:	4b2d      	ldr	r3, [pc, #180]	; (80025cc <Menu_Init+0x268>)
- 8002518:	4a37      	ldr	r2, [pc, #220]	; (80025f8 <Menu_Init+0x294>)
- 800251a:	629a      	str	r2, [r3, #40]	; 0x28
+ 8001ad2:	4b2d      	ldr	r3, [pc, #180]	; (8001b88 <Menu_Init+0x268>)
+ 8001ad4:	4a37      	ldr	r2, [pc, #220]	; (8001bb4 <Menu_Init+0x294>)
+ 8001ad6:	629a      	str	r2, [r3, #40]	; 0x28
 	items_menu_2[1].child = 0;
- 800251c:	4b2b      	ldr	r3, [pc, #172]	; (80025cc <Menu_Init+0x268>)
- 800251e:	2200      	movs	r2, #0
- 8002520:	62da      	str	r2, [r3, #44]	; 0x2c
+ 8001ad8:	4b2b      	ldr	r3, [pc, #172]	; (8001b88 <Menu_Init+0x268>)
+ 8001ada:	2200      	movs	r2, #0
+ 8001adc:	62da      	str	r2, [r3, #44]	; 0x2c
 	items_menu_2[1].parent = &items[1];
- 8002522:	4b2a      	ldr	r3, [pc, #168]	; (80025cc <Menu_Init+0x268>)
- 8002524:	4a25      	ldr	r2, [pc, #148]	; (80025bc <Menu_Init+0x258>)
- 8002526:	631a      	str	r2, [r3, #48]	; 0x30
+ 8001ade:	4b2a      	ldr	r3, [pc, #168]	; (8001b88 <Menu_Init+0x268>)
+ 8001ae0:	4a25      	ldr	r2, [pc, #148]	; (8001b78 <Menu_Init+0x258>)
+ 8001ae2:	631a      	str	r2, [r3, #48]	; 0x30
 	items_menu_2[1].id = 2;
- 8002528:	4b28      	ldr	r3, [pc, #160]	; (80025cc <Menu_Init+0x268>)
- 800252a:	2202      	movs	r2, #2
- 800252c:	f883 2034 	strb.w	r2, [r3, #52]	; 0x34
+ 8001ae4:	4b28      	ldr	r3, [pc, #160]	; (8001b88 <Menu_Init+0x268>)
+ 8001ae6:	2202      	movs	r2, #2
+ 8001ae8:	f883 2034 	strb.w	r2, [r3, #52]	; 0x34
 	items_menu_2[1].name = "NRF TX";						// Name of item
- 8002530:	4b26      	ldr	r3, [pc, #152]	; (80025cc <Menu_Init+0x268>)
- 8002532:	4a32      	ldr	r2, [pc, #200]	; (80025fc <Menu_Init+0x298>)
- 8002534:	639a      	str	r2, [r3, #56]	; 0x38
+ 8001aec:	4b26      	ldr	r3, [pc, #152]	; (8001b88 <Menu_Init+0x268>)
+ 8001aee:	4a32      	ldr	r2, [pc, #200]	; (8001bb8 <Menu_Init+0x298>)
+ 8001af0:	639a      	str	r2, [r3, #56]	; 0x38
 	items_menu_2[1].updateScreen_up = p_print_rows_on_oled_if_up;
- 8002536:	4a25      	ldr	r2, [pc, #148]	; (80025cc <Menu_Init+0x268>)
- 8002538:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 800253a:	63d3      	str	r3, [r2, #60]	; 0x3c
+ 8001af2:	4a25      	ldr	r2, [pc, #148]	; (8001b88 <Menu_Init+0x268>)
+ 8001af4:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001af6:	63d3      	str	r3, [r2, #60]	; 0x3c
 	items_menu_2[1].updateScreen_down = p_print_rows_on_oled_if_down;
- 800253c:	4a23      	ldr	r2, [pc, #140]	; (80025cc <Menu_Init+0x268>)
- 800253e:	6a3b      	ldr	r3, [r7, #32]
- 8002540:	6413      	str	r3, [r2, #64]	; 0x40
+ 8001af8:	4a23      	ldr	r2, [pc, #140]	; (8001b88 <Menu_Init+0x268>)
+ 8001afa:	6a3b      	ldr	r3, [r7, #32]
+ 8001afc:	6413      	str	r3, [r2, #64]	; 0x40
 	items_menu_2[1].makeAction = 0;
- 8002542:	4b22      	ldr	r3, [pc, #136]	; (80025cc <Menu_Init+0x268>)
- 8002544:	2200      	movs	r2, #0
- 8002546:	645a      	str	r2, [r3, #68]	; 0x44
+ 8001afe:	4b22      	ldr	r3, [pc, #136]	; (8001b88 <Menu_Init+0x268>)
+ 8001b00:	2200      	movs	r2, #0
+ 8001b02:	645a      	str	r2, [r3, #68]	; 0x44
 
 	items_menu_2[2].up = &items_menu_2[1];
- 8002548:	4b20      	ldr	r3, [pc, #128]	; (80025cc <Menu_Init+0x268>)
- 800254a:	4a29      	ldr	r2, [pc, #164]	; (80025f0 <Menu_Init+0x28c>)
- 800254c:	649a      	str	r2, [r3, #72]	; 0x48
+ 8001b04:	4b20      	ldr	r3, [pc, #128]	; (8001b88 <Menu_Init+0x268>)
+ 8001b06:	4a29      	ldr	r2, [pc, #164]	; (8001bac <Menu_Init+0x28c>)
+ 8001b08:	649a      	str	r2, [r3, #72]	; 0x48
 	items_menu_2[2].down = 0;
- 800254e:	4b1f      	ldr	r3, [pc, #124]	; (80025cc <Menu_Init+0x268>)
- 8002550:	2200      	movs	r2, #0
- 8002552:	64da      	str	r2, [r3, #76]	; 0x4c
+ 8001b0a:	4b1f      	ldr	r3, [pc, #124]	; (8001b88 <Menu_Init+0x268>)
+ 8001b0c:	2200      	movs	r2, #0
+ 8001b0e:	64da      	str	r2, [r3, #76]	; 0x4c
 	items_menu_2[2].child = 0;
- 8002554:	4b1d      	ldr	r3, [pc, #116]	; (80025cc <Menu_Init+0x268>)
- 8002556:	2200      	movs	r2, #0
- 8002558:	651a      	str	r2, [r3, #80]	; 0x50
+ 8001b10:	4b1d      	ldr	r3, [pc, #116]	; (8001b88 <Menu_Init+0x268>)
+ 8001b12:	2200      	movs	r2, #0
+ 8001b14:	651a      	str	r2, [r3, #80]	; 0x50
 	items_menu_2[2].parent = &items[1];
- 800255a:	4b1c      	ldr	r3, [pc, #112]	; (80025cc <Menu_Init+0x268>)
- 800255c:	4a17      	ldr	r2, [pc, #92]	; (80025bc <Menu_Init+0x258>)
- 800255e:	655a      	str	r2, [r3, #84]	; 0x54
+ 8001b16:	4b1c      	ldr	r3, [pc, #112]	; (8001b88 <Menu_Init+0x268>)
+ 8001b18:	4a17      	ldr	r2, [pc, #92]	; (8001b78 <Menu_Init+0x258>)
+ 8001b1a:	655a      	str	r2, [r3, #84]	; 0x54
 	items_menu_2[2].id = 3;
- 8002560:	4b1a      	ldr	r3, [pc, #104]	; (80025cc <Menu_Init+0x268>)
- 8002562:	2203      	movs	r2, #3
- 8002564:	f883 2058 	strb.w	r2, [r3, #88]	; 0x58
+ 8001b1c:	4b1a      	ldr	r3, [pc, #104]	; (8001b88 <Menu_Init+0x268>)
+ 8001b1e:	2203      	movs	r2, #3
+ 8001b20:	f883 2058 	strb.w	r2, [r3, #88]	; 0x58
 	items_menu_2[2].name = "EXIT";						// Name of item
- 8002568:	4b18      	ldr	r3, [pc, #96]	; (80025cc <Menu_Init+0x268>)
- 800256a:	4a20      	ldr	r2, [pc, #128]	; (80025ec <Menu_Init+0x288>)
- 800256c:	65da      	str	r2, [r3, #92]	; 0x5c
+ 8001b24:	4b18      	ldr	r3, [pc, #96]	; (8001b88 <Menu_Init+0x268>)
+ 8001b26:	4a20      	ldr	r2, [pc, #128]	; (8001ba8 <Menu_Init+0x288>)
+ 8001b28:	65da      	str	r2, [r3, #92]	; 0x5c
 	items_menu_2[2].updateScreen_up = p_print_rows_on_oled_if_up;
- 800256e:	4a17      	ldr	r2, [pc, #92]	; (80025cc <Menu_Init+0x268>)
- 8002570:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8002572:	6613      	str	r3, [r2, #96]	; 0x60
+ 8001b2a:	4a17      	ldr	r2, [pc, #92]	; (8001b88 <Menu_Init+0x268>)
+ 8001b2c:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001b2e:	6613      	str	r3, [r2, #96]	; 0x60
 	items_menu_2[2].updateScreen_down = p_print_rows_on_oled_if_down;
- 8002574:	4a15      	ldr	r2, [pc, #84]	; (80025cc <Menu_Init+0x268>)
- 8002576:	6a3b      	ldr	r3, [r7, #32]
- 8002578:	6653      	str	r3, [r2, #100]	; 0x64
+ 8001b30:	4a15      	ldr	r2, [pc, #84]	; (8001b88 <Menu_Init+0x268>)
+ 8001b32:	6a3b      	ldr	r3, [r7, #32]
+ 8001b34:	6653      	str	r3, [r2, #100]	; 0x64
 	items_menu_2[2].makeAction = p_return_from_menu;
- 800257a:	4a14      	ldr	r2, [pc, #80]	; (80025cc <Menu_Init+0x268>)
- 800257c:	69fb      	ldr	r3, [r7, #28]
- 800257e:	6693      	str	r3, [r2, #104]	; 0x68
+ 8001b36:	4a14      	ldr	r2, [pc, #80]	; (8001b88 <Menu_Init+0x268>)
+ 8001b38:	69fb      	ldr	r3, [r7, #28]
+ 8001b3a:	6693      	str	r3, [r2, #104]	; 0x68
 
 	///////////////////////////////////////////////////////////////////
 	// Creating sensor menu
 	items_menu_3[0].up = 0;
- 8002580:	4b14      	ldr	r3, [pc, #80]	; (80025d4 <Menu_Init+0x270>)
- 8002582:	2200      	movs	r2, #0
- 8002584:	601a      	str	r2, [r3, #0]
+ 8001b3c:	4b14      	ldr	r3, [pc, #80]	; (8001b90 <Menu_Init+0x270>)
+ 8001b3e:	2200      	movs	r2, #0
+ 8001b40:	601a      	str	r2, [r3, #0]
 	items_menu_3[0].down = &items_menu_3[1];
- 8002586:	4b13      	ldr	r3, [pc, #76]	; (80025d4 <Menu_Init+0x270>)
- 8002588:	4a1d      	ldr	r2, [pc, #116]	; (8002600 <Menu_Init+0x29c>)
- 800258a:	605a      	str	r2, [r3, #4]
+ 8001b42:	4b13      	ldr	r3, [pc, #76]	; (8001b90 <Menu_Init+0x270>)
+ 8001b44:	4a1d      	ldr	r2, [pc, #116]	; (8001bbc <Menu_Init+0x29c>)
+ 8001b46:	605a      	str	r2, [r3, #4]
 	items_menu_3[0].child = 0;
- 800258c:	4b11      	ldr	r3, [pc, #68]	; (80025d4 <Menu_Init+0x270>)
- 800258e:	2200      	movs	r2, #0
- 8002590:	609a      	str	r2, [r3, #8]
- 8002592:	e037      	b.n	8002604 <Menu_Init+0x2a0>
- 8002594:	08001b0d 	.word	0x08001b0d
- 8002598:	08001c05 	.word	0x08001c05
- 800259c:	08001f71 	.word	0x08001f71
- 80025a0:	08001e35 	.word	0x08001e35
- 80025a4:	08001fc5 	.word	0x08001fc5
- 80025a8:	08002061 	.word	0x08002061
- 80025ac:	080020fd 	.word	0x080020fd
- 80025b0:	080021bd 	.word	0x080021bd
- 80025b4:	0800227d 	.word	0x0800227d
- 80025b8:	20000808 	.word	0x20000808
- 80025bc:	2000082c 	.word	0x2000082c
- 80025c0:	20000754 	.word	0x20000754
- 80025c4:	080067e8 	.word	0x080067e8
- 80025c8:	20000850 	.word	0x20000850
- 80025cc:	200006e8 	.word	0x200006e8
- 80025d0:	080067f4 	.word	0x080067f4
- 80025d4:	200007c0 	.word	0x200007c0
- 80025d8:	08006800 	.word	0x08006800
- 80025dc:	20000778 	.word	0x20000778
- 80025e0:	08006810 	.word	0x08006810
- 80025e4:	2000079c 	.word	0x2000079c
- 80025e8:	08006818 	.word	0x08006818
- 80025ec:	08006820 	.word	0x08006820
- 80025f0:	2000070c 	.word	0x2000070c
- 80025f4:	08006828 	.word	0x08006828
- 80025f8:	20000730 	.word	0x20000730
- 80025fc:	08006830 	.word	0x08006830
- 8002600:	200007e4 	.word	0x200007e4
+ 8001b48:	4b11      	ldr	r3, [pc, #68]	; (8001b90 <Menu_Init+0x270>)
+ 8001b4a:	2200      	movs	r2, #0
+ 8001b4c:	609a      	str	r2, [r3, #8]
+ 8001b4e:	e037      	b.n	8001bc0 <Menu_Init+0x2a0>
+ 8001b50:	08001e25 	.word	0x08001e25
+ 8001b54:	08001f1d 	.word	0x08001f1d
+ 8001b58:	08002289 	.word	0x08002289
+ 8001b5c:	0800214d 	.word	0x0800214d
+ 8001b60:	080022dd 	.word	0x080022dd
+ 8001b64:	08002379 	.word	0x08002379
+ 8001b68:	08002415 	.word	0x08002415
+ 8001b6c:	080024d5 	.word	0x080024d5
+ 8001b70:	08002595 	.word	0x08002595
+ 8001b74:	20000808 	.word	0x20000808
+ 8001b78:	2000082c 	.word	0x2000082c
+ 8001b7c:	20000754 	.word	0x20000754
+ 8001b80:	08006790 	.word	0x08006790
+ 8001b84:	20000850 	.word	0x20000850
+ 8001b88:	200006e8 	.word	0x200006e8
+ 8001b8c:	0800679c 	.word	0x0800679c
+ 8001b90:	200007c0 	.word	0x200007c0
+ 8001b94:	080067a8 	.word	0x080067a8
+ 8001b98:	20000778 	.word	0x20000778
+ 8001b9c:	080067b8 	.word	0x080067b8
+ 8001ba0:	2000079c 	.word	0x2000079c
+ 8001ba4:	080067c0 	.word	0x080067c0
+ 8001ba8:	080067c8 	.word	0x080067c8
+ 8001bac:	2000070c 	.word	0x2000070c
+ 8001bb0:	080067d0 	.word	0x080067d0
+ 8001bb4:	20000730 	.word	0x20000730
+ 8001bb8:	080067d8 	.word	0x080067d8
+ 8001bbc:	200007e4 	.word	0x200007e4
 	items_menu_3[0].parent = &items[2];
- 8002604:	4b19      	ldr	r3, [pc, #100]	; (800266c <Menu_Init+0x308>)
- 8002606:	4a1a      	ldr	r2, [pc, #104]	; (8002670 <Menu_Init+0x30c>)
- 8002608:	60da      	str	r2, [r3, #12]
+ 8001bc0:	4b19      	ldr	r3, [pc, #100]	; (8001c28 <Menu_Init+0x308>)
+ 8001bc2:	4a1a      	ldr	r2, [pc, #104]	; (8001c2c <Menu_Init+0x30c>)
+ 8001bc4:	60da      	str	r2, [r3, #12]
 	items_menu_3[0].id = 1;
- 800260a:	4b18      	ldr	r3, [pc, #96]	; (800266c <Menu_Init+0x308>)
- 800260c:	2201      	movs	r2, #1
- 800260e:	741a      	strb	r2, [r3, #16]
+ 8001bc6:	4b18      	ldr	r3, [pc, #96]	; (8001c28 <Menu_Init+0x308>)
+ 8001bc8:	2201      	movs	r2, #1
+ 8001bca:	741a      	strb	r2, [r3, #16]
 	items_menu_3[0].name = "Measure T & H";						// Name of item
- 8002610:	4b16      	ldr	r3, [pc, #88]	; (800266c <Menu_Init+0x308>)
- 8002612:	4a18      	ldr	r2, [pc, #96]	; (8002674 <Menu_Init+0x310>)
- 8002614:	615a      	str	r2, [r3, #20]
+ 8001bcc:	4b16      	ldr	r3, [pc, #88]	; (8001c28 <Menu_Init+0x308>)
+ 8001bce:	4a18      	ldr	r2, [pc, #96]	; (8001c30 <Menu_Init+0x310>)
+ 8001bd0:	615a      	str	r2, [r3, #20]
 	items_menu_3[0].updateScreen_up = p_print_rows_on_oled_if_up;
- 8002616:	4a15      	ldr	r2, [pc, #84]	; (800266c <Menu_Init+0x308>)
- 8002618:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 800261a:	6193      	str	r3, [r2, #24]
+ 8001bd2:	4a15      	ldr	r2, [pc, #84]	; (8001c28 <Menu_Init+0x308>)
+ 8001bd4:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001bd6:	6193      	str	r3, [r2, #24]
 	items_menu_3[0].updateScreen_down = p_print_rows_on_oled_if_down;
- 800261c:	4a13      	ldr	r2, [pc, #76]	; (800266c <Menu_Init+0x308>)
- 800261e:	6a3b      	ldr	r3, [r7, #32]
- 8002620:	61d3      	str	r3, [r2, #28]
+ 8001bd8:	4a13      	ldr	r2, [pc, #76]	; (8001c28 <Menu_Init+0x308>)
+ 8001bda:	6a3b      	ldr	r3, [r7, #32]
+ 8001bdc:	61d3      	str	r3, [r2, #28]
 	items_menu_3[0].makeAction = p_do_it_function_menu_3;
- 8002622:	4a12      	ldr	r2, [pc, #72]	; (800266c <Menu_Init+0x308>)
- 8002624:	687b      	ldr	r3, [r7, #4]
- 8002626:	6213      	str	r3, [r2, #32]
+ 8001bde:	4a12      	ldr	r2, [pc, #72]	; (8001c28 <Menu_Init+0x308>)
+ 8001be0:	687b      	ldr	r3, [r7, #4]
+ 8001be2:	6213      	str	r3, [r2, #32]
 
 	items_menu_3[1].up = &items_menu_3[0];
- 8002628:	4b10      	ldr	r3, [pc, #64]	; (800266c <Menu_Init+0x308>)
- 800262a:	4a10      	ldr	r2, [pc, #64]	; (800266c <Menu_Init+0x308>)
- 800262c:	625a      	str	r2, [r3, #36]	; 0x24
+ 8001be4:	4b10      	ldr	r3, [pc, #64]	; (8001c28 <Menu_Init+0x308>)
+ 8001be6:	4a10      	ldr	r2, [pc, #64]	; (8001c28 <Menu_Init+0x308>)
+ 8001be8:	625a      	str	r2, [r3, #36]	; 0x24
 	items_menu_3[1].down = 0;
- 800262e:	4b0f      	ldr	r3, [pc, #60]	; (800266c <Menu_Init+0x308>)
- 8002630:	2200      	movs	r2, #0
- 8002632:	629a      	str	r2, [r3, #40]	; 0x28
+ 8001bea:	4b0f      	ldr	r3, [pc, #60]	; (8001c28 <Menu_Init+0x308>)
+ 8001bec:	2200      	movs	r2, #0
+ 8001bee:	629a      	str	r2, [r3, #40]	; 0x28
 	items_menu_3[1].child = 0;
- 8002634:	4b0d      	ldr	r3, [pc, #52]	; (800266c <Menu_Init+0x308>)
- 8002636:	2200      	movs	r2, #0
- 8002638:	62da      	str	r2, [r3, #44]	; 0x2c
+ 8001bf0:	4b0d      	ldr	r3, [pc, #52]	; (8001c28 <Menu_Init+0x308>)
+ 8001bf2:	2200      	movs	r2, #0
+ 8001bf4:	62da      	str	r2, [r3, #44]	; 0x2c
 	items_menu_3[1].parent = &items[2];
- 800263a:	4b0c      	ldr	r3, [pc, #48]	; (800266c <Menu_Init+0x308>)
- 800263c:	4a0c      	ldr	r2, [pc, #48]	; (8002670 <Menu_Init+0x30c>)
- 800263e:	631a      	str	r2, [r3, #48]	; 0x30
+ 8001bf6:	4b0c      	ldr	r3, [pc, #48]	; (8001c28 <Menu_Init+0x308>)
+ 8001bf8:	4a0c      	ldr	r2, [pc, #48]	; (8001c2c <Menu_Init+0x30c>)
+ 8001bfa:	631a      	str	r2, [r3, #48]	; 0x30
 	items_menu_3[1].id = 2;
- 8002640:	4b0a      	ldr	r3, [pc, #40]	; (800266c <Menu_Init+0x308>)
- 8002642:	2202      	movs	r2, #2
- 8002644:	f883 2034 	strb.w	r2, [r3, #52]	; 0x34
+ 8001bfc:	4b0a      	ldr	r3, [pc, #40]	; (8001c28 <Menu_Init+0x308>)
+ 8001bfe:	2202      	movs	r2, #2
+ 8001c00:	f883 2034 	strb.w	r2, [r3, #52]	; 0x34
 	items_menu_3[1].name = "EXIT";						// Name of item
- 8002648:	4b08      	ldr	r3, [pc, #32]	; (800266c <Menu_Init+0x308>)
- 800264a:	4a0b      	ldr	r2, [pc, #44]	; (8002678 <Menu_Init+0x314>)
- 800264c:	639a      	str	r2, [r3, #56]	; 0x38
+ 8001c04:	4b08      	ldr	r3, [pc, #32]	; (8001c28 <Menu_Init+0x308>)
+ 8001c06:	4a0b      	ldr	r2, [pc, #44]	; (8001c34 <Menu_Init+0x314>)
+ 8001c08:	639a      	str	r2, [r3, #56]	; 0x38
 	items_menu_3[1].updateScreen_up = p_print_rows_on_oled_if_up;
- 800264e:	4a07      	ldr	r2, [pc, #28]	; (800266c <Menu_Init+0x308>)
- 8002650:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8002652:	63d3      	str	r3, [r2, #60]	; 0x3c
+ 8001c0a:	4a07      	ldr	r2, [pc, #28]	; (8001c28 <Menu_Init+0x308>)
+ 8001c0c:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001c0e:	63d3      	str	r3, [r2, #60]	; 0x3c
 	items_menu_3[1].updateScreen_down = p_print_rows_on_oled_if_down;
- 8002654:	4a05      	ldr	r2, [pc, #20]	; (800266c <Menu_Init+0x308>)
- 8002656:	6a3b      	ldr	r3, [r7, #32]
- 8002658:	6413      	str	r3, [r2, #64]	; 0x40
+ 8001c10:	4a05      	ldr	r2, [pc, #20]	; (8001c28 <Menu_Init+0x308>)
+ 8001c12:	6a3b      	ldr	r3, [r7, #32]
+ 8001c14:	6413      	str	r3, [r2, #64]	; 0x40
 	items_menu_3[1].makeAction = p_return_from_menu;
- 800265a:	4a04      	ldr	r2, [pc, #16]	; (800266c <Menu_Init+0x308>)
- 800265c:	69fb      	ldr	r3, [r7, #28]
- 800265e:	6453      	str	r3, [r2, #68]	; 0x44
+ 8001c16:	4a04      	ldr	r2, [pc, #16]	; (8001c28 <Menu_Init+0x308>)
+ 8001c18:	69fb      	ldr	r3, [r7, #28]
+ 8001c1a:	6453      	str	r3, [r2, #68]	; 0x44
 
 }
- 8002660:	bf00      	nop
- 8002662:	372c      	adds	r7, #44	; 0x2c
- 8002664:	46bd      	mov	sp, r7
- 8002666:	bc80      	pop	{r7}
- 8002668:	4770      	bx	lr
- 800266a:	bf00      	nop
- 800266c:	200007c0 	.word	0x200007c0
- 8002670:	20000850 	.word	0x20000850
- 8002674:	08006838 	.word	0x08006838
- 8002678:	08006820 	.word	0x08006820
+ 8001c1c:	bf00      	nop
+ 8001c1e:	372c      	adds	r7, #44	; 0x2c
+ 8001c20:	46bd      	mov	sp, r7
+ 8001c22:	bc80      	pop	{r7}
+ 8001c24:	4770      	bx	lr
+ 8001c26:	bf00      	nop
+ 8001c28:	200007c0 	.word	0x200007c0
+ 8001c2c:	20000850 	.word	0x20000850
+ 8001c30:	080067e0 	.word	0x080067e0
+ 8001c34:	080067c8 	.word	0x080067c8
+
+08001c38 <scroll_bar>:
+// ----------------------------------------------------------------------------------------
+/*
+This function print scrollbar on right part of OLED.
+ */
+void scroll_bar(void)
+{
+ 8001c38:	b590      	push	{r4, r7, lr}
+ 8001c3a:	b089      	sub	sp, #36	; 0x24
+ 8001c3c:	af02      	add	r7, sp, #8
+	// Work size scrollbar
+	uint16_t start_x_scrollbar = 124;
+ 8001c3e:	237c      	movs	r3, #124	; 0x7c
+ 8001c40:	81fb      	strh	r3, [r7, #14]
+	uint16_t start_y_scrollbar = 17;
+ 8001c42:	2311      	movs	r3, #17
+ 8001c44:	81bb      	strh	r3, [r7, #12]
+	uint16_t active_width = 3;
+ 8001c46:	2303      	movs	r3, #3
+ 8001c48:	817b      	strh	r3, [r7, #10]
+	uint16_t lenght_all_scrollbar = 48;
+ 8001c4a:	2330      	movs	r3, #48	; 0x30
+ 8001c4c:	813b      	strh	r3, [r7, #8]
+
+	uint8_t menu_items_counter = 1;
+ 8001c4e:	2301      	movs	r3, #1
+ 8001c50:	75fb      	strb	r3, [r7, #23]
+	// 1. Скопіювати показник на меню в буффер.
+	// 2. Піднятися до першого елемента меню.
+	// 3. Опускатися вниз до останнього пункту меню і інкрементувати лічильник елементів меню.
+	// 4. Використати лічильник пунктів меню для вираховування довжини полоси прокрутки і її координат.
+
+	MenuItem_t * currentItem_buff = currentItem;
+ 8001c52:	4b32      	ldr	r3, [pc, #200]	; (8001d1c <scroll_bar+0xe4>)
+ 8001c54:	681b      	ldr	r3, [r3, #0]
+ 8001c56:	613b      	str	r3, [r7, #16]
+
+	if ((currentItem_buff -> up) != 0)							// Step up if existing up
+ 8001c58:	693b      	ldr	r3, [r7, #16]
+ 8001c5a:	681b      	ldr	r3, [r3, #0]
+ 8001c5c:	2b00      	cmp	r3, #0
+ 8001c5e:	d006      	beq.n	8001c6e <scroll_bar+0x36>
+	{
+		do{
+			currentItem_buff = currentItem_buff -> up;			// Step up to the top of menu
+ 8001c60:	693b      	ldr	r3, [r7, #16]
+ 8001c62:	681b      	ldr	r3, [r3, #0]
+ 8001c64:	613b      	str	r3, [r7, #16]
+		}
+		while ((currentItem_buff -> up) != 0);					// If the top of item doesen't found
+ 8001c66:	693b      	ldr	r3, [r7, #16]
+ 8001c68:	681b      	ldr	r3, [r3, #0]
+ 8001c6a:	2b00      	cmp	r3, #0
+ 8001c6c:	d1f8      	bne.n	8001c60 <scroll_bar+0x28>
+	}
+
+	if ((currentItem_buff -> up) == 0)							// If found top of menu item
+ 8001c6e:	693b      	ldr	r3, [r7, #16]
+ 8001c70:	681b      	ldr	r3, [r3, #0]
+ 8001c72:	2b00      	cmp	r3, #0
+ 8001c74:	d109      	bne.n	8001c8a <scroll_bar+0x52>
+	{
+		do{
+			currentItem_buff = currentItem_buff -> down;
+ 8001c76:	693b      	ldr	r3, [r7, #16]
+ 8001c78:	685b      	ldr	r3, [r3, #4]
+ 8001c7a:	613b      	str	r3, [r7, #16]
+			menu_items_counter++;								// Count how many list on menu
+ 8001c7c:	7dfb      	ldrb	r3, [r7, #23]
+ 8001c7e:	3301      	adds	r3, #1
+ 8001c80:	75fb      	strb	r3, [r7, #23]
+		}
+		while ((currentItem_buff -> down) != 0);
+ 8001c82:	693b      	ldr	r3, [r7, #16]
+ 8001c84:	685b      	ldr	r3, [r3, #4]
+ 8001c86:	2b00      	cmp	r3, #0
+ 8001c88:	d1f5      	bne.n	8001c76 <scroll_bar+0x3e>
+	}
+	 // Очистити частину керану де є скролбар
+	ssd1306FillRect(start_x_scrollbar, start_y_scrollbar, active_width, lenght_all_scrollbar - 2, Black);
+ 8001c8a:	89fb      	ldrh	r3, [r7, #14]
+ 8001c8c:	b2d8      	uxtb	r0, r3
+ 8001c8e:	89bb      	ldrh	r3, [r7, #12]
+ 8001c90:	b2d9      	uxtb	r1, r3
+ 8001c92:	897b      	ldrh	r3, [r7, #10]
+ 8001c94:	b2da      	uxtb	r2, r3
+ 8001c96:	893b      	ldrh	r3, [r7, #8]
+ 8001c98:	b2db      	uxtb	r3, r3
+ 8001c9a:	3b02      	subs	r3, #2
+ 8001c9c:	b2db      	uxtb	r3, r3
+ 8001c9e:	2400      	movs	r4, #0
+ 8001ca0:	9400      	str	r4, [sp, #0]
+ 8001ca2:	f7ff f894 	bl	8000dce <ssd1306FillRect>
+
+	// Вивести подовгастий квадрат на край екрану
+	ssd1306_DrawRectangle(start_x_scrollbar - 1, start_y_scrollbar - 1, start_x_scrollbar + active_width, 63, White);
+ 8001ca6:	89fb      	ldrh	r3, [r7, #14]
+ 8001ca8:	b2db      	uxtb	r3, r3
+ 8001caa:	3b01      	subs	r3, #1
+ 8001cac:	b2d8      	uxtb	r0, r3
+ 8001cae:	89bb      	ldrh	r3, [r7, #12]
+ 8001cb0:	b2db      	uxtb	r3, r3
+ 8001cb2:	3b01      	subs	r3, #1
+ 8001cb4:	b2d9      	uxtb	r1, r3
+ 8001cb6:	89fb      	ldrh	r3, [r7, #14]
+ 8001cb8:	b2da      	uxtb	r2, r3
+ 8001cba:	897b      	ldrh	r3, [r7, #10]
+ 8001cbc:	b2db      	uxtb	r3, r3
+ 8001cbe:	4413      	add	r3, r2
+ 8001cc0:	b2da      	uxtb	r2, r3
+ 8001cc2:	2301      	movs	r3, #1
+ 8001cc4:	9300      	str	r3, [sp, #0]
+ 8001cc6:	233f      	movs	r3, #63	; 0x3f
+ 8001cc8:	f7ff f84a 	bl	8000d60 <ssd1306_DrawRectangle>
+	ssd1306_UpdateScreen();
+ 8001ccc:	f7fe fe8e 	bl	80009ec <ssd1306_UpdateScreen>
+
+	 // Print scroling line
+	int id_for_line = currentItem -> id;				// Скопіювати порядковий номер меню (Для того щоб взнати на якому пункті меню зараз стоїмо)
+ 8001cd0:	4b12      	ldr	r3, [pc, #72]	; (8001d1c <scroll_bar+0xe4>)
+ 8001cd2:	681b      	ldr	r3, [r3, #0]
+ 8001cd4:	7c1b      	ldrb	r3, [r3, #16]
+ 8001cd6:	607b      	str	r3, [r7, #4]
+	// Print scroling line
+	uint16_t line_lenght = (lenght_all_scrollbar/menu_items_counter + 1);					   	// Довжина лінії яка відповідає одному меню
+ 8001cd8:	893a      	ldrh	r2, [r7, #8]
+ 8001cda:	7dfb      	ldrb	r3, [r7, #23]
+ 8001cdc:	fb92 f3f3 	sdiv	r3, r2, r3
+ 8001ce0:	b29b      	uxth	r3, r3
+ 8001ce2:	3301      	adds	r3, #1
+ 8001ce4:	807b      	strh	r3, [r7, #2]
+	uint16_t start_lenght = 16 + ((id_for_line - 1)*line_lenght);								// Початок лінії
+ 8001ce6:	687b      	ldr	r3, [r7, #4]
+ 8001ce8:	3b01      	subs	r3, #1
+ 8001cea:	b29b      	uxth	r3, r3
+ 8001cec:	887a      	ldrh	r2, [r7, #2]
+ 8001cee:	fb02 f303 	mul.w	r3, r2, r3
+ 8001cf2:	b29b      	uxth	r3, r3
+ 8001cf4:	3310      	adds	r3, #16
+ 8001cf6:	803b      	strh	r3, [r7, #0]
+	// Print active scrollbar part (line)
+	ssd1306FillRect(start_x_scrollbar, start_lenght, active_width, line_lenght, White);
+ 8001cf8:	89fb      	ldrh	r3, [r7, #14]
+ 8001cfa:	b2d8      	uxtb	r0, r3
+ 8001cfc:	883b      	ldrh	r3, [r7, #0]
+ 8001cfe:	b2d9      	uxtb	r1, r3
+ 8001d00:	897b      	ldrh	r3, [r7, #10]
+ 8001d02:	b2da      	uxtb	r2, r3
+ 8001d04:	887b      	ldrh	r3, [r7, #2]
+ 8001d06:	b2db      	uxtb	r3, r3
+ 8001d08:	2401      	movs	r4, #1
+ 8001d0a:	9400      	str	r4, [sp, #0]
+ 8001d0c:	f7ff f85f 	bl	8000dce <ssd1306FillRect>
+
+	ssd1306_UpdateScreen();
+ 8001d10:	f7fe fe6c 	bl	80009ec <ssd1306_UpdateScreen>
+}
+ 8001d14:	bf00      	nop
+ 8001d16:	371c      	adds	r7, #28
+ 8001d18:	46bd      	mov	sp, r7
+ 8001d1a:	bd90      	pop	{r4, r7, pc}
+ 8001d1c:	20000018 	.word	0x20000018
+
+08001d20 <print_rectangle_on_head>:
+// ----------------------------------------------------------------------------------------
+void print_rectangle_on_head(void)
+{
+ 8001d20:	b580      	push	{r7, lr}
+ 8001d22:	b082      	sub	sp, #8
+ 8001d24:	af02      	add	r7, sp, #8
+	ssd1306_DrawRectangle(0, 0, 127 , 15, White);
+ 8001d26:	2301      	movs	r3, #1
+ 8001d28:	9300      	str	r3, [sp, #0]
+ 8001d2a:	230f      	movs	r3, #15
+ 8001d2c:	227f      	movs	r2, #127	; 0x7f
+ 8001d2e:	2100      	movs	r1, #0
+ 8001d30:	2000      	movs	r0, #0
+ 8001d32:	f7ff f815 	bl	8000d60 <ssd1306_DrawRectangle>
+	ssd1306_UpdateScreen();
+ 8001d36:	f7fe fe59 	bl	80009ec <ssd1306_UpdateScreen>
+}
+ 8001d3a:	bf00      	nop
+ 8001d3c:	46bd      	mov	sp, r7
+ 8001d3e:	bd80      	pop	{r7, pc}
+
+08001d40 <clear_menu_items>:
+// ----------------------------------------------------------------------------------------
+// Clear some menu items.
+void clear_menu_items (bool first, bool second, bool third, bool fourth)
+{
+ 8001d40:	b590      	push	{r4, r7, lr}
+ 8001d42:	b089      	sub	sp, #36	; 0x24
+ 8001d44:	af00      	add	r7, sp, #0
+ 8001d46:	4604      	mov	r4, r0
+ 8001d48:	4608      	mov	r0, r1
+ 8001d4a:	4611      	mov	r1, r2
+ 8001d4c:	461a      	mov	r2, r3
+ 8001d4e:	4623      	mov	r3, r4
+ 8001d50:	71fb      	strb	r3, [r7, #7]
+ 8001d52:	4603      	mov	r3, r0
+ 8001d54:	71bb      	strb	r3, [r7, #6]
+ 8001d56:	460b      	mov	r3, r1
+ 8001d58:	717b      	strb	r3, [r7, #5]
+ 8001d5a:	4613      	mov	r3, r2
+ 8001d5c:	713b      	strb	r3, [r7, #4]
+	uint8_t start_row_x = 15;
+ 8001d5e:	230f      	movs	r3, #15
+ 8001d60:	77fb      	strb	r3, [r7, #31]
+	char str[16] = "               ";   // Must be 15
+ 8001d62:	4b2a      	ldr	r3, [pc, #168]	; (8001e0c <clear_menu_items+0xcc>)
+ 8001d64:	f107 040c 	add.w	r4, r7, #12
+ 8001d68:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
+ 8001d6a:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
+
+	if(first == true)
+ 8001d6e:	79fb      	ldrb	r3, [r7, #7]
+ 8001d70:	2b00      	cmp	r3, #0
+ 8001d72:	d00e      	beq.n	8001d92 <clear_menu_items+0x52>
+	{
+		ssd1306_SetCursor(start_row_x, first_menu_row);
+ 8001d74:	4b26      	ldr	r3, [pc, #152]	; (8001e10 <clear_menu_items+0xd0>)
+ 8001d76:	881b      	ldrh	r3, [r3, #0]
+ 8001d78:	b2da      	uxtb	r2, r3
+ 8001d7a:	7ffb      	ldrb	r3, [r7, #31]
+ 8001d7c:	4611      	mov	r1, r2
+ 8001d7e:	4618      	mov	r0, r3
+ 8001d80:	f7fe ff6a 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 8001d84:	4a23      	ldr	r2, [pc, #140]	; (8001e14 <clear_menu_items+0xd4>)
+ 8001d86:	f107 000c 	add.w	r0, r7, #12
+ 8001d8a:	2301      	movs	r3, #1
+ 8001d8c:	ca06      	ldmia	r2, {r1, r2}
+ 8001d8e:	f7fe ff3d 	bl	8000c0c <ssd1306_WriteString>
+	}
+	if(second == true)
+ 8001d92:	79bb      	ldrb	r3, [r7, #6]
+ 8001d94:	2b00      	cmp	r3, #0
+ 8001d96:	d00e      	beq.n	8001db6 <clear_menu_items+0x76>
+	{
+		ssd1306_SetCursor(start_row_x, second_menu_row);
+ 8001d98:	4b1f      	ldr	r3, [pc, #124]	; (8001e18 <clear_menu_items+0xd8>)
+ 8001d9a:	881b      	ldrh	r3, [r3, #0]
+ 8001d9c:	b2da      	uxtb	r2, r3
+ 8001d9e:	7ffb      	ldrb	r3, [r7, #31]
+ 8001da0:	4611      	mov	r1, r2
+ 8001da2:	4618      	mov	r0, r3
+ 8001da4:	f7fe ff58 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 8001da8:	4a1a      	ldr	r2, [pc, #104]	; (8001e14 <clear_menu_items+0xd4>)
+ 8001daa:	f107 000c 	add.w	r0, r7, #12
+ 8001dae:	2301      	movs	r3, #1
+ 8001db0:	ca06      	ldmia	r2, {r1, r2}
+ 8001db2:	f7fe ff2b 	bl	8000c0c <ssd1306_WriteString>
+	}
+	if(first == true)
+ 8001db6:	79fb      	ldrb	r3, [r7, #7]
+ 8001db8:	2b00      	cmp	r3, #0
+ 8001dba:	d00e      	beq.n	8001dda <clear_menu_items+0x9a>
+	{
+		ssd1306_SetCursor(start_row_x, third_menu_row);
+ 8001dbc:	4b17      	ldr	r3, [pc, #92]	; (8001e1c <clear_menu_items+0xdc>)
+ 8001dbe:	881b      	ldrh	r3, [r3, #0]
+ 8001dc0:	b2da      	uxtb	r2, r3
+ 8001dc2:	7ffb      	ldrb	r3, [r7, #31]
+ 8001dc4:	4611      	mov	r1, r2
+ 8001dc6:	4618      	mov	r0, r3
+ 8001dc8:	f7fe ff46 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 8001dcc:	4a11      	ldr	r2, [pc, #68]	; (8001e14 <clear_menu_items+0xd4>)
+ 8001dce:	f107 000c 	add.w	r0, r7, #12
+ 8001dd2:	2301      	movs	r3, #1
+ 8001dd4:	ca06      	ldmia	r2, {r1, r2}
+ 8001dd6:	f7fe ff19 	bl	8000c0c <ssd1306_WriteString>
+	}
+	if(fourth == true)
+ 8001dda:	793b      	ldrb	r3, [r7, #4]
+ 8001ddc:	2b00      	cmp	r3, #0
+ 8001dde:	d00e      	beq.n	8001dfe <clear_menu_items+0xbe>
+	{
+		ssd1306_SetCursor(start_row_x, fourth_menu_row);
+ 8001de0:	4b0f      	ldr	r3, [pc, #60]	; (8001e20 <clear_menu_items+0xe0>)
+ 8001de2:	881b      	ldrh	r3, [r3, #0]
+ 8001de4:	b2da      	uxtb	r2, r3
+ 8001de6:	7ffb      	ldrb	r3, [r7, #31]
+ 8001de8:	4611      	mov	r1, r2
+ 8001dea:	4618      	mov	r0, r3
+ 8001dec:	f7fe ff34 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 8001df0:	4a08      	ldr	r2, [pc, #32]	; (8001e14 <clear_menu_items+0xd4>)
+ 8001df2:	f107 000c 	add.w	r0, r7, #12
+ 8001df6:	2301      	movs	r3, #1
+ 8001df8:	ca06      	ldmia	r2, {r1, r2}
+ 8001dfa:	f7fe ff07 	bl	8000c0c <ssd1306_WriteString>
+	}
+	ssd1306_UpdateScreen();
+ 8001dfe:	f7fe fdf5 	bl	80009ec <ssd1306_UpdateScreen>
+}
+ 8001e02:	bf00      	nop
+ 8001e04:	3724      	adds	r7, #36	; 0x24
+ 8001e06:	46bd      	mov	sp, r7
+ 8001e08:	bd90      	pop	{r4, r7, pc}
+ 8001e0a:	bf00      	nop
+ 8001e0c:	080067f0 	.word	0x080067f0
+ 8001e10:	20000020 	.word	0x20000020
+ 8001e14:	20000004 	.word	0x20000004
+ 8001e18:	20000022 	.word	0x20000022
+ 8001e1c:	20000024 	.word	0x20000024
+ 8001e20:	20000026 	.word	0x20000026
+
+08001e24 <print_rows_on_oled_if_up>:
+// ----------------------------------------------------------------------------------------
+void print_rows_on_oled_if_up(void)				// print text menu items
+{
+ 8001e24:	b580      	push	{r7, lr}
+ 8001e26:	b086      	sub	sp, #24
+ 8001e28:	af00      	add	r7, sp, #0
+	char str[16] = {0};
+ 8001e2a:	2300      	movs	r3, #0
+ 8001e2c:	603b      	str	r3, [r7, #0]
+ 8001e2e:	1d3b      	adds	r3, r7, #4
+ 8001e30:	2200      	movs	r2, #0
+ 8001e32:	601a      	str	r2, [r3, #0]
+ 8001e34:	605a      	str	r2, [r3, #4]
+ 8001e36:	609a      	str	r2, [r3, #8]
+
+	clear_menu_items (true , true , true , true );
+ 8001e38:	2301      	movs	r3, #1
+ 8001e3a:	2201      	movs	r2, #1
+ 8001e3c:	2101      	movs	r1, #1
+ 8001e3e:	2001      	movs	r0, #1
+ 8001e40:	f7ff ff7e 	bl	8001d40 <clear_menu_items>
+
+	print_rectangle_on_head();
+ 8001e44:	f7ff ff6c 	bl	8001d20 <print_rectangle_on_head>
+
+	// Print pointer on first item menu
+	ssd1306_SetCursor(0, first_menu_row);
+ 8001e48:	4b2c      	ldr	r3, [pc, #176]	; (8001efc <print_rows_on_oled_if_up+0xd8>)
+ 8001e4a:	881b      	ldrh	r3, [r3, #0]
+ 8001e4c:	b2db      	uxtb	r3, r3
+ 8001e4e:	4619      	mov	r1, r3
+ 8001e50:	2000      	movs	r0, #0
+ 8001e52:	f7fe ff01 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str_pointer,  Font_7x10, White);
+ 8001e56:	4a2a      	ldr	r2, [pc, #168]	; (8001f00 <print_rows_on_oled_if_up+0xdc>)
+ 8001e58:	2301      	movs	r3, #1
+ 8001e5a:	ca06      	ldmia	r2, {r1, r2}
+ 8001e5c:	4829      	ldr	r0, [pc, #164]	; (8001f04 <print_rows_on_oled_if_up+0xe0>)
+ 8001e5e:	f7fe fed5 	bl	8000c0c <ssd1306_WriteString>
+
+	MenuItem_t * currentItem_buff_up = currentItem;				// Create buffer on selected current item pointer.
+ 8001e62:	4b29      	ldr	r3, [pc, #164]	; (8001f08 <print_rows_on_oled_if_up+0xe4>)
+ 8001e64:	681b      	ldr	r3, [r3, #0]
+ 8001e66:	617b      	str	r3, [r7, #20]
+	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+ 8001e68:	4b24      	ldr	r3, [pc, #144]	; (8001efc <print_rows_on_oled_if_up+0xd8>)
+ 8001e6a:	881b      	ldrh	r3, [r3, #0]
+ 8001e6c:	74fb      	strb	r3, [r7, #19]
+ 8001e6e:	e035      	b.n	8001edc <print_rows_on_oled_if_up+0xb8>
+	{
+		// Print number of menu item
+		itoa(currentItem_buff_up -> id, str, 10);
+ 8001e70:	697b      	ldr	r3, [r7, #20]
+ 8001e72:	7c1b      	ldrb	r3, [r3, #16]
+ 8001e74:	4618      	mov	r0, r3
+ 8001e76:	463b      	mov	r3, r7
+ 8001e78:	220a      	movs	r2, #10
+ 8001e7a:	4619      	mov	r1, r3
+ 8001e7c:	f003 ffc6 	bl	8005e0c <itoa>
+		ssd1306_SetCursor(start_print_id_menu_x, row);
+ 8001e80:	4b22      	ldr	r3, [pc, #136]	; (8001f0c <print_rows_on_oled_if_up+0xe8>)
+ 8001e82:	881b      	ldrh	r3, [r3, #0]
+ 8001e84:	b2db      	uxtb	r3, r3
+ 8001e86:	7cfa      	ldrb	r2, [r7, #19]
+ 8001e88:	4611      	mov	r1, r2
+ 8001e8a:	4618      	mov	r0, r3
+ 8001e8c:	f7fe fee4 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 8001e90:	4a1b      	ldr	r2, [pc, #108]	; (8001f00 <print_rows_on_oled_if_up+0xdc>)
+ 8001e92:	4638      	mov	r0, r7
+ 8001e94:	2301      	movs	r3, #1
+ 8001e96:	ca06      	ldmia	r2, {r1, r2}
+ 8001e98:	f7fe feb8 	bl	8000c0c <ssd1306_WriteString>
+
+		// Print name of menu item
+		strncpy(str, currentItem_buff_up -> name, 15);
+ 8001e9c:	697b      	ldr	r3, [r7, #20]
+ 8001e9e:	6959      	ldr	r1, [r3, #20]
+ 8001ea0:	463b      	mov	r3, r7
+ 8001ea2:	220f      	movs	r2, #15
+ 8001ea4:	4618      	mov	r0, r3
+ 8001ea6:	f004 f8a7 	bl	8005ff8 <strncpy>
+		ssd1306_SetCursor(start_print_name_menu_x, row);
+ 8001eaa:	4b19      	ldr	r3, [pc, #100]	; (8001f10 <print_rows_on_oled_if_up+0xec>)
+ 8001eac:	881b      	ldrh	r3, [r3, #0]
+ 8001eae:	b2db      	uxtb	r3, r3
+ 8001eb0:	7cfa      	ldrb	r2, [r7, #19]
+ 8001eb2:	4611      	mov	r1, r2
+ 8001eb4:	4618      	mov	r0, r3
+ 8001eb6:	f7fe fecf 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 8001eba:	4a11      	ldr	r2, [pc, #68]	; (8001f00 <print_rows_on_oled_if_up+0xdc>)
+ 8001ebc:	4638      	mov	r0, r7
+ 8001ebe:	2301      	movs	r3, #1
+ 8001ec0:	ca06      	ldmia	r2, {r1, r2}
+ 8001ec2:	f7fe fea3 	bl	8000c0c <ssd1306_WriteString>
+
+		currentItem_buff_up = currentItem_buff_up -> down;		// Make a step down
+ 8001ec6:	697b      	ldr	r3, [r7, #20]
+ 8001ec8:	685b      	ldr	r3, [r3, #4]
+ 8001eca:	617b      	str	r3, [r7, #20]
+
+		// Print only existing items
+		if(currentItem_buff_up == 0)							// If no next item
+ 8001ecc:	697b      	ldr	r3, [r7, #20]
+ 8001ece:	2b00      	cmp	r3, #0
+ 8001ed0:	d00b      	beq.n	8001eea <print_rows_on_oled_if_up+0xc6>
+	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+ 8001ed2:	4b10      	ldr	r3, [pc, #64]	; (8001f14 <print_rows_on_oled_if_up+0xf0>)
+ 8001ed4:	781a      	ldrb	r2, [r3, #0]
+ 8001ed6:	7cfb      	ldrb	r3, [r7, #19]
+ 8001ed8:	4413      	add	r3, r2
+ 8001eda:	74fb      	strb	r3, [r7, #19]
+ 8001edc:	7cfb      	ldrb	r3, [r7, #19]
+ 8001ede:	b29a      	uxth	r2, r3
+ 8001ee0:	4b0d      	ldr	r3, [pc, #52]	; (8001f18 <print_rows_on_oled_if_up+0xf4>)
+ 8001ee2:	881b      	ldrh	r3, [r3, #0]
+ 8001ee4:	429a      	cmp	r2, r3
+ 8001ee6:	d9c3      	bls.n	8001e70 <print_rows_on_oled_if_up+0x4c>
+ 8001ee8:	e000      	b.n	8001eec <print_rows_on_oled_if_up+0xc8>
+		{
+			break;
+ 8001eea:	bf00      	nop
+		}
+	}
+	ssd1306_UpdateScreen();
+ 8001eec:	f7fe fd7e 	bl	80009ec <ssd1306_UpdateScreen>
+	scroll_bar();
+ 8001ef0:	f7ff fea2 	bl	8001c38 <scroll_bar>
+}
+ 8001ef4:	bf00      	nop
+ 8001ef6:	3718      	adds	r7, #24
+ 8001ef8:	46bd      	mov	sp, r7
+ 8001efa:	bd80      	pop	{r7, pc}
+ 8001efc:	20000020 	.word	0x20000020
+ 8001f00:	20000004 	.word	0x20000004
+ 8001f04:	2000001c 	.word	0x2000001c
+ 8001f08:	20000018 	.word	0x20000018
+ 8001f0c:	2000002a 	.word	0x2000002a
+ 8001f10:	2000002c 	.word	0x2000002c
+ 8001f14:	20000028 	.word	0x20000028
+ 8001f18:	20000026 	.word	0x20000026
+
+08001f1c <print_rows_on_oled_if_down>:
+// ----------------------------------------------------------------------------------------
+void print_rows_on_oled_if_down(void)			// print text menu items
+{
+ 8001f1c:	b580      	push	{r7, lr}
+ 8001f1e:	b086      	sub	sp, #24
+ 8001f20:	af00      	add	r7, sp, #0
+	char str[16] = {0};
+ 8001f22:	2300      	movs	r3, #0
+ 8001f24:	603b      	str	r3, [r7, #0]
+ 8001f26:	1d3b      	adds	r3, r7, #4
+ 8001f28:	2200      	movs	r2, #0
+ 8001f2a:	601a      	str	r2, [r3, #0]
+ 8001f2c:	605a      	str	r2, [r3, #4]
+ 8001f2e:	609a      	str	r2, [r3, #8]
+
+	clear_menu_items (true , true , true , true );
+ 8001f30:	2301      	movs	r3, #1
+ 8001f32:	2201      	movs	r2, #1
+ 8001f34:	2101      	movs	r1, #1
+ 8001f36:	2001      	movs	r0, #1
+ 8001f38:	f7ff ff02 	bl	8001d40 <clear_menu_items>
+
+	print_rectangle_on_head();
+ 8001f3c:	f7ff fef0 	bl	8001d20 <print_rectangle_on_head>
+
+	// Print pointer on first item menu
+	ssd1306_SetCursor(0, first_menu_row);
+ 8001f40:	4b2f      	ldr	r3, [pc, #188]	; (8002000 <print_rows_on_oled_if_down+0xe4>)
+ 8001f42:	881b      	ldrh	r3, [r3, #0]
+ 8001f44:	b2db      	uxtb	r3, r3
+ 8001f46:	4619      	mov	r1, r3
+ 8001f48:	2000      	movs	r0, #0
+ 8001f4a:	f7fe fe85 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str_pointer,  Font_7x10, White);
+ 8001f4e:	4a2d      	ldr	r2, [pc, #180]	; (8002004 <print_rows_on_oled_if_down+0xe8>)
+ 8001f50:	2301      	movs	r3, #1
+ 8001f52:	ca06      	ldmia	r2, {r1, r2}
+ 8001f54:	482c      	ldr	r0, [pc, #176]	; (8002008 <print_rows_on_oled_if_down+0xec>)
+ 8001f56:	f7fe fe59 	bl	8000c0c <ssd1306_WriteString>
+
+	MenuItem_t * currentItem_buff = currentItem;
+ 8001f5a:	4b2c      	ldr	r3, [pc, #176]	; (800200c <print_rows_on_oled_if_down+0xf0>)
+ 8001f5c:	681b      	ldr	r3, [r3, #0]
+ 8001f5e:	617b      	str	r3, [r7, #20]
+	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+ 8001f60:	4b27      	ldr	r3, [pc, #156]	; (8002000 <print_rows_on_oled_if_down+0xe4>)
+ 8001f62:	881b      	ldrh	r3, [r3, #0]
+ 8001f64:	74fb      	strb	r3, [r7, #19]
+ 8001f66:	e03b      	b.n	8001fe0 <print_rows_on_oled_if_down+0xc4>
+	{
+		// Print number of menu item
+        itoa(currentItem_buff -> id, str, 10);
+ 8001f68:	697b      	ldr	r3, [r7, #20]
+ 8001f6a:	7c1b      	ldrb	r3, [r3, #16]
+ 8001f6c:	4618      	mov	r0, r3
+ 8001f6e:	463b      	mov	r3, r7
+ 8001f70:	220a      	movs	r2, #10
+ 8001f72:	4619      	mov	r1, r3
+ 8001f74:	f003 ff4a 	bl	8005e0c <itoa>
+		ssd1306_SetCursor(start_print_id_menu_x, row);
+ 8001f78:	4b25      	ldr	r3, [pc, #148]	; (8002010 <print_rows_on_oled_if_down+0xf4>)
+ 8001f7a:	881b      	ldrh	r3, [r3, #0]
+ 8001f7c:	b2db      	uxtb	r3, r3
+ 8001f7e:	7cfa      	ldrb	r2, [r7, #19]
+ 8001f80:	4611      	mov	r1, r2
+ 8001f82:	4618      	mov	r0, r3
+ 8001f84:	f7fe fe68 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 8001f88:	4a1e      	ldr	r2, [pc, #120]	; (8002004 <print_rows_on_oled_if_down+0xe8>)
+ 8001f8a:	4638      	mov	r0, r7
+ 8001f8c:	2301      	movs	r3, #1
+ 8001f8e:	ca06      	ldmia	r2, {r1, r2}
+ 8001f90:	f7fe fe3c 	bl	8000c0c <ssd1306_WriteString>
+
+		// Print name of menu item
+		memset(str, 0, sizeof(str));
+ 8001f94:	463b      	mov	r3, r7
+ 8001f96:	2210      	movs	r2, #16
+ 8001f98:	2100      	movs	r1, #0
+ 8001f9a:	4618      	mov	r0, r3
+ 8001f9c:	f003 ff46 	bl	8005e2c <memset>
+	    strncpy(str, currentItem_buff -> name, 15);
+ 8001fa0:	697b      	ldr	r3, [r7, #20]
+ 8001fa2:	6959      	ldr	r1, [r3, #20]
+ 8001fa4:	463b      	mov	r3, r7
+ 8001fa6:	220f      	movs	r2, #15
+ 8001fa8:	4618      	mov	r0, r3
+ 8001faa:	f004 f825 	bl	8005ff8 <strncpy>
+	    ssd1306_SetCursor(start_print_name_menu_x, row);
+ 8001fae:	4b19      	ldr	r3, [pc, #100]	; (8002014 <print_rows_on_oled_if_down+0xf8>)
+ 8001fb0:	881b      	ldrh	r3, [r3, #0]
+ 8001fb2:	b2db      	uxtb	r3, r3
+ 8001fb4:	7cfa      	ldrb	r2, [r7, #19]
+ 8001fb6:	4611      	mov	r1, r2
+ 8001fb8:	4618      	mov	r0, r3
+ 8001fba:	f7fe fe4d 	bl	8000c58 <ssd1306_SetCursor>
+	    ssd1306_WriteString(str,  Font_7x10, White);
+ 8001fbe:	4a11      	ldr	r2, [pc, #68]	; (8002004 <print_rows_on_oled_if_down+0xe8>)
+ 8001fc0:	4638      	mov	r0, r7
+ 8001fc2:	2301      	movs	r3, #1
+ 8001fc4:	ca06      	ldmia	r2, {r1, r2}
+ 8001fc6:	f7fe fe21 	bl	8000c0c <ssd1306_WriteString>
+
+	    currentItem_buff = currentItem_buff -> down;			// Make a step down
+ 8001fca:	697b      	ldr	r3, [r7, #20]
+ 8001fcc:	685b      	ldr	r3, [r3, #4]
+ 8001fce:	617b      	str	r3, [r7, #20]
+
+	    // Print only existing items
+	    if(currentItem_buff == 0)		 						// If no next item
+ 8001fd0:	697b      	ldr	r3, [r7, #20]
+ 8001fd2:	2b00      	cmp	r3, #0
+ 8001fd4:	d00b      	beq.n	8001fee <print_rows_on_oled_if_down+0xd2>
+	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+ 8001fd6:	4b10      	ldr	r3, [pc, #64]	; (8002018 <print_rows_on_oled_if_down+0xfc>)
+ 8001fd8:	781a      	ldrb	r2, [r3, #0]
+ 8001fda:	7cfb      	ldrb	r3, [r7, #19]
+ 8001fdc:	4413      	add	r3, r2
+ 8001fde:	74fb      	strb	r3, [r7, #19]
+ 8001fe0:	7cfb      	ldrb	r3, [r7, #19]
+ 8001fe2:	b29a      	uxth	r2, r3
+ 8001fe4:	4b0d      	ldr	r3, [pc, #52]	; (800201c <print_rows_on_oled_if_down+0x100>)
+ 8001fe6:	881b      	ldrh	r3, [r3, #0]
+ 8001fe8:	429a      	cmp	r2, r3
+ 8001fea:	d9bd      	bls.n	8001f68 <print_rows_on_oled_if_down+0x4c>
+ 8001fec:	e000      	b.n	8001ff0 <print_rows_on_oled_if_down+0xd4>
+	    {
+	    	break;
+ 8001fee:	bf00      	nop
+	    }
+	 }
+	 ssd1306_UpdateScreen();
+ 8001ff0:	f7fe fcfc 	bl	80009ec <ssd1306_UpdateScreen>
+	 scroll_bar();
+ 8001ff4:	f7ff fe20 	bl	8001c38 <scroll_bar>
+}
+ 8001ff8:	bf00      	nop
+ 8001ffa:	3718      	adds	r7, #24
+ 8001ffc:	46bd      	mov	sp, r7
+ 8001ffe:	bd80      	pop	{r7, pc}
+ 8002000:	20000020 	.word	0x20000020
+ 8002004:	20000004 	.word	0x20000004
+ 8002008:	2000001c 	.word	0x2000001c
+ 800200c:	20000018 	.word	0x20000018
+ 8002010:	2000002a 	.word	0x2000002a
+ 8002014:	2000002c 	.word	0x2000002c
+ 8002018:	20000028 	.word	0x20000028
+ 800201c:	20000026 	.word	0x20000026
+
+08002020 <print_menu_init>:
+// ----------------------------------------------------------------------------------------
+// Print first 4 items of menu (only first time)
+void print_menu_init(void)
+{
+ 8002020:	b590      	push	{r4, r7, lr}
+ 8002022:	b089      	sub	sp, #36	; 0x24
+ 8002024:	af00      	add	r7, sp, #0
+	MenuItem_t * currentItem_buff = currentItem;
+ 8002026:	4b41      	ldr	r3, [pc, #260]	; (800212c <print_menu_init+0x10c>)
+ 8002028:	681b      	ldr	r3, [r3, #0]
+ 800202a:	61fb      	str	r3, [r7, #28]
+
+	print_rectangle_on_head();
+ 800202c:	f7ff fe78 	bl	8001d20 <print_rectangle_on_head>
+
+	//Print selected name of menu
+	char str[20] = ">> MAIN MENU <<";
+ 8002030:	4b3f      	ldr	r3, [pc, #252]	; (8002130 <print_menu_init+0x110>)
+ 8002032:	1d3c      	adds	r4, r7, #4
+ 8002034:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
+ 8002036:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
+ 800203a:	2300      	movs	r3, #0
+ 800203c:	617b      	str	r3, [r7, #20]
+	ssd1306_SetCursor(10, 3);
+ 800203e:	2103      	movs	r1, #3
+ 8002040:	200a      	movs	r0, #10
+ 8002042:	f7fe fe09 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 8002046:	4a3b      	ldr	r2, [pc, #236]	; (8002134 <print_menu_init+0x114>)
+ 8002048:	1d38      	adds	r0, r7, #4
+ 800204a:	2301      	movs	r3, #1
+ 800204c:	ca06      	ldmia	r2, {r1, r2}
+ 800204e:	f7fe fddd 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 8002052:	f7fe fccb 	bl	80009ec <ssd1306_UpdateScreen>
+	memset(str, 0, sizeof(str));
+ 8002056:	1d3b      	adds	r3, r7, #4
+ 8002058:	2214      	movs	r2, #20
+ 800205a:	2100      	movs	r1, #0
+ 800205c:	4618      	mov	r0, r3
+ 800205e:	f003 fee5 	bl	8005e2c <memset>
+
+	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+ 8002062:	4b35      	ldr	r3, [pc, #212]	; (8002138 <print_menu_init+0x118>)
+ 8002064:	881b      	ldrh	r3, [r3, #0]
+ 8002066:	76fb      	strb	r3, [r7, #27]
+ 8002068:	e051      	b.n	800210e <print_menu_init+0xee>
+	{
+		if(row == first_menu_row)
+ 800206a:	7efb      	ldrb	r3, [r7, #27]
+ 800206c:	b29a      	uxth	r2, r3
+ 800206e:	4b32      	ldr	r3, [pc, #200]	; (8002138 <print_menu_init+0x118>)
+ 8002070:	881b      	ldrh	r3, [r3, #0]
+ 8002072:	429a      	cmp	r2, r3
+ 8002074:	d10d      	bne.n	8002092 <print_menu_init+0x72>
+		{
+			// Print pointer on menu (On top)
+			char str_pointer[4] = "->";
+ 8002076:	f643 632d 	movw	r3, #15917	; 0x3e2d
+ 800207a:	603b      	str	r3, [r7, #0]
+			ssd1306_SetCursor(0, row);
+ 800207c:	7efb      	ldrb	r3, [r7, #27]
+ 800207e:	4619      	mov	r1, r3
+ 8002080:	2000      	movs	r0, #0
+ 8002082:	f7fe fde9 	bl	8000c58 <ssd1306_SetCursor>
+			ssd1306_WriteString(str_pointer,  Font_7x10, White);
+ 8002086:	4a2b      	ldr	r2, [pc, #172]	; (8002134 <print_menu_init+0x114>)
+ 8002088:	4638      	mov	r0, r7
+ 800208a:	2301      	movs	r3, #1
+ 800208c:	ca06      	ldmia	r2, {r1, r2}
+ 800208e:	f7fe fdbd 	bl	8000c0c <ssd1306_WriteString>
+		}
+		// Print number of menu item
+		itoa(currentItem_buff -> id, str, 10);
+ 8002092:	69fb      	ldr	r3, [r7, #28]
+ 8002094:	7c1b      	ldrb	r3, [r3, #16]
+ 8002096:	4618      	mov	r0, r3
+ 8002098:	1d3b      	adds	r3, r7, #4
+ 800209a:	220a      	movs	r2, #10
+ 800209c:	4619      	mov	r1, r3
+ 800209e:	f003 feb5 	bl	8005e0c <itoa>
+		ssd1306_SetCursor(start_print_id_menu_x, row);
+ 80020a2:	4b26      	ldr	r3, [pc, #152]	; (800213c <print_menu_init+0x11c>)
+ 80020a4:	881b      	ldrh	r3, [r3, #0]
+ 80020a6:	b2db      	uxtb	r3, r3
+ 80020a8:	7efa      	ldrb	r2, [r7, #27]
+ 80020aa:	4611      	mov	r1, r2
+ 80020ac:	4618      	mov	r0, r3
+ 80020ae:	f7fe fdd3 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 80020b2:	4a20      	ldr	r2, [pc, #128]	; (8002134 <print_menu_init+0x114>)
+ 80020b4:	1d38      	adds	r0, r7, #4
+ 80020b6:	2301      	movs	r3, #1
+ 80020b8:	ca06      	ldmia	r2, {r1, r2}
+ 80020ba:	f7fe fda7 	bl	8000c0c <ssd1306_WriteString>
+		memset(str, 0, sizeof(str));
+ 80020be:	1d3b      	adds	r3, r7, #4
+ 80020c0:	2214      	movs	r2, #20
+ 80020c2:	2100      	movs	r1, #0
+ 80020c4:	4618      	mov	r0, r3
+ 80020c6:	f003 feb1 	bl	8005e2c <memset>
+
+		// Print menu of menu item
+		strncpy(str, currentItem_buff -> name, 15);
+ 80020ca:	69fb      	ldr	r3, [r7, #28]
+ 80020cc:	6959      	ldr	r1, [r3, #20]
+ 80020ce:	1d3b      	adds	r3, r7, #4
+ 80020d0:	220f      	movs	r2, #15
+ 80020d2:	4618      	mov	r0, r3
+ 80020d4:	f003 ff90 	bl	8005ff8 <strncpy>
+		ssd1306_SetCursor(start_print_name_menu_x, row);
+ 80020d8:	4b19      	ldr	r3, [pc, #100]	; (8002140 <print_menu_init+0x120>)
+ 80020da:	881b      	ldrh	r3, [r3, #0]
+ 80020dc:	b2db      	uxtb	r3, r3
+ 80020de:	7efa      	ldrb	r2, [r7, #27]
+ 80020e0:	4611      	mov	r1, r2
+ 80020e2:	4618      	mov	r0, r3
+ 80020e4:	f7fe fdb8 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 80020e8:	4a12      	ldr	r2, [pc, #72]	; (8002134 <print_menu_init+0x114>)
+ 80020ea:	1d38      	adds	r0, r7, #4
+ 80020ec:	2301      	movs	r3, #1
+ 80020ee:	ca06      	ldmia	r2, {r1, r2}
+ 80020f0:	f7fe fd8c 	bl	8000c0c <ssd1306_WriteString>
+
+		ssd1306_UpdateScreen();
+ 80020f4:	f7fe fc7a 	bl	80009ec <ssd1306_UpdateScreen>
+
+		currentItem_buff = currentItem_buff -> down;
+ 80020f8:	69fb      	ldr	r3, [r7, #28]
+ 80020fa:	685b      	ldr	r3, [r3, #4]
+ 80020fc:	61fb      	str	r3, [r7, #28]
+		if(currentItem_buff == 0)
+ 80020fe:	69fb      	ldr	r3, [r7, #28]
+ 8002100:	2b00      	cmp	r3, #0
+ 8002102:	d00b      	beq.n	800211c <print_menu_init+0xfc>
+	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+ 8002104:	4b0f      	ldr	r3, [pc, #60]	; (8002144 <print_menu_init+0x124>)
+ 8002106:	781a      	ldrb	r2, [r3, #0]
+ 8002108:	7efb      	ldrb	r3, [r7, #27]
+ 800210a:	4413      	add	r3, r2
+ 800210c:	76fb      	strb	r3, [r7, #27]
+ 800210e:	7efb      	ldrb	r3, [r7, #27]
+ 8002110:	b29a      	uxth	r2, r3
+ 8002112:	4b0d      	ldr	r3, [pc, #52]	; (8002148 <print_menu_init+0x128>)
+ 8002114:	881b      	ldrh	r3, [r3, #0]
+ 8002116:	429a      	cmp	r2, r3
+ 8002118:	d9a7      	bls.n	800206a <print_menu_init+0x4a>
+ 800211a:	e000      	b.n	800211e <print_menu_init+0xfe>
+		{
+			break;
+ 800211c:	bf00      	nop
+		}
+	}
+	scroll_bar();
+ 800211e:	f7ff fd8b 	bl	8001c38 <scroll_bar>
+}
+ 8002122:	bf00      	nop
+ 8002124:	3724      	adds	r7, #36	; 0x24
+ 8002126:	46bd      	mov	sp, r7
+ 8002128:	bd90      	pop	{r4, r7, pc}
+ 800212a:	bf00      	nop
+ 800212c:	20000018 	.word	0x20000018
+ 8002130:	08006800 	.word	0x08006800
+ 8002134:	20000004 	.word	0x20000004
+ 8002138:	20000020 	.word	0x20000020
+ 800213c:	2000002a 	.word	0x2000002a
+ 8002140:	2000002c 	.word	0x2000002c
+ 8002144:	20000028 	.word	0x20000028
+ 8002148:	20000026 	.word	0x20000026
+
+0800214c <action>:
+// ----------------------------------------------------------------------------------------
+void action(void)
+{
+ 800214c:	b580      	push	{r7, lr}
+ 800214e:	b088      	sub	sp, #32
+ 8002150:	af00      	add	r7, sp, #0
+	char str[16] = {0};
+ 8002152:	2300      	movs	r3, #0
+ 8002154:	607b      	str	r3, [r7, #4]
+ 8002156:	f107 0308 	add.w	r3, r7, #8
+ 800215a:	2200      	movs	r2, #0
+ 800215c:	601a      	str	r2, [r3, #0]
+ 800215e:	605a      	str	r2, [r3, #4]
+ 8002160:	609a      	str	r2, [r3, #8]
+
+	clearn_oled();
+ 8002162:	f7fe fb93 	bl	800088c <clearn_oled>
+
+	print_rectangle_on_head();
+ 8002166:	f7ff fddb 	bl	8001d20 <print_rectangle_on_head>
+
+	//Print selected name of menu on top of OLED (in rectangle)
+	MenuItem_t * currentItem_buff_parent = currentItem;
+ 800216a:	4b40      	ldr	r3, [pc, #256]	; (800226c <action+0x120>)
+ 800216c:	681b      	ldr	r3, [r3, #0]
+ 800216e:	617b      	str	r3, [r7, #20]
+	currentItem_buff_parent = currentItem_buff_parent -> parent;
+ 8002170:	697b      	ldr	r3, [r7, #20]
+ 8002172:	68db      	ldr	r3, [r3, #12]
+ 8002174:	617b      	str	r3, [r7, #20]
+
+	strncpy(str, currentItem_buff_parent -> name, 15);
+ 8002176:	697b      	ldr	r3, [r7, #20]
+ 8002178:	6959      	ldr	r1, [r3, #20]
+ 800217a:	1d3b      	adds	r3, r7, #4
+ 800217c:	220f      	movs	r2, #15
+ 800217e:	4618      	mov	r0, r3
+ 8002180:	f003 ff3a 	bl	8005ff8 <strncpy>
+	ssd1306_SetCursor(10, 3);
+ 8002184:	2103      	movs	r1, #3
+ 8002186:	200a      	movs	r0, #10
+ 8002188:	f7fe fd66 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 800218c:	4a38      	ldr	r2, [pc, #224]	; (8002270 <action+0x124>)
+ 800218e:	1d38      	adds	r0, r7, #4
+ 8002190:	2301      	movs	r3, #1
+ 8002192:	ca06      	ldmia	r2, {r1, r2}
+ 8002194:	f7fe fd3a 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 8002198:	f7fe fc28 	bl	80009ec <ssd1306_UpdateScreen>
+	memset(str, 0, sizeof(str));
+ 800219c:	1d3b      	adds	r3, r7, #4
+ 800219e:	2210      	movs	r2, #16
+ 80021a0:	2100      	movs	r1, #0
+ 80021a2:	4618      	mov	r0, r3
+ 80021a4:	f003 fe42 	bl	8005e2c <memset>
+
+	MenuItem_t * currentItem_buff = currentItem;
+ 80021a8:	4b30      	ldr	r3, [pc, #192]	; (800226c <action+0x120>)
+ 80021aa:	681b      	ldr	r3, [r3, #0]
+ 80021ac:	61fb      	str	r3, [r7, #28]
+
+	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+ 80021ae:	4b31      	ldr	r3, [pc, #196]	; (8002274 <action+0x128>)
+ 80021b0:	881b      	ldrh	r3, [r3, #0]
+ 80021b2:	76fb      	strb	r3, [r7, #27]
+ 80021b4:	e04b      	b.n	800224e <action+0x102>
+	{
+		if(row == first_menu_row)
+ 80021b6:	7efb      	ldrb	r3, [r7, #27]
+ 80021b8:	b29a      	uxth	r2, r3
+ 80021ba:	4b2e      	ldr	r3, [pc, #184]	; (8002274 <action+0x128>)
+ 80021bc:	881b      	ldrh	r3, [r3, #0]
+ 80021be:	429a      	cmp	r2, r3
+ 80021c0:	d10d      	bne.n	80021de <action+0x92>
+		{
+			// Print pointer on menu
+			char str_pointer[4] = "->";
+ 80021c2:	f643 632d 	movw	r3, #15917	; 0x3e2d
+ 80021c6:	603b      	str	r3, [r7, #0]
+			ssd1306_SetCursor(0, row);
+ 80021c8:	7efb      	ldrb	r3, [r7, #27]
+ 80021ca:	4619      	mov	r1, r3
+ 80021cc:	2000      	movs	r0, #0
+ 80021ce:	f7fe fd43 	bl	8000c58 <ssd1306_SetCursor>
+			ssd1306_WriteString(str_pointer,  Font_7x10, White);
+ 80021d2:	4a27      	ldr	r2, [pc, #156]	; (8002270 <action+0x124>)
+ 80021d4:	4638      	mov	r0, r7
+ 80021d6:	2301      	movs	r3, #1
+ 80021d8:	ca06      	ldmia	r2, {r1, r2}
+ 80021da:	f7fe fd17 	bl	8000c0c <ssd1306_WriteString>
+		}
+		// Print number of menu item
+		itoa(currentItem_buff -> id, str, 10);
+ 80021de:	69fb      	ldr	r3, [r7, #28]
+ 80021e0:	7c1b      	ldrb	r3, [r3, #16]
+ 80021e2:	4618      	mov	r0, r3
+ 80021e4:	1d3b      	adds	r3, r7, #4
+ 80021e6:	220a      	movs	r2, #10
+ 80021e8:	4619      	mov	r1, r3
+ 80021ea:	f003 fe0f 	bl	8005e0c <itoa>
+		ssd1306_SetCursor(start_print_id_menu_x, row);
+ 80021ee:	4b22      	ldr	r3, [pc, #136]	; (8002278 <action+0x12c>)
+ 80021f0:	881b      	ldrh	r3, [r3, #0]
+ 80021f2:	b2db      	uxtb	r3, r3
+ 80021f4:	7efa      	ldrb	r2, [r7, #27]
+ 80021f6:	4611      	mov	r1, r2
+ 80021f8:	4618      	mov	r0, r3
+ 80021fa:	f7fe fd2d 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 80021fe:	4a1c      	ldr	r2, [pc, #112]	; (8002270 <action+0x124>)
+ 8002200:	1d38      	adds	r0, r7, #4
+ 8002202:	2301      	movs	r3, #1
+ 8002204:	ca06      	ldmia	r2, {r1, r2}
+ 8002206:	f7fe fd01 	bl	8000c0c <ssd1306_WriteString>
+
+		// Print menu of menu item
+		strncpy(str, currentItem_buff -> name, 15);
+ 800220a:	69fb      	ldr	r3, [r7, #28]
+ 800220c:	6959      	ldr	r1, [r3, #20]
+ 800220e:	1d3b      	adds	r3, r7, #4
+ 8002210:	220f      	movs	r2, #15
+ 8002212:	4618      	mov	r0, r3
+ 8002214:	f003 fef0 	bl	8005ff8 <strncpy>
+		ssd1306_SetCursor(start_print_name_menu_x, row);
+ 8002218:	4b18      	ldr	r3, [pc, #96]	; (800227c <action+0x130>)
+ 800221a:	881b      	ldrh	r3, [r3, #0]
+ 800221c:	b2db      	uxtb	r3, r3
+ 800221e:	7efa      	ldrb	r2, [r7, #27]
+ 8002220:	4611      	mov	r1, r2
+ 8002222:	4618      	mov	r0, r3
+ 8002224:	f7fe fd18 	bl	8000c58 <ssd1306_SetCursor>
+		ssd1306_WriteString(str,  Font_7x10, White);
+ 8002228:	4a11      	ldr	r2, [pc, #68]	; (8002270 <action+0x124>)
+ 800222a:	1d38      	adds	r0, r7, #4
+ 800222c:	2301      	movs	r3, #1
+ 800222e:	ca06      	ldmia	r2, {r1, r2}
+ 8002230:	f7fe fcec 	bl	8000c0c <ssd1306_WriteString>
+		ssd1306_UpdateScreen();
+ 8002234:	f7fe fbda 	bl	80009ec <ssd1306_UpdateScreen>
+
+		currentItem_buff = currentItem_buff -> down;
+ 8002238:	69fb      	ldr	r3, [r7, #28]
+ 800223a:	685b      	ldr	r3, [r3, #4]
+ 800223c:	61fb      	str	r3, [r7, #28]
+		if(currentItem_buff == 0)
+ 800223e:	69fb      	ldr	r3, [r7, #28]
+ 8002240:	2b00      	cmp	r3, #0
+ 8002242:	d00b      	beq.n	800225c <action+0x110>
+	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+ 8002244:	4b0e      	ldr	r3, [pc, #56]	; (8002280 <action+0x134>)
+ 8002246:	781a      	ldrb	r2, [r3, #0]
+ 8002248:	7efb      	ldrb	r3, [r7, #27]
+ 800224a:	4413      	add	r3, r2
+ 800224c:	76fb      	strb	r3, [r7, #27]
+ 800224e:	7efb      	ldrb	r3, [r7, #27]
+ 8002250:	b29a      	uxth	r2, r3
+ 8002252:	4b0c      	ldr	r3, [pc, #48]	; (8002284 <action+0x138>)
+ 8002254:	881b      	ldrh	r3, [r3, #0]
+ 8002256:	429a      	cmp	r2, r3
+ 8002258:	d9ad      	bls.n	80021b6 <action+0x6a>
+ 800225a:	e000      	b.n	800225e <action+0x112>
+		{
+			break;
+ 800225c:	bf00      	nop
+		}
+	}
+	scroll_bar();
+ 800225e:	f7ff fceb 	bl	8001c38 <scroll_bar>
+}
+ 8002262:	bf00      	nop
+ 8002264:	3720      	adds	r7, #32
+ 8002266:	46bd      	mov	sp, r7
+ 8002268:	bd80      	pop	{r7, pc}
+ 800226a:	bf00      	nop
+ 800226c:	20000018 	.word	0x20000018
+ 8002270:	20000004 	.word	0x20000004
+ 8002274:	20000020 	.word	0x20000020
+ 8002278:	2000002a 	.word	0x2000002a
+ 800227c:	2000002c 	.word	0x2000002c
+ 8002280:	20000028 	.word	0x20000028
+ 8002284:	20000026 	.word	0x20000026
+
+08002288 <return_from_menu>:
+// ----------------------------------------------------------------------------------------
+void return_from_menu(void)
+{
+ 8002288:	b590      	push	{r4, r7, lr}
+ 800228a:	b087      	sub	sp, #28
+ 800228c:	af00      	add	r7, sp, #0
+	currentItem = &items[0];											// Jump to main menu
+ 800228e:	4b0f      	ldr	r3, [pc, #60]	; (80022cc <return_from_menu+0x44>)
+ 8002290:	4a0f      	ldr	r2, [pc, #60]	; (80022d0 <return_from_menu+0x48>)
+ 8002292:	601a      	str	r2, [r3, #0]
+	clearn_oled();
+ 8002294:	f7fe fafa 	bl	800088c <clearn_oled>
+
+	// Print "MAIN MENU:"
+	char str[20] = ">> MAIN MENU <<";
+ 8002298:	4b0e      	ldr	r3, [pc, #56]	; (80022d4 <return_from_menu+0x4c>)
+ 800229a:	1d3c      	adds	r4, r7, #4
+ 800229c:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
+ 800229e:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
+ 80022a2:	2300      	movs	r3, #0
+ 80022a4:	617b      	str	r3, [r7, #20]
+	ssd1306_SetCursor(10, 3);
+ 80022a6:	2103      	movs	r1, #3
+ 80022a8:	200a      	movs	r0, #10
+ 80022aa:	f7fe fcd5 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 80022ae:	4a0a      	ldr	r2, [pc, #40]	; (80022d8 <return_from_menu+0x50>)
+ 80022b0:	1d38      	adds	r0, r7, #4
+ 80022b2:	2301      	movs	r3, #1
+ 80022b4:	ca06      	ldmia	r2, {r1, r2}
+ 80022b6:	f7fe fca9 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 80022ba:	f7fe fb97 	bl	80009ec <ssd1306_UpdateScreen>
+
+	print_menu_init();													// Print all start menu
+ 80022be:	f7ff feaf 	bl	8002020 <print_menu_init>
+}
+ 80022c2:	bf00      	nop
+ 80022c4:	371c      	adds	r7, #28
+ 80022c6:	46bd      	mov	sp, r7
+ 80022c8:	bd90      	pop	{r4, r7, pc}
+ 80022ca:	bf00      	nop
+ 80022cc:	20000018 	.word	0x20000018
+ 80022d0:	20000808 	.word	0x20000808
+ 80022d4:	08006800 	.word	0x08006800
+ 80022d8:	20000004 	.word	0x20000004
+
+080022dc <lora_rx_mode>:
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+// LORA FUNCTIONS
+void lora_rx_mode(void)
+{
+ 80022dc:	b580      	push	{r7, lr}
+ 80022de:	b084      	sub	sp, #16
+ 80022e0:	af00      	add	r7, sp, #0
+	clearn_oled();
+ 80022e2:	f7fe fad3 	bl	800088c <clearn_oled>
+	print_rectangle_on_head();
+ 80022e6:	f7ff fd1b 	bl	8001d20 <print_rectangle_on_head>
+
+	// Print selected name of menu
+	char str[16] = {0};
+ 80022ea:	2300      	movs	r3, #0
+ 80022ec:	603b      	str	r3, [r7, #0]
+ 80022ee:	1d3b      	adds	r3, r7, #4
+ 80022f0:	2200      	movs	r2, #0
+ 80022f2:	601a      	str	r2, [r3, #0]
+ 80022f4:	605a      	str	r2, [r3, #4]
+ 80022f6:	609a      	str	r2, [r3, #8]
+	strncpy(str, currentItem -> name, 15);
+ 80022f8:	4b1a      	ldr	r3, [pc, #104]	; (8002364 <lora_rx_mode+0x88>)
+ 80022fa:	681b      	ldr	r3, [r3, #0]
+ 80022fc:	6959      	ldr	r1, [r3, #20]
+ 80022fe:	463b      	mov	r3, r7
+ 8002300:	220f      	movs	r2, #15
+ 8002302:	4618      	mov	r0, r3
+ 8002304:	f003 fe78 	bl	8005ff8 <strncpy>
+	ssd1306_SetCursor(10, 3);
+ 8002308:	2103      	movs	r1, #3
+ 800230a:	200a      	movs	r0, #10
+ 800230c:	f7fe fca4 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 8002310:	4a15      	ldr	r2, [pc, #84]	; (8002368 <lora_rx_mode+0x8c>)
+ 8002312:	4638      	mov	r0, r7
+ 8002314:	2301      	movs	r3, #1
+ 8002316:	ca06      	ldmia	r2, {r1, r2}
+ 8002318:	f7fe fc78 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 800231c:	f7fe fb66 	bl	80009ec <ssd1306_UpdateScreen>
+	memset(str, 0, sizeof(str));
+ 8002320:	463b      	mov	r3, r7
+ 8002322:	2210      	movs	r2, #16
+ 8002324:	2100      	movs	r1, #0
+ 8002326:	4618      	mov	r0, r3
+ 8002328:	f003 fd80 	bl	8005e2c <memset>
+
+	button_status = BOTTON_DOESENT_PRESS;
+ 800232c:	4b0f      	ldr	r3, [pc, #60]	; (800236c <lora_rx_mode+0x90>)
+ 800232e:	2200      	movs	r2, #0
+ 8002330:	701a      	strb	r2, [r3, #0]
+	block_interrupt_form_up_and_down_buttons = true;
+ 8002332:	4b0f      	ldr	r3, [pc, #60]	; (8002370 <lora_rx_mode+0x94>)
+ 8002334:	2201      	movs	r2, #1
+ 8002336:	701a      	strb	r2, [r3, #0]
+	// waiting for press enter(SW2) button
+	do{
+		LoRa_RX(true);
+ 8002338:	2001      	movs	r0, #1
+ 800233a:	f7fd ff07 	bl	800014c <LoRa_RX>
+	}while (button_status != BUTTON_ENTER);
+ 800233e:	4b0b      	ldr	r3, [pc, #44]	; (800236c <lora_rx_mode+0x90>)
+ 8002340:	781b      	ldrb	r3, [r3, #0]
+ 8002342:	2b02      	cmp	r3, #2
+ 8002344:	d1f8      	bne.n	8002338 <lora_rx_mode+0x5c>
+	LoRa_RX(false);
+ 8002346:	2000      	movs	r0, #0
+ 8002348:	f7fd ff00 	bl	800014c <LoRa_RX>
+
+	block_interrupt_form_up_and_down_buttons = false;
+ 800234c:	4b08      	ldr	r3, [pc, #32]	; (8002370 <lora_rx_mode+0x94>)
+ 800234e:	2200      	movs	r2, #0
+ 8002350:	701a      	strb	r2, [r3, #0]
+
+	// Return to first item of current menu
+	currentItem = &items_menu_1[0];										// Set global pointer on first menu
+ 8002352:	4b04      	ldr	r3, [pc, #16]	; (8002364 <lora_rx_mode+0x88>)
+ 8002354:	4a07      	ldr	r2, [pc, #28]	; (8002374 <lora_rx_mode+0x98>)
+ 8002356:	601a      	str	r2, [r3, #0]
+	action();															// Print items on OLED
+ 8002358:	f7ff fef8 	bl	800214c <action>
+}
+ 800235c:	bf00      	nop
+ 800235e:	3710      	adds	r7, #16
+ 8002360:	46bd      	mov	sp, r7
+ 8002362:	bd80      	pop	{r7, pc}
+ 8002364:	20000018 	.word	0x20000018
+ 8002368:	20000004 	.word	0x20000004
+ 800236c:	20000561 	.word	0x20000561
+ 8002370:	20000560 	.word	0x20000560
+ 8002374:	20000754 	.word	0x20000754
+
+08002378 <lora_tx_mode>:
+// ----------------------------------------------------------------------------------------
+void lora_tx_mode(void)
+{
+ 8002378:	b580      	push	{r7, lr}
+ 800237a:	b084      	sub	sp, #16
+ 800237c:	af00      	add	r7, sp, #0
+	clearn_oled();
+ 800237e:	f7fe fa85 	bl	800088c <clearn_oled>
+	print_rectangle_on_head();
+ 8002382:	f7ff fccd 	bl	8001d20 <print_rectangle_on_head>
+
+	// Print selected name of menu
+	char str[16] = {0};
+ 8002386:	2300      	movs	r3, #0
+ 8002388:	603b      	str	r3, [r7, #0]
+ 800238a:	1d3b      	adds	r3, r7, #4
+ 800238c:	2200      	movs	r2, #0
+ 800238e:	601a      	str	r2, [r3, #0]
+ 8002390:	605a      	str	r2, [r3, #4]
+ 8002392:	609a      	str	r2, [r3, #8]
+	strncpy(str, currentItem -> name, 15);
+ 8002394:	4b1a      	ldr	r3, [pc, #104]	; (8002400 <lora_tx_mode+0x88>)
+ 8002396:	681b      	ldr	r3, [r3, #0]
+ 8002398:	6959      	ldr	r1, [r3, #20]
+ 800239a:	463b      	mov	r3, r7
+ 800239c:	220f      	movs	r2, #15
+ 800239e:	4618      	mov	r0, r3
+ 80023a0:	f003 fe2a 	bl	8005ff8 <strncpy>
+	ssd1306_SetCursor(10, 3);
+ 80023a4:	2103      	movs	r1, #3
+ 80023a6:	200a      	movs	r0, #10
+ 80023a8:	f7fe fc56 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 80023ac:	4a15      	ldr	r2, [pc, #84]	; (8002404 <lora_tx_mode+0x8c>)
+ 80023ae:	4638      	mov	r0, r7
+ 80023b0:	2301      	movs	r3, #1
+ 80023b2:	ca06      	ldmia	r2, {r1, r2}
+ 80023b4:	f7fe fc2a 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 80023b8:	f7fe fb18 	bl	80009ec <ssd1306_UpdateScreen>
+	memset(str, 0, sizeof(str));
+ 80023bc:	463b      	mov	r3, r7
+ 80023be:	2210      	movs	r2, #16
+ 80023c0:	2100      	movs	r1, #0
+ 80023c2:	4618      	mov	r0, r3
+ 80023c4:	f003 fd32 	bl	8005e2c <memset>
+
+
+	button_status = BOTTON_DOESENT_PRESS;
+ 80023c8:	4b0f      	ldr	r3, [pc, #60]	; (8002408 <lora_tx_mode+0x90>)
+ 80023ca:	2200      	movs	r2, #0
+ 80023cc:	701a      	strb	r2, [r3, #0]
+	block_interrupt_form_up_and_down_buttons = true;
+ 80023ce:	4b0f      	ldr	r3, [pc, #60]	; (800240c <lora_tx_mode+0x94>)
+ 80023d0:	2201      	movs	r2, #1
+ 80023d2:	701a      	strb	r2, [r3, #0]
+	// waiting for press enter(SW2) button
+	do{
+		LoRa_TX(true);
+ 80023d4:	2001      	movs	r0, #1
+ 80023d6:	f7fd ff4d 	bl	8000274 <LoRa_TX>
+
+	}while (button_status != BUTTON_ENTER);
+ 80023da:	4b0b      	ldr	r3, [pc, #44]	; (8002408 <lora_tx_mode+0x90>)
+ 80023dc:	781b      	ldrb	r3, [r3, #0]
+ 80023de:	2b02      	cmp	r3, #2
+ 80023e0:	d1f8      	bne.n	80023d4 <lora_tx_mode+0x5c>
+	LoRa_TX(false);
+ 80023e2:	2000      	movs	r0, #0
+ 80023e4:	f7fd ff46 	bl	8000274 <LoRa_TX>
+
+	block_interrupt_form_up_and_down_buttons = false;
+ 80023e8:	4b08      	ldr	r3, [pc, #32]	; (800240c <lora_tx_mode+0x94>)
+ 80023ea:	2200      	movs	r2, #0
+ 80023ec:	701a      	strb	r2, [r3, #0]
+
+	// Return to first item of current menu
+	currentItem = &items_menu_1[0];										// Set global pointer on first menu
+ 80023ee:	4b04      	ldr	r3, [pc, #16]	; (8002400 <lora_tx_mode+0x88>)
+ 80023f0:	4a07      	ldr	r2, [pc, #28]	; (8002410 <lora_tx_mode+0x98>)
+ 80023f2:	601a      	str	r2, [r3, #0]
+	action();															// Print items on OLED
+ 80023f4:	f7ff feaa 	bl	800214c <action>
+}
+ 80023f8:	bf00      	nop
+ 80023fa:	3710      	adds	r7, #16
+ 80023fc:	46bd      	mov	sp, r7
+ 80023fe:	bd80      	pop	{r7, pc}
+ 8002400:	20000018 	.word	0x20000018
+ 8002404:	20000004 	.word	0x20000004
+ 8002408:	20000561 	.word	0x20000561
+ 800240c:	20000560 	.word	0x20000560
+ 8002410:	20000754 	.word	0x20000754
+
+08002414 <items_menu_1_set_par_2>:
+	currentItem = &items_menu_1[0];										// Set global pointer on first menu
+	action();															// Print items on OLED
+}
+// ----------------------------------------------------------------------------------------
+void items_menu_1_set_par_2(void)
+{
+ 8002414:	b580      	push	{r7, lr}
+ 8002416:	b084      	sub	sp, #16
+ 8002418:	af00      	add	r7, sp, #0
+	clearn_oled();
+ 800241a:	f7fe fa37 	bl	800088c <clearn_oled>
+
+	// Print selected name of menu
+	char str[16] = {0};
+ 800241e:	2300      	movs	r3, #0
+ 8002420:	603b      	str	r3, [r7, #0]
+ 8002422:	1d3b      	adds	r3, r7, #4
+ 8002424:	2200      	movs	r2, #0
+ 8002426:	601a      	str	r2, [r3, #0]
+ 8002428:	605a      	str	r2, [r3, #4]
+ 800242a:	609a      	str	r2, [r3, #8]
+	strncpy(str, currentItem -> name, 15);
+ 800242c:	4b22      	ldr	r3, [pc, #136]	; (80024b8 <items_menu_1_set_par_2+0xa4>)
+ 800242e:	681b      	ldr	r3, [r3, #0]
+ 8002430:	6959      	ldr	r1, [r3, #20]
+ 8002432:	463b      	mov	r3, r7
+ 8002434:	220f      	movs	r2, #15
+ 8002436:	4618      	mov	r0, r3
+ 8002438:	f003 fdde 	bl	8005ff8 <strncpy>
+	ssd1306_SetCursor(10, 3);
+ 800243c:	2103      	movs	r1, #3
+ 800243e:	200a      	movs	r0, #10
+ 8002440:	f7fe fc0a 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 8002444:	4a1d      	ldr	r2, [pc, #116]	; (80024bc <items_menu_1_set_par_2+0xa8>)
+ 8002446:	4638      	mov	r0, r7
+ 8002448:	2301      	movs	r3, #1
+ 800244a:	ca06      	ldmia	r2, {r1, r2}
+ 800244c:	f7fe fbde 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 8002450:	f7fe facc 	bl	80009ec <ssd1306_UpdateScreen>
+	memset(str, 0, sizeof(str));
+ 8002454:	463b      	mov	r3, r7
+ 8002456:	2210      	movs	r2, #16
+ 8002458:	2100      	movs	r1, #0
+ 800245a:	4618      	mov	r0, r3
+ 800245c:	f003 fce6 	bl	8005e2c <memset>
+
+	strncpy(str, "Set parametr 2", sizeof(str));
+ 8002460:	463b      	mov	r3, r7
+ 8002462:	2210      	movs	r2, #16
+ 8002464:	4916      	ldr	r1, [pc, #88]	; (80024c0 <items_menu_1_set_par_2+0xac>)
+ 8002466:	4618      	mov	r0, r3
+ 8002468:	f003 fdc6 	bl	8005ff8 <strncpy>
+	ssd1306_SetCursor(0, first_menu_row);
+ 800246c:	4b15      	ldr	r3, [pc, #84]	; (80024c4 <items_menu_1_set_par_2+0xb0>)
+ 800246e:	881b      	ldrh	r3, [r3, #0]
+ 8002470:	b2db      	uxtb	r3, r3
+ 8002472:	4619      	mov	r1, r3
+ 8002474:	2000      	movs	r0, #0
+ 8002476:	f7fe fbef 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 800247a:	4a10      	ldr	r2, [pc, #64]	; (80024bc <items_menu_1_set_par_2+0xa8>)
+ 800247c:	4638      	mov	r0, r7
+ 800247e:	2301      	movs	r3, #1
+ 8002480:	ca06      	ldmia	r2, {r1, r2}
+ 8002482:	f7fe fbc3 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 8002486:	f7fe fab1 	bl	80009ec <ssd1306_UpdateScreen>
+
+	button_status = BOTTON_DOESENT_PRESS;
+ 800248a:	4b0f      	ldr	r3, [pc, #60]	; (80024c8 <items_menu_1_set_par_2+0xb4>)
+ 800248c:	2200      	movs	r2, #0
+ 800248e:	701a      	strb	r2, [r3, #0]
+	block_interrupt_form_up_and_down_buttons = true;
+ 8002490:	4b0e      	ldr	r3, [pc, #56]	; (80024cc <items_menu_1_set_par_2+0xb8>)
+ 8002492:	2201      	movs	r2, #1
+ 8002494:	701a      	strb	r2, [r3, #0]
+	do{
+		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	}while (button_status != BUTTON_ENTER);
+ 8002496:	4b0c      	ldr	r3, [pc, #48]	; (80024c8 <items_menu_1_set_par_2+0xb4>)
+ 8002498:	781b      	ldrb	r3, [r3, #0]
+ 800249a:	2b02      	cmp	r3, #2
+ 800249c:	d1fb      	bne.n	8002496 <items_menu_1_set_par_2+0x82>
+	block_interrupt_form_up_and_down_buttons = false;
+ 800249e:	4b0b      	ldr	r3, [pc, #44]	; (80024cc <items_menu_1_set_par_2+0xb8>)
+ 80024a0:	2200      	movs	r2, #0
+ 80024a2:	701a      	strb	r2, [r3, #0]
+
+	// Return to first item of current menu
+	currentItem = &items_menu_1[0];										// Set global pointer on first menu
+ 80024a4:	4b04      	ldr	r3, [pc, #16]	; (80024b8 <items_menu_1_set_par_2+0xa4>)
+ 80024a6:	4a0a      	ldr	r2, [pc, #40]	; (80024d0 <items_menu_1_set_par_2+0xbc>)
+ 80024a8:	601a      	str	r2, [r3, #0]
+	action();															// Print items on OLED
+ 80024aa:	f7ff fe4f 	bl	800214c <action>
+}
+ 80024ae:	bf00      	nop
+ 80024b0:	3710      	adds	r7, #16
+ 80024b2:	46bd      	mov	sp, r7
+ 80024b4:	bd80      	pop	{r7, pc}
+ 80024b6:	bf00      	nop
+ 80024b8:	20000018 	.word	0x20000018
+ 80024bc:	20000004 	.word	0x20000004
+ 80024c0:	08006824 	.word	0x08006824
+ 80024c4:	20000020 	.word	0x20000020
+ 80024c8:	20000561 	.word	0x20000561
+ 80024cc:	20000560 	.word	0x20000560
+ 80024d0:	20000754 	.word	0x20000754
+
+080024d4 <items_menu_2_set_par_1>:
+//	currentItem = &items_menu_2[0];										// Set global pointer on first menu
+//	action();															// Print items on OLED
+//}
+// ----------------------------------------------------------------------------------------
+void items_menu_2_set_par_1(void)
+{
+ 80024d4:	b580      	push	{r7, lr}
+ 80024d6:	b084      	sub	sp, #16
+ 80024d8:	af00      	add	r7, sp, #0
+	clearn_oled();
+ 80024da:	f7fe f9d7 	bl	800088c <clearn_oled>
+
+	// Print selected name of menu
+	char str[16] = {0};
+ 80024de:	2300      	movs	r3, #0
+ 80024e0:	603b      	str	r3, [r7, #0]
+ 80024e2:	1d3b      	adds	r3, r7, #4
+ 80024e4:	2200      	movs	r2, #0
+ 80024e6:	601a      	str	r2, [r3, #0]
+ 80024e8:	605a      	str	r2, [r3, #4]
+ 80024ea:	609a      	str	r2, [r3, #8]
+	strncpy(str, currentItem -> name, 15);
+ 80024ec:	4b22      	ldr	r3, [pc, #136]	; (8002578 <items_menu_2_set_par_1+0xa4>)
+ 80024ee:	681b      	ldr	r3, [r3, #0]
+ 80024f0:	6959      	ldr	r1, [r3, #20]
+ 80024f2:	463b      	mov	r3, r7
+ 80024f4:	220f      	movs	r2, #15
+ 80024f6:	4618      	mov	r0, r3
+ 80024f8:	f003 fd7e 	bl	8005ff8 <strncpy>
+	ssd1306_SetCursor(10, 3);
+ 80024fc:	2103      	movs	r1, #3
+ 80024fe:	200a      	movs	r0, #10
+ 8002500:	f7fe fbaa 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 8002504:	4a1d      	ldr	r2, [pc, #116]	; (800257c <items_menu_2_set_par_1+0xa8>)
+ 8002506:	4638      	mov	r0, r7
+ 8002508:	2301      	movs	r3, #1
+ 800250a:	ca06      	ldmia	r2, {r1, r2}
+ 800250c:	f7fe fb7e 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 8002510:	f7fe fa6c 	bl	80009ec <ssd1306_UpdateScreen>
+	memset(str, 0, sizeof(str));
+ 8002514:	463b      	mov	r3, r7
+ 8002516:	2210      	movs	r2, #16
+ 8002518:	2100      	movs	r1, #0
+ 800251a:	4618      	mov	r0, r3
+ 800251c:	f003 fc86 	bl	8005e2c <memset>
+
+	strncpy(str, "Set parametr 1", sizeof(str));
+ 8002520:	463b      	mov	r3, r7
+ 8002522:	2210      	movs	r2, #16
+ 8002524:	4916      	ldr	r1, [pc, #88]	; (8002580 <items_menu_2_set_par_1+0xac>)
+ 8002526:	4618      	mov	r0, r3
+ 8002528:	f003 fd66 	bl	8005ff8 <strncpy>
+	ssd1306_SetCursor(0, first_menu_row);
+ 800252c:	4b15      	ldr	r3, [pc, #84]	; (8002584 <items_menu_2_set_par_1+0xb0>)
+ 800252e:	881b      	ldrh	r3, [r3, #0]
+ 8002530:	b2db      	uxtb	r3, r3
+ 8002532:	4619      	mov	r1, r3
+ 8002534:	2000      	movs	r0, #0
+ 8002536:	f7fe fb8f 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 800253a:	4a10      	ldr	r2, [pc, #64]	; (800257c <items_menu_2_set_par_1+0xa8>)
+ 800253c:	4638      	mov	r0, r7
+ 800253e:	2301      	movs	r3, #1
+ 8002540:	ca06      	ldmia	r2, {r1, r2}
+ 8002542:	f7fe fb63 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 8002546:	f7fe fa51 	bl	80009ec <ssd1306_UpdateScreen>
+
+	button_status = BOTTON_DOESENT_PRESS;
+ 800254a:	4b0f      	ldr	r3, [pc, #60]	; (8002588 <items_menu_2_set_par_1+0xb4>)
+ 800254c:	2200      	movs	r2, #0
+ 800254e:	701a      	strb	r2, [r3, #0]
+	block_interrupt_form_up_and_down_buttons = true;
+ 8002550:	4b0e      	ldr	r3, [pc, #56]	; (800258c <items_menu_2_set_par_1+0xb8>)
+ 8002552:	2201      	movs	r2, #1
+ 8002554:	701a      	strb	r2, [r3, #0]
+	do{
+		// Doing settings <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	}while (button_status != BUTTON_ENTER);
+ 8002556:	4b0c      	ldr	r3, [pc, #48]	; (8002588 <items_menu_2_set_par_1+0xb4>)
+ 8002558:	781b      	ldrb	r3, [r3, #0]
+ 800255a:	2b02      	cmp	r3, #2
+ 800255c:	d1fb      	bne.n	8002556 <items_menu_2_set_par_1+0x82>
+	block_interrupt_form_up_and_down_buttons = false;
+ 800255e:	4b0b      	ldr	r3, [pc, #44]	; (800258c <items_menu_2_set_par_1+0xb8>)
+ 8002560:	2200      	movs	r2, #0
+ 8002562:	701a      	strb	r2, [r3, #0]
+
+	// Return to first item of current menu
+	currentItem = &items_menu_2[0];										// Set global pointer on first menu
+ 8002564:	4b04      	ldr	r3, [pc, #16]	; (8002578 <items_menu_2_set_par_1+0xa4>)
+ 8002566:	4a0a      	ldr	r2, [pc, #40]	; (8002590 <items_menu_2_set_par_1+0xbc>)
+ 8002568:	601a      	str	r2, [r3, #0]
+	action();															// Print items on OLED
+ 800256a:	f7ff fdef 	bl	800214c <action>
+}
+ 800256e:	bf00      	nop
+ 8002570:	3710      	adds	r7, #16
+ 8002572:	46bd      	mov	sp, r7
+ 8002574:	bd80      	pop	{r7, pc}
+ 8002576:	bf00      	nop
+ 8002578:	20000018 	.word	0x20000018
+ 800257c:	20000004 	.word	0x20000004
+ 8002580:	08006814 	.word	0x08006814
+ 8002584:	20000020 	.word	0x20000020
+ 8002588:	20000561 	.word	0x20000561
+ 800258c:	20000560 	.word	0x20000560
+ 8002590:	200006e8 	.word	0x200006e8
+
+08002594 <do_it_function_menu_3>:
+// ----------------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+void do_it_function_menu_3(void)        // Print T and H
+{
+ 8002594:	b590      	push	{r4, r7, lr}
+ 8002596:	b085      	sub	sp, #20
+ 8002598:	af00      	add	r7, sp, #0
+	clearn_oled();
+ 800259a:	f7fe f977 	bl	800088c <clearn_oled>
+
+	// Print selected name of menu
+	char str[16] = {0};
+ 800259e:	2300      	movs	r3, #0
+ 80025a0:	603b      	str	r3, [r7, #0]
+ 80025a2:	1d3b      	adds	r3, r7, #4
+ 80025a4:	2200      	movs	r2, #0
+ 80025a6:	601a      	str	r2, [r3, #0]
+ 80025a8:	605a      	str	r2, [r3, #4]
+ 80025aa:	609a      	str	r2, [r3, #8]
+	strncpy(str, currentItem -> name, 15);
+ 80025ac:	4b2b      	ldr	r3, [pc, #172]	; (800265c <do_it_function_menu_3+0xc8>)
+ 80025ae:	681b      	ldr	r3, [r3, #0]
+ 80025b0:	6959      	ldr	r1, [r3, #20]
+ 80025b2:	463b      	mov	r3, r7
+ 80025b4:	220f      	movs	r2, #15
+ 80025b6:	4618      	mov	r0, r3
+ 80025b8:	f003 fd1e 	bl	8005ff8 <strncpy>
+	ssd1306_SetCursor(10, 3);
+ 80025bc:	2103      	movs	r1, #3
+ 80025be:	200a      	movs	r0, #10
+ 80025c0:	f7fe fb4a 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 80025c4:	4a26      	ldr	r2, [pc, #152]	; (8002660 <do_it_function_menu_3+0xcc>)
+ 80025c6:	4638      	mov	r0, r7
+ 80025c8:	2301      	movs	r3, #1
+ 80025ca:	ca06      	ldmia	r2, {r1, r2}
+ 80025cc:	f7fe fb1e 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 80025d0:	f7fe fa0c 	bl	80009ec <ssd1306_UpdateScreen>
+	memset(str, 0, sizeof(str));
+ 80025d4:	463b      	mov	r3, r7
+ 80025d6:	2210      	movs	r2, #16
+ 80025d8:	2100      	movs	r1, #0
+ 80025da:	4618      	mov	r0, r3
+ 80025dc:	f003 fc26 	bl	8005e2c <memset>
+
+	strncpy(str, "Doing something 3", sizeof(str));
+ 80025e0:	4b20      	ldr	r3, [pc, #128]	; (8002664 <do_it_function_menu_3+0xd0>)
+ 80025e2:	463c      	mov	r4, r7
+ 80025e4:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
+ 80025e6:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
+	ssd1306_SetCursor(0, first_menu_row);
+ 80025ea:	4b1f      	ldr	r3, [pc, #124]	; (8002668 <do_it_function_menu_3+0xd4>)
+ 80025ec:	881b      	ldrh	r3, [r3, #0]
+ 80025ee:	b2db      	uxtb	r3, r3
+ 80025f0:	4619      	mov	r1, r3
+ 80025f2:	2000      	movs	r0, #0
+ 80025f4:	f7fe fb30 	bl	8000c58 <ssd1306_SetCursor>
+	ssd1306_WriteString(str,  Font_7x10, White);
+ 80025f8:	4a19      	ldr	r2, [pc, #100]	; (8002660 <do_it_function_menu_3+0xcc>)
+ 80025fa:	4638      	mov	r0, r7
+ 80025fc:	2301      	movs	r3, #1
+ 80025fe:	ca06      	ldmia	r2, {r1, r2}
+ 8002600:	f7fe fb04 	bl	8000c0c <ssd1306_WriteString>
+	ssd1306_UpdateScreen();
+ 8002604:	f7fe f9f2 	bl	80009ec <ssd1306_UpdateScreen>
+
+	button_status = BOTTON_DOESENT_PRESS;
+ 8002608:	4b18      	ldr	r3, [pc, #96]	; (800266c <do_it_function_menu_3+0xd8>)
+ 800260a:	2200      	movs	r2, #0
+ 800260c:	701a      	strb	r2, [r3, #0]
+	block_interrupt_form_up_and_down_buttons = true;
+ 800260e:	4b18      	ldr	r3, [pc, #96]	; (8002670 <do_it_function_menu_3+0xdc>)
+ 8002610:	2201      	movs	r2, #1
+ 8002612:	701a      	strb	r2, [r3, #0]
+	do{
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 8002614:	2200      	movs	r2, #0
+ 8002616:	f44f 5100 	mov.w	r1, #8192	; 0x2000
+ 800261a:	4816      	ldr	r0, [pc, #88]	; (8002674 <do_it_function_menu_3+0xe0>)
+ 800261c:	f000 fcb9 	bl	8002f92 <HAL_GPIO_WritePin>
+		HAL_Delay(500);
+ 8002620:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+ 8002624:	f000 f938 	bl	8002898 <HAL_Delay>
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+ 8002628:	2201      	movs	r2, #1
+ 800262a:	f44f 5100 	mov.w	r1, #8192	; 0x2000
+ 800262e:	4811      	ldr	r0, [pc, #68]	; (8002674 <do_it_function_menu_3+0xe0>)
+ 8002630:	f000 fcaf 	bl	8002f92 <HAL_GPIO_WritePin>
+		HAL_Delay(500);
+ 8002634:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+ 8002638:	f000 f92e 	bl	8002898 <HAL_Delay>
+
+	}while (button_status != BUTTON_ENTER);
+ 800263c:	4b0b      	ldr	r3, [pc, #44]	; (800266c <do_it_function_menu_3+0xd8>)
+ 800263e:	781b      	ldrb	r3, [r3, #0]
+ 8002640:	2b02      	cmp	r3, #2
+ 8002642:	d1e7      	bne.n	8002614 <do_it_function_menu_3+0x80>
+	block_interrupt_form_up_and_down_buttons = false;
+ 8002644:	4b0a      	ldr	r3, [pc, #40]	; (8002670 <do_it_function_menu_3+0xdc>)
+ 8002646:	2200      	movs	r2, #0
+ 8002648:	701a      	strb	r2, [r3, #0]
+
+	// Return to first item of current menu
+	currentItem = &items_menu_3[0];										// Set global pointer on first menu
+ 800264a:	4b04      	ldr	r3, [pc, #16]	; (800265c <do_it_function_menu_3+0xc8>)
+ 800264c:	4a0a      	ldr	r2, [pc, #40]	; (8002678 <do_it_function_menu_3+0xe4>)
+ 800264e:	601a      	str	r2, [r3, #0]
+	action();															// Print items on OLED
+ 8002650:	f7ff fd7c 	bl	800214c <action>
+}
+ 8002654:	bf00      	nop
+ 8002656:	3714      	adds	r7, #20
+ 8002658:	46bd      	mov	sp, r7
+ 800265a:	bd90      	pop	{r4, r7, pc}
+ 800265c:	20000018 	.word	0x20000018
+ 8002660:	20000004 	.word	0x20000004
+ 8002664:	08006834 	.word	0x08006834
+ 8002668:	20000020 	.word	0x20000020
+ 800266c:	20000561 	.word	0x20000561
+ 8002670:	20000560 	.word	0x20000560
+ 8002674:	40011000 	.word	0x40011000
+ 8002678:	200007c0 	.word	0x200007c0
 
 0800267c <up>:
-// ----------------------------------------------------------------------------------------
+//// ----------------------------------------------------------------------------------------
 void up(void)
 {
  800267c:	b580      	push	{r7, lr}
@@ -6427,7 +6409,7 @@ void enter(void)
  800271a:	4a04      	ldr	r2, [pc, #16]	; (800272c <enter+0x48>)
  800271c:	6013      	str	r3, [r2, #0]
 		action();
- 800271e:	f7ff fb89 	bl	8001e34 <action>
+ 800271e:	f7ff fd15 	bl	800214c <action>
 	}
 }
  8002722:	bf00      	nop
@@ -6444,10 +6426,10 @@ void menu(void)
  8002730:	b580      	push	{r7, lr}
  8002732:	af00      	add	r7, sp, #0
 	Menu_Init();									// Init all structures
- 8002734:	f7ff fe16 	bl	8002364 <Menu_Init>
+ 8002734:	f7ff f8f4 	bl	8001920 <Menu_Init>
 
 	print_menu_init();								// Print start menu and scrolingbar
- 8002738:	f7ff fae6 	bl	8001d08 <print_menu_init>
+ 8002738:	f7ff fc72 	bl	8002020 <print_menu_init>
 
 	HAL_Delay(10);
  800273c:	200a      	movs	r0, #10

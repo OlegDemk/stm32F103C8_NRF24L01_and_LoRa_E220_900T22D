@@ -92,8 +92,6 @@ void LoRa_RX(bool flag)
 	{
 		flag_first_time = true;
 	}
-
-
 }
 //----------------------------------------------------------------------------------------
 void LoRa_TX(bool flag)

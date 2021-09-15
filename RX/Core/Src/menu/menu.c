@@ -16,7 +16,7 @@
 
 #include <LoRa_E220_900T22D/e220_900t22d.h>
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*							READ ME
  	  	  Дане меню використовує OLED екран з драйвером ssd1306.  0.96 дюйма 128x64 I2C
       	  Зчитування кнопок:
@@ -60,26 +60,7 @@
 	3. Дописати виконавчу функцію. Потім записати її тут: items[0].makeAction, замість нуля.
  *
  */
-
-
-
-//ПРоблеми !!!!!!!!!!!!!!!
-//3. Обводити квадратом назву в верхні частині меню
-//5. Зробити як окремий файл
-//6. Залити на гіт, як окремий проект
-
-
-
-
-
-// 1. При переході в відповідне меню, назву вибраного меню виводити на верх екрану.  DONE
-// 4. При виході з функцій items_menu_1_set_par_1 і  do_it_function_menu_1 друкувати меню на екран від першого меню  DONE
-//2. З права виводити масштаб меню у вигляді полоски   DONE
-//7. Зробити ці змінні екстерном або в h файл      DONE
-//uint8_t BOTTON_DOESENT_PRESS = 0;
-//uint8_t BOTTON_UP = 1;
-//uint8_t BUTTON_ENTER = 2;
-//uint8_t BUTTON_DOWN = 3;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern UART_HandleTypeDef huart3;
 
@@ -112,13 +93,13 @@ MenuItem_t items_menu_2[MENU_2_ITEM_NUM];
 MenuItem_t items_menu_3[MENU_3_ITEM_NUM];
 //MenuItem_t items_menu_4[MENU_4_ITEM_NUM];
 
-MenuItem_t * currentItem = &items[0];			// Create and set pointer on first element of list
+MenuItem_t * currentItem = &items[0];								// Create and set pointer on first element of list
 
 bool block_interrupt_form_up_and_down_buttons = false;				// Flag for lock interrupt from 'up' and 'down' buttons in some cases
-uint8_t button_status = BOTTON_DOESENT_PRESS;								// Pressed button
-extern int button_processed_status;				// For interrupt work only one time
+uint8_t button_status = BOTTON_DOESENT_PRESS;						// Pressed button
+extern int button_processed_status;									// For interrupt work only one time
 
-char str_pointer[4] = "->";						// How look pointer on menu item
+char str_pointer[4] = "->";											// How look pointer on menu item
 
 // Rows coordinates
 uint16_t first_menu_row = 16;
@@ -129,10 +110,186 @@ uint8_t row_step = 12;
 uint16_t start_print_id_menu_x = 15;
 uint16_t start_print_name_menu_x = 30;
 
+void scroll_bar(void);
+void print_rectangle_on_head(void);
+void clear_menu_items (bool first, bool second, bool third, bool fourth);
+void print_rows_on_oled_if_up(void);											// print text menu items
+void print_rows_on_oled_if_down(void);											// print text menu items
+void print_menu_init(void);
+void action(void);
+void return_from_menu(void);
+void lora_rx_mode(void);
+void lora_tx_mode(void);
+void items_menu_1_set_par_1(void);
+void items_menu_1_set_par_2(void);
+void items_menu_2_set_par_1(void);
+void do_it_function_menu_3(void);        // Print T and H
+
+// ----------------------------------------------------------------------------------------
+void Menu_Init (void)
+{
+	// Make pointers on funsctions
+	// Main functions
+	void (*p_print_rows_on_oled_if_up) (void);
+	p_print_rows_on_oled_if_up = print_rows_on_oled_if_up;
+
+	void (*p_print_rows_on_oled_if_down) (void);					// Create pointer on function
+	p_print_rows_on_oled_if_down = print_rows_on_oled_if_down;		// Save function print on pointer print_p
+
+	void (*p_return_from_menu)(void);
+	p_return_from_menu = return_from_menu;
+
+	void (*p_action) (void);										// Create pointer on function
+	p_action = action;												// Save function action on pointer action_p
+
+	// LoRa  menu functions
+	void (*p_lora_rx_mode) (void);						// Function "Do it". Works when select it
+	p_lora_rx_mode = lora_rx_mode;
+
+	void (*p_lora_tx_mode) (void);						// Function "Do it". Works when select it
+	p_lora_tx_mode = lora_tx_mode;
+
+
+	void (*p_items_menu_1_set_par_2) (void);			// Doesen't use yet
+	p_items_menu_1_set_par_2 = items_menu_1_set_par_2;
+
+
+	// items_menu_2 menu functions
+//	void (*p_do_it_function_menu_2) (void);						// Function "Do it". Works when select it
+//	p_do_it_function_menu_2 = do_it_function_menu_2;
+
+	void (*p_items_menu_2_set_par_1) (void);
+	p_items_menu_2_set_par_1 = items_menu_2_set_par_1;
+
+	// items_menu_3 menu functions
+	void (*p_do_it_function_menu_3) (void);						// Function "Do it". Works when select it
+	p_do_it_function_menu_3 = do_it_function_menu_3;
+
+
+	// Fill in elements(nodes) of list (7 items)
+	// Main menu items
+	/////////////////////////////////////////////////////////////////
+
+	items[0].up = 0;
+	items[0].down = &items[1];
+	items[0].child = &items_menu_1[0];
+	items[0].parent = 0;
+	items[0].id = 1;
+	items[0].name = "LoRa E220";
+	items[0].updateScreen_up = p_print_rows_on_oled_if_up;
+	items[0].updateScreen_down = p_print_rows_on_oled_if_down;
+	items[0].makeAction = 0;
+
+	items[1].up = &items[0];
+	items[1].down = &items[2];
+	items[1].child = &items_menu_2[0];
+	items[1].parent = 0;
+	items[1].id = 2;
+	items[1].name = "NRF24L01";
+	items[1].updateScreen_up = p_print_rows_on_oled_if_up;
+	items[1].updateScreen_down = p_print_rows_on_oled_if_down;
+	items[1].makeAction = 0;
+
+	items[2].up = &items[1];
+	items[2].down = 0;
+	items[2].child = &items_menu_3[0];
+	items[2].parent = 0;
+	items[2].id = 3;
+	items[2].name = "AM2302 sensor";
+	items[2].updateScreen_up = p_print_rows_on_oled_if_up;
+	items[2].updateScreen_down = p_print_rows_on_oled_if_down;
+	items[2].makeAction = 0;
+
+	///////////////////////////////////////////////////////////////////
+	// Creating LoRa menu
+	items_menu_1[0].up = 0;
+	items_menu_1[0].down = &items_menu_1[1];
+	items_menu_1[0].id = 1;
+	items_menu_1[0].child = 0;
+	items_menu_1[0].parent = &items[0];
+	items_menu_1[0].name = "LoRa RX";
+	items_menu_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_1[0].makeAction = lora_rx_mode;
+
+	items_menu_1[1].up = &items_menu_1[0];
+	items_menu_1[1].down = &items_menu_1[2];
+	items_menu_1[1].child = 0;
+	items_menu_1[1].parent = &items[0];
+	items_menu_1[1].id = 2;
+	items_menu_1[1].name = "LoRa TX";
+	items_menu_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_1[1].makeAction = p_lora_tx_mode;
+
+	items_menu_1[2].up = &items_menu_1[1];
+	items_menu_1[2].down = 0;
+	items_menu_1[2].child = 0;
+	items_menu_1[2].parent = &items[0];
+	items_menu_1[2].id = 3;
+	items_menu_1[2].name = "EXIT";						// Name of item
+	items_menu_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_1[2].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_1[2].makeAction = p_return_from_menu;
+
+	///////////////////////////////////////////////////////////////////
+	// Creating next menu
+	items_menu_2[0].up = 0;
+	items_menu_2[0].down = &items_menu_2[1];
+	items_menu_2[0].child = 0;
+	items_menu_2[0].parent = &items[1];
+	items_menu_2[0].id = 1;
+	items_menu_2[0].name = "NRF RX";						// Name of item
+	items_menu_2[0].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_2[0].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_2[0].makeAction = 0;
+
+	items_menu_2[1].up = &items_menu_2[0];
+	items_menu_2[1].down = &items_menu_2[2];
+	items_menu_2[1].child = 0;
+	items_menu_2[1].parent = &items[1];
+	items_menu_2[1].id = 2;
+	items_menu_2[1].name = "NRF TX";						// Name of item
+	items_menu_2[1].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_2[1].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_2[1].makeAction = 0;
+
+	items_menu_2[2].up = &items_menu_2[1];
+	items_menu_2[2].down = 0;
+	items_menu_2[2].child = 0;
+	items_menu_2[2].parent = &items[1];
+	items_menu_2[2].id = 3;
+	items_menu_2[2].name = "EXIT";						// Name of item
+	items_menu_2[2].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_2[2].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_2[2].makeAction = p_return_from_menu;
+
+	///////////////////////////////////////////////////////////////////
+	// Creating sensor menu
+	items_menu_3[0].up = 0;
+	items_menu_3[0].down = &items_menu_3[1];
+	items_menu_3[0].child = 0;
+	items_menu_3[0].parent = &items[2];
+	items_menu_3[0].id = 1;
+	items_menu_3[0].name = "Measure T & H";						// Name of item
+	items_menu_3[0].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_3[0].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_3[0].makeAction = p_do_it_function_menu_3;
+
+	items_menu_3[1].up = &items_menu_3[0];
+	items_menu_3[1].down = 0;
+	items_menu_3[1].child = 0;
+	items_menu_3[1].parent = &items[2];
+	items_menu_3[1].id = 2;
+	items_menu_3[1].name = "EXIT";						// Name of item
+	items_menu_3[1].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_3[1].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_3[1].makeAction = p_return_from_menu;
+
+}
 // ----------------------------------------------------------------------------------------
 /*
 This function print scrollbar on right part of OLED.
-
  */
 void scroll_bar(void)
 {
@@ -145,10 +302,10 @@ void scroll_bar(void)
 	uint8_t menu_items_counter = 1;
 
 	// Знайти скільки емементві в меню. Відповідно до кількості елементів вирахоується довжини скролбару
-	// 1. Скопіювати показник на меню в буффер
-	// 2. Піднятися до останнього елемента меню
-	// 3. Інкрементувати лічильник елементів меню, до останього елемента меню
-	// 4. записати нараховані емементи в
+	// 1. Скопіювати показник на меню в буффер.
+	// 2. Піднятися до першого елемента меню.
+	// 3. Опускатися вниз до останнього пункту меню і інкрементувати лічильник елементів меню.
+	// 4. Використати лічильник пунктів меню для вираховування довжини полоси прокрутки і її координат.
 
 	MenuItem_t * currentItem_buff = currentItem;
 
@@ -176,10 +333,10 @@ void scroll_bar(void)
 	ssd1306_UpdateScreen();
 
 	 // Print scroling line
-	int id_for_line = currentItem -> id;				// Скопіювати порядковий номер меню
+	int id_for_line = currentItem -> id;				// Скопіювати порядковий номер меню (Для того щоб взнати на якому пункті меню зараз стоїмо)
 	// Print scroling line
 	uint16_t line_lenght = (lenght_all_scrollbar/menu_items_counter + 1);					   	// Довжина лінії яка відповідає одному меню
-	uint16_t start_lenght = 16 + ((id_for_line - 1)*line_lenght);			// Початок лінії
+	uint16_t start_lenght = 16 + ((id_for_line - 1)*line_lenght);								// Початок лінії
 	// Print active scrollbar part (line)
 	ssd1306FillRect(start_x_scrollbar, start_lenght, active_width, line_lenght, White);
 
@@ -221,7 +378,7 @@ void clear_menu_items (bool first, bool second, bool third, bool fourth)
 	ssd1306_UpdateScreen();
 }
 // ----------------------------------------------------------------------------------------
-void print_rows_on_oled_if_up(void)
+void print_rows_on_oled_if_up(void)				// print text menu items
 {
 	char str[16] = {0};
 
@@ -258,7 +415,7 @@ void print_rows_on_oled_if_up(void)
 	scroll_bar();
 }
 // ----------------------------------------------------------------------------------------
-void print_rows_on_oled_if_down(void)	// print text menu item
+void print_rows_on_oled_if_down(void)			// print text menu items
 {
 	char str[16] = {0};
 
@@ -349,7 +506,7 @@ void action(void)
 
 	print_rectangle_on_head();
 
-	//Print selected name of menu on top of OLED
+	//Print selected name of menu on top of OLED (in rectangle)
 	MenuItem_t * currentItem_buff_parent = currentItem;
 	currentItem_buff_parent = currentItem_buff_parent -> parent;
 
@@ -407,15 +564,11 @@ void return_from_menu(void)
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
+// LORA FUNCTIONS
 void lora_rx_mode(void)
 {
 	clearn_oled();
-
 	print_rectangle_on_head();
-
-//	1. Додати рамку на верх екрану  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//	2. Додати можливість вийти з режиму
-
 
 	// Print selected name of menu
 	char str[16] = {0};
@@ -425,18 +578,13 @@ void lora_rx_mode(void)
 	ssd1306_UpdateScreen();
 	memset(str, 0, sizeof(str));
 
-//	strncpy(str, "LoRa RX mode", sizeof(str));
-//	ssd1306_SetCursor(0, first_menu_row);
-//	ssd1306_WriteString(str,  Font_7x10, White);
-//	ssd1306_UpdateScreen();
-
 	button_status = BOTTON_DOESENT_PRESS;
 	block_interrupt_form_up_and_down_buttons = true;
+	// waiting for press enter(SW2) button
 	do{
 		LoRa_RX(true);
 	}while (button_status != BUTTON_ENTER);
 	LoRa_RX(false);
-
 
 	block_interrupt_form_up_and_down_buttons = false;
 
@@ -448,9 +596,6 @@ void lora_rx_mode(void)
 void lora_tx_mode(void)
 {
 	clearn_oled();
-
-//	1. Додати рамку на верх екрану  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//	2. Додати можливість вийти з режиму
 	print_rectangle_on_head();
 
 	// Print selected name of menu
@@ -461,13 +606,10 @@ void lora_tx_mode(void)
 	ssd1306_UpdateScreen();
 	memset(str, 0, sizeof(str));
 
-//	strncpy(str, "LoRa RX mode", sizeof(str));
-//	ssd1306_SetCursor(0, first_menu_row);
-//	ssd1306_WriteString(str,  Font_7x10, White);
-//	ssd1306_UpdateScreen();
 
 	button_status = BOTTON_DOESENT_PRESS;
 	block_interrupt_form_up_and_down_buttons = true;
+	// waiting for press enter(SW2) button
 	do{
 		LoRa_TX(true);
 
@@ -480,6 +622,15 @@ void lora_tx_mode(void)
 	currentItem = &items_menu_1[0];										// Set global pointer on first menu
 	action();															// Print items on OLED
 }
+// ----------------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+// NRF FUNCTIONS
+
+
+
+
 // ----------------------------------------------------------------------------------------
 void items_menu_1_set_par_1(void)
 {
@@ -639,173 +790,7 @@ void do_it_function_menu_3(void)        // Print T and H
 	currentItem = &items_menu_3[0];										// Set global pointer on first menu
 	action();															// Print items on OLED
 }
-////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////
-// ----------------------------------------------------------------------------------------
-// ----------------------------------------------------------------------------------------
-void Menu_Init (void)
-{
-	// Make pointers on funsctions
-	// Main functions
-	void (*p_print_rows_on_oled_if_up) (void);
-	p_print_rows_on_oled_if_up = print_rows_on_oled_if_up;
-
-	void (*p_print_rows_on_oled_if_down) (void);					// Create pointer on function
-	p_print_rows_on_oled_if_down = print_rows_on_oled_if_down;		// Save function print on pointer print_p
-
-	void (*p_return_from_menu)(void);
-	p_return_from_menu = return_from_menu;
-
-	void (*p_action) (void);										// Create pointer on function
-	p_action = action;												// Save function action on pointer action_p
-
-	// LoRa  menu functions
-	void (*p_lora_rx_mode) (void);						// Function "Do it". Works when select it
-	p_lora_rx_mode = lora_rx_mode;
-
-	void (*p_lora_tx_mode) (void);						// Function "Do it". Works when select it
-	p_lora_tx_mode = lora_tx_mode;
-
-
-	void (*p_items_menu_1_set_par_2) (void);
-	p_items_menu_1_set_par_2 = items_menu_1_set_par_2;
-
-
-	// items_menu_2 menu functions
-//	void (*p_do_it_function_menu_2) (void);						// Function "Do it". Works when select it
-//	p_do_it_function_menu_2 = do_it_function_menu_2;
-
-	void (*p_items_menu_2_set_par_1) (void);
-	p_items_menu_2_set_par_1 = items_menu_2_set_par_1;
-
-	// items_menu_3 menu functions
-	void (*p_do_it_function_menu_3) (void);						// Function "Do it". Works when select it
-	p_do_it_function_menu_3 = do_it_function_menu_3;
-
-
-	// Fill in elements(nodes) of list (7 items)
-	// Main menu items
-	/////////////////////////////////////////////////////////////////
-
-	items[0].up = 0;
-	items[0].down = &items[1];
-	items[0].child = &items_menu_1[0];
-	items[0].parent = 0;
-	items[0].id = 1;
-	items[0].name = "LoRa E220";
-	items[0].updateScreen_up = p_print_rows_on_oled_if_up;
-	items[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[0].makeAction = 0;
-
-	items[1].up = &items[0];
-	items[1].down = &items[2];
-	items[1].child = &items_menu_2[0];
-	items[1].parent = 0;
-	items[1].id = 2;
-	items[1].name = "NRF24L01";
-	items[1].updateScreen_up = p_print_rows_on_oled_if_up;
-	items[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[1].makeAction = 0;
-
-	items[2].up = &items[1];
-	items[2].down = 0;
-	items[2].child = &items_menu_3[0];
-	items[2].parent = 0;
-	items[2].id = 3;
-	items[2].name = "AM2302 sensor";
-	items[2].updateScreen_up = p_print_rows_on_oled_if_up;
-	items[2].updateScreen_down = p_print_rows_on_oled_if_down;
-	items[2].makeAction = 0;
-
-	///////////////////////////////////////////////////////////////////
-	// Creating LoRa menu
-	items_menu_1[0].up = 0;
-	items_menu_1[0].down = &items_menu_1[1];
-	items_menu_1[0].id = 1;
-	items_menu_1[0].child = 0;
-	items_menu_1[0].parent = &items[0];
-	items_menu_1[0].name = "LoRa RX";
-	items_menu_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[0].makeAction = lora_rx_mode;
-
-	items_menu_1[1].up = &items_menu_1[0];
-	items_menu_1[1].down = &items_menu_1[2];
-	items_menu_1[1].child = 0;
-	items_menu_1[1].parent = &items[0];
-	items_menu_1[1].id = 2;
-	items_menu_1[1].name = "LoRa TX";
-	items_menu_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[1].makeAction = p_lora_tx_mode;
-
-	items_menu_1[2].up = &items_menu_1[1];
-	items_menu_1[2].down = 0;
-	items_menu_1[2].child = 0;
-	items_menu_1[2].parent = &items[0];
-	items_menu_1[2].id = 3;
-	items_menu_1[2].name = "EXIT";						// Name of item
-	items_menu_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_1[2].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[2].makeAction = p_return_from_menu;
-
-	///////////////////////////////////////////////////////////////////
-	// Creating next menu
-	items_menu_2[0].up = 0;
-	items_menu_2[0].down = &items_menu_2[1];
-	items_menu_2[0].child = 0;
-	items_menu_2[0].parent = &items[1];
-	items_menu_2[0].id = 1;
-	items_menu_2[0].name = "NRF RX";						// Name of item
-	items_menu_2[0].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_2[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[0].makeAction = 0;
-
-	items_menu_2[1].up = &items_menu_2[0];
-	items_menu_2[1].down = &items_menu_2[2];
-	items_menu_2[1].child = 0;
-	items_menu_2[1].parent = &items[1];
-	items_menu_2[1].id = 2;
-	items_menu_2[1].name = "NRF TX";						// Name of item
-	items_menu_2[1].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_2[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[1].makeAction = 0;
-
-	items_menu_2[2].up = &items_menu_2[1];
-	items_menu_2[2].down = 0;
-	items_menu_2[2].child = 0;
-	items_menu_2[2].parent = &items[1];
-	items_menu_2[2].id = 3;
-	items_menu_2[2].name = "EXIT";						// Name of item
-	items_menu_2[2].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_2[2].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[2].makeAction = p_return_from_menu;
-
-	///////////////////////////////////////////////////////////////////
-	// Creating sensor menu
-	items_menu_3[0].up = 0;
-	items_menu_3[0].down = &items_menu_3[1];
-	items_menu_3[0].child = 0;
-	items_menu_3[0].parent = &items[2];
-	items_menu_3[0].id = 1;
-	items_menu_3[0].name = "Measure T & H";						// Name of item
-	items_menu_3[0].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_3[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_3[0].makeAction = p_do_it_function_menu_3;
-
-	items_menu_3[1].up = &items_menu_3[0];
-	items_menu_3[1].down = 0;
-	items_menu_3[1].child = 0;
-	items_menu_3[1].parent = &items[2];
-	items_menu_3[1].id = 2;
-	items_menu_3[1].name = "EXIT";						// Name of item
-	items_menu_3[1].updateScreen_up = p_print_rows_on_oled_if_up;
-	items_menu_3[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_3[1].makeAction = p_return_from_menu;
-
-}
-// ----------------------------------------------------------------------------------------
+//// ----------------------------------------------------------------------------------------
 void up(void)
 {
 	if (currentItem->up)
