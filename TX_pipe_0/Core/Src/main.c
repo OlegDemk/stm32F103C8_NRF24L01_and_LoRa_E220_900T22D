@@ -33,8 +33,8 @@
 #define off 0
 #define on 1
 
-#define nrf off
-#define lora on
+#define nrf on
+#define lora off
 
 char uart_rx_data[50] = {0};			// Main rx buffer data
 char str[1] = {0};						// Buffer for one char

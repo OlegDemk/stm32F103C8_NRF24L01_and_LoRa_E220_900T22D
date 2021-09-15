@@ -16,6 +16,8 @@
 
 #include <LoRa_E220_900T22D/e220_900t22d.h>
 
+#include <NRF24L01/nrf24l01.h>
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*							READ ME
  	  	  Дане меню використовує OLED екран з драйвером ssd1306.  0.96 дюйма 128x64 I2C
@@ -118,12 +120,15 @@ void print_rows_on_oled_if_down(void);											// print text menu items
 void print_menu_init(void);
 void action(void);
 void return_from_menu(void);
-void lora_rx_mode(void);
-void lora_tx_mode(void);
 void items_menu_1_set_par_1(void);
 void items_menu_1_set_par_2(void);
 void items_menu_2_set_par_1(void);
 void do_it_function_menu_3(void);        // Print T and H
+
+void lora_rx_mode(void);
+void lora_tx_mode(void);
+void nrf_tx_mode(void);
+void nrf_rx_mode(void);
 
 // ----------------------------------------------------------------------------------------
 void Menu_Init (void)
@@ -164,6 +169,10 @@ void Menu_Init (void)
 	// items_menu_3 menu functions
 	void (*p_do_it_function_menu_3) (void);						// Function "Do it". Works when select it
 	p_do_it_function_menu_3 = do_it_function_menu_3;
+
+
+	void (*p_nrf_tx_mode) (void);						// Function "Do it". Works when select it
+	p_nrf_tx_mode = nrf_tx_mode;
 
 
 	// Fill in elements(nodes) of list (7 items)
@@ -210,7 +219,7 @@ void Menu_Init (void)
 	items_menu_1[0].name = "LoRa RX";
 	items_menu_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[0].makeAction = lora_rx_mode;
+	items_menu_1[0].makeAction = p_lora_rx_mode;
 
 	items_menu_1[1].up = &items_menu_1[0];
 	items_menu_1[1].down = &items_menu_1[2];
@@ -252,7 +261,7 @@ void Menu_Init (void)
 	items_menu_2[1].name = "NRF TX";						// Name of item
 	items_menu_2[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_2[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[1].makeAction = 0;
+	items_menu_2[1].makeAction = p_nrf_tx_mode;
 
 	items_menu_2[2].up = &items_menu_2[1];
 	items_menu_2[2].down = 0;
@@ -288,6 +297,27 @@ void Menu_Init (void)
 
 }
 // ----------------------------------------------------------------------------------------
+void nrf_rx_mode(void)
+{
+	clearn_oled();
+	bool init_status = NRF24_ini_rx_mode();
+	while(1)
+	{
+		NRF24L01_Receive();
+	}
+}
+// ----------------------------------------------------------------------------------------
+void nrf_tx_mode(void)
+{
+	clearn_oled();
+	nrf_tx_test();
+}
+// ----------------------------------------------------------------------------------------
+
+
+
+
+
 /*
 This function print scrollbar on right part of OLED.
  */

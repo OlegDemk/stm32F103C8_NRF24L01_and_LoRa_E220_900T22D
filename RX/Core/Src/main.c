@@ -153,7 +153,12 @@ int main(void)
 
   while (1)
   {
-	menu();
+	//menu();
+
+	  // RX NRF TEST
+	  // nrf_rx_mode();
+
+	  nrf_tx_mode();
 
     /* USER CODE END WHILE */
 

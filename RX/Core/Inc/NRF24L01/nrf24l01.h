@@ -56,6 +56,7 @@
 // Set RX_ADDR_P0 equal to this address to handle automatic acknowledge
 #define TX_ADDR 0x10 //'TX address' register address			//
 
+
 // Define payload width for all pipes
 #define RX_PW_P0 0x11 //'RX payload width, pipe0' register address
 #define RX_PW_P1 0x12 //'RX payload width, pipe1' register address
