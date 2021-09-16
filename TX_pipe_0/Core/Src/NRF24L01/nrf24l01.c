@@ -189,7 +189,6 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
 {
   uint8_t status=0x00, regval=0x00;
   NRF24L01_TX_Mode(pBuf);
-  regval = NRF24_ReadReg(CONFIG);
   // If module in sleep mode, wake up it send PWR_UP and PRIM_RX bits in CONFIG
   regval |= (1<<PWR_UP);			// Set power up
   regval &= ~(1<<PRIM_RX);			// Set TX mode
@@ -211,8 +210,8 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
   }
   else if(status & MAX_RT)   //MAX_RT == 0x10  // Retransmeet data flag
   {
-    NRF24_WriteReg(STATUS_NRF, 0x10);
-    NRF24_FlushTX();
+	  NRF24_WriteReg(STATUS_NRF, 0x10);
+	  NRF24_FlushTX();
   }
 
   regval = NRF24_ReadReg(OBSERVE_TX);   // Return Count lost packets and count transmitted packets

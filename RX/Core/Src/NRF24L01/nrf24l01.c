@@ -38,20 +38,6 @@ uint32_t cnt_lost_global = 0;
 bool read_config_registers(void);
 
 //----------------------------------------------------------------------------------------
-void nrf(void)
-{
-	char str[30] = {0};
-	clearn_oled();
-
-	memset(str, 0, sizeof(str));
-	ssd1306_SetCursor(0, 0);
-	strcpy(str, "NRF24L01");
-	ssd1306_WriteString(str,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
-
-}
-//----------------------------------------------------------------------------------------
 /*
  * Function make us delay
  */
@@ -250,6 +236,20 @@ bool init_nrf_rx_mode(void)
 //----------------------------------------------------------------------------------------
 void IRQ_Callback(void)
 {
+	 //!!!!!!!!!!!!!!!
+	/*
+	 ПРОБЛЕМА.
+	 НА PA2 в різних режимас стоїьб різний функціонал
+
+	1. IRQ використовує RX режим
+	2. input pin  використовує TX режим
+
+	Потрібно зробити так, жо якщо модуль в режимі RX Тоді використовувати колбек
+	Якщо в режимі передавача, тоді колбек всеодно викличиться, тільки колбеком потрібно
+	замінити читанням #define IRQ HAL_GPIO_ReadPin(IRQ_GPIO_PORT, IRQ_PIN)
+	*/
+
+
 	uint8_t status=0x01;
 	uint16_t dt=0;
 
@@ -317,13 +317,17 @@ void NRF24_Transmit(uint8_t addr,uint8_t *pBuf,uint8_t bytes)
   CS_OFF;
   CE_SET;
 }
-
 //----------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
 uint8_t NRF24L01_Send(uint8_t *pBuf)
 {
   uint8_t status=0x00, regval=0x00;
   NRF24L01_TX_Mode(pBuf);
-  regval = NRF24_ReadReg(CONFIG);
   // If module in sleep mode, wake up it send PWR_UP and PRIM_RX bits in CONFIG
   regval |= (1<<PWR_UP);			// Set power up
   regval &= ~(1<<PRIM_RX);			// Set TX mode
@@ -345,8 +349,8 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
   }
   else if(status & MAX_RT)   //MAX_RT == 0x10  // Retransmeet data flag
   {
-    NRF24_WriteReg(STATUS_NRF, 0x10);
-    NRF24_FlushTX();
+	  NRF24_WriteReg(STATUS_NRF, 0x10);
+	  NRF24_FlushTX();
   }
 
   regval = NRF24_ReadReg(OBSERVE_TX);   // Return Count lost packets and count transmitted packets
@@ -357,9 +361,39 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
   return regval;
 }
 //----------------------------------------------------------------------------------------
-void nrf_tx_test(void)
+void NRF24_ini(void)    // TRANSMITTER
 {
-	NRF24_ini_tx_mode();
+	CE_RESET;
+	DelayMicro(5000);
+
+	NRF24_WriteReg(CONFIG, 0x0a); 			// Set PWR_UP bit, enable CRC(1 byte) &Prim_RX:0 (Transmitter)
+
+	DelayMicro(5000);
+
+	NRF24_WriteReg(EN_AA, 0x01); 			// Enable Pipe0
+	NRF24_WriteReg(EN_RXADDR, 0x01); 		// Enable Pipe0
+	NRF24_WriteReg(SETUP_AW, 0x01); 		// Setup address width=3 bytes
+	NRF24_WriteReg(SETUP_RETR, 0x5F); 		// 1500us, 15 retrans
+	NRF24_ToggleFeatures();
+	NRF24_WriteReg(FEATURE, 0);
+	NRF24_WriteReg(DYNPD, 0);
+	NRF24_WriteReg(STATUS_NRF, 0x70); 		// Reset flags for IRQ
+	NRF24_WriteReg(RF_CH, 76); 				// Frequency = 2476 MHz
+	NRF24_WriteReg(RF_SETUP, 0x26);  		// TX_PWR:0dBm, Datarate:250kbps
+
+	NRF24_Write_Buf(TX_ADDR, TX_ADDRESS, TX_ADR_WIDTH);			// Write TX address
+
+	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);		// Set up pipe 0 address
+	NRF24_WriteReg(RX_PW_P0, TX_PLOAD_WIDTH);				 	// Number of bytes in TX buffer
+
+	NRF24L01_RX_Mode();
+
+	read_config_registers();	// For debug
+}
+//----------------------------------------------------------------------------------------
+void nrf_communication_test(void)
+{
+	NRF24_ini();
 
 	char ctr[5] = {0};
 	char ctr_buf[5] = {0};
@@ -371,7 +405,7 @@ void nrf_tx_test(void)
 	while(1)
 	{
 		// Test transmit data
-		sprintf(buf2, "%d", test_data);
+		sprintf(buf1, "%d", test_data);
 
 		// Print transmit data
 		uint8_t test[25] = {0};
@@ -379,11 +413,10 @@ void nrf_tx_test(void)
 
 		ssd1306_SetCursor(0, 16);
 		strcpy(test, "Data:");
-		strcat(test, buf2);
+		strcat(test, buf1);
 		ssd1306_WriteString(test,  Font_7x10, White);
-		ssd1306_UpdateScreen();
 
-		dt = NRF24L01_Send(buf2);						// Transmit data  <<<<<<<<<<<<<<<
+		dt = NRF24L01_Send(buf1);						// Transmit data
 
 		retr_cnt = dt & 0xF;
 		retr_cnt_full += retr_cnt;

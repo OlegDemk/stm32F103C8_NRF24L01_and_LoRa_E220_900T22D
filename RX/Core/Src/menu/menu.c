@@ -130,6 +130,7 @@ void lora_tx_mode(void);
 void nrf_tx_mode(void);
 void nrf_rx_mode(void);
 
+
 // ----------------------------------------------------------------------------------------
 void Menu_Init (void)
 {
@@ -173,6 +174,10 @@ void Menu_Init (void)
 
 	void (*p_nrf_tx_mode) (void);						// Function "Do it". Works when select it
 	p_nrf_tx_mode = nrf_tx_mode;
+
+	void (*p_nrf_rx_mode) (void);						// Function "Do it". Works when select it
+	p_nrf_rx_mode = nrf_rx_mode;
+
 
 
 	// Fill in elements(nodes) of list (7 items)
@@ -251,7 +256,7 @@ void Menu_Init (void)
 	items_menu_2[0].name = "NRF RX";						// Name of item
 	items_menu_2[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_2[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[0].makeAction = 0;
+	items_menu_2[0].makeAction = p_nrf_rx_mode;
 
 	items_menu_2[1].up = &items_menu_2[0];
 	items_menu_2[1].down = &items_menu_2[2];
@@ -299,6 +304,7 @@ void Menu_Init (void)
 // ----------------------------------------------------------------------------------------
 void nrf_rx_mode(void)
 {
+
 	clearn_oled();
 	bool init_status = NRF24_ini_rx_mode();
 	while(1)
@@ -309,8 +315,9 @@ void nrf_rx_mode(void)
 // ----------------------------------------------------------------------------------------
 void nrf_tx_mode(void)
 {
+
 	clearn_oled();
-	nrf_tx_test();
+	nrf_communication_test();     //nrf_tx_test();
 }
 // ----------------------------------------------------------------------------------------
 
