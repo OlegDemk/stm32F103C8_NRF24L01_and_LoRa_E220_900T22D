@@ -155,7 +155,7 @@ int main(void)
   {
 	//menu();
 
-	  //nrf_RX();
+	  nrf_RX();
 
        nrf_TX();		// <<<<<<<<<<<<<<<<<<<<<,,
 	  // gpio_test();
