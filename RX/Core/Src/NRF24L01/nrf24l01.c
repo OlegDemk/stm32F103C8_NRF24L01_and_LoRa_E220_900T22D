@@ -29,6 +29,7 @@ uint8_t pipe = 0;						// Number of pipes
 uint8_t ErrCnt_Fl = 0; 					// Error counter (Can count only to 15)
 
 
+<<<<<<< HEAD
 ///  TX
 uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};   // Address for pipe 0
 uint32_t i=1,retr_cnt_full=0, cnt_lost=0;
@@ -37,6 +38,23 @@ uint32_t cnt_lost_global = 0;
 
 bool read_config_registers(void);
 
+=======
+////----------------------------------------------------------------------------------------
+//void nrf(void)
+//{
+//	char str[30] = {0};
+//	clearn_oled();
+//
+//	memset(str, 0, sizeof(str));
+//	ssd1306_SetCursor(0, 0);
+//	strcpy(str, "NRF24L01");
+//	ssd1306_WriteString(str,  Font_7x10, White);
+//	ssd1306_UpdateScreen();
+//
+//
+//
+//}
+>>>>>>> FFF
 //----------------------------------------------------------------------------------------
 /*
  * Function make us delay
@@ -166,7 +184,12 @@ bool NRF24L01_Receive(void)
 	}
 }
 //----------------------------------------------------------------------------------------
+<<<<<<< HEAD
 void NRF24_ini_rx_mode(void)                  // RECEIVE
+=======
+
+void NRF24_init_RX_mode(void)                  // RECEIVE
+>>>>>>> FFF
 {
 	CE_RESET;
 	DelayMicro(5000);
@@ -221,15 +244,30 @@ bool read_config_registers(void)
 	}
 }
 //----------------------------------------------------------------------------------------
+<<<<<<< HEAD
 //void nrf_communication_test(void)
 //{
 //	NRF24L01_Receive();
 //}
+=======
+void nrf_RX(void)
+{
+	NRF24_init_RX_mode();
+	while(1)
+	{
+		NRF24L01_Receive();
+	}
+}
+>>>>>>> FFF
 //----------------------------------------------------------------------------------------
 bool init_nrf_rx_mode(void)
 {
 	bool status = false;
+<<<<<<< HEAD
 	NRF24_ini_rx_mode();
+=======
+	NRF24_init_RX_mode();
+>>>>>>> FFF
 	status = read_config_registers();
 	return status;
 }
@@ -267,9 +305,52 @@ void IRQ_Callback(void)
 	}
 }
 //----------------------------------------------------------------------------------------
+<<<<<<< HEAD
 //----------------------------------------------------------------------------------------
 void NRF24_ini_tx_mode(void)    // TRANSMITTER
 {
+=======
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};   // Address for pipe 0
+uint32_t i=1,retr_cnt_full=0, cnt_lost=0;
+//----------------------------------------------------------------------------------------
+void NRF24L01_RX_Mode_ddddd(void)
+{
+  uint8_t regval=0x00;
+  regval = NRF24_ReadReg(CONFIG);
+  regval |= (1<<PWR_UP)|(1<<PRIM_RX);	 // Power up module. Write PWR_UP и PRIM_RX bits
+  NRF24_WriteReg(CONFIG,regval);
+  CE_SET;
+  DelayMicro(150);						 // Delay 130 us
+  // Flush buffers
+  NRF24_FlushRX();
+  NRF24_FlushTX();
+}
+//----------------------------------------------------------------------------------------
+void nrf_TX(void)
+{
+	NRF24_init_TX_mode();
+	while(1)
+	{
+		NRF24L01_Transmission();
+	}
+}
+//----------------------------------------------------------------------------------------
+void NRF24_init_TX_mode(void)    // TRANSMITTER
+{
+//	 //  Reconfigure PA2 and make GPIOA2 like input
+//	  GPIO_InitTypeDef GPIO_InitStruct = {0};
+//	  HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
+//	  GPIO_InitStruct.Pin = GPIO_PIN_2;
+//	  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+//	  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//	  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+
+>>>>>>> FFF
 	CE_RESET;
 	DelayMicro(5000);
 
@@ -293,7 +374,11 @@ void NRF24_ini_tx_mode(void)    // TRANSMITTER
 	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS, TX_ADR_WIDTH);		// Set up pipe 0 address
 	NRF24_WriteReg(RX_PW_P0, TX_PLOAD_WIDTH);				 	// Number of bytes in TX buffer
 
+<<<<<<< HEAD
 	NRF24L01_RX_Mode();
+=======
+	NRF24L01_RX_Mode_ddddd();
+>>>>>>> FFF
 
 	read_config_registers();	// For debug
 }
@@ -318,16 +403,23 @@ void NRF24_Transmit(uint8_t addr,uint8_t *pBuf,uint8_t bytes)
   CE_SET;
 }
 //----------------------------------------------------------------------------------------
+<<<<<<< HEAD
 //----------------------------------------------------------------------------------------
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+=======
+>>>>>>> FFF
 uint8_t NRF24L01_Send(uint8_t *pBuf)
 {
   uint8_t status=0x00, regval=0x00;
   NRF24L01_TX_Mode(pBuf);
+<<<<<<< HEAD
+=======
+  regval = NRF24_ReadReg(CONFIG);
+>>>>>>> FFF
   // If module in sleep mode, wake up it send PWR_UP and PRIM_RX bits in CONFIG
   regval |= (1<<PWR_UP);			// Set power up
   regval &= ~(1<<PRIM_RX);			// Set TX mode
@@ -339,8 +431,35 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
   DelayMicro(15); 					//minimum 10us high pulse (Page 21)
   CE_RESET;
 
+<<<<<<< HEAD
   // Waiting interrupt signal from IRQ
   while((GPIO_PinState)IRQ == GPIO_PIN_SET){}
+=======
+  /////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
+  // Reconfigure PA2 and make GPIOA2 like input
+//  GPIO_InitTypeDef GPIO_InitStruct = {0};
+//  HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
+//  GPIO_InitStruct.Pin = GPIO_PIN_2;
+//  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+//  GPIO_InitStruct.Pull = GPIO_PULLUP;
+//  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+//  TODO:
+//  1. Відєднати пін від МК і прошити TX_PIPE_0 проект і цей проект. І подивитися чи міняється осцилограма, чи появляться інтеррапти на IRQ
+//  при відєднаному піні:
+//  1. ПРоект TX_PIPE_0 (На осцилограмі видно інтеррапти від модуля)
+//  2. Цей проект (На осцилограмі немає IRQ сигналу від модуля)
+//  Коли я виключив вплив самої ноги мк на сигнал.
+//  Отже найбільш ймовірно проблема в неправеньній конфігурації модуля NRF. Ще раз перевірити конфігурацію налаштувань модуля
+
+  // Waiting interrupt signal from IRQ
+  // ПРограма тут зависає !!!!!!!!!!!!!
+  // Можливе рішення: Переконфігурувати пін з переривань на вхід. Перевірити на осцилографі чи єигнал від модуля !!!!!!
+  // Чекає на відповідь від модуля NRF
+  while((GPIO_PinState)IRQ == GPIO_PIN_SET){}		// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<, PROBLEM WHERE !!!!!!!!!!!!!!
+>>>>>>> FFF
 
   status = NRF24_ReadReg(STATUS_NRF);		// Read status sent data to RX
   if(status & TX_DS) 	     //TX_DS == 0x20   // When transmitted data was receive, and we take back ACK answer
@@ -349,18 +468,28 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
   }
   else if(status & MAX_RT)   //MAX_RT == 0x10  // Retransmeet data flag
   {
+<<<<<<< HEAD
 	  NRF24_WriteReg(STATUS_NRF, 0x10);
 	  NRF24_FlushTX();
+=======
+    NRF24_WriteReg(STATUS_NRF, 0x10);
+    NRF24_FlushTX();
+>>>>>>> FFF
   }
 
   regval = NRF24_ReadReg(OBSERVE_TX);   // Return Count lost packets and count transmitted packets
 
   // Switch on RX mode
+<<<<<<< HEAD
   NRF24L01_RX_Mode();
+=======
+  NRF24L01_RX_Mode_ddddd();
+>>>>>>> FFF
 
   return regval;
 }
 //----------------------------------------------------------------------------------------
+<<<<<<< HEAD
 void NRF24_ini(void)    // TRANSMITTER
 {
 	CE_RESET;
@@ -394,6 +523,11 @@ void NRF24_ini(void)    // TRANSMITTER
 void nrf_communication_test(void)
 {
 	NRF24_ini();
+=======
+void NRF24L01_Transmission(void)
+{
+	//NRF24_ini();
+>>>>>>> FFF
 
 	char ctr[5] = {0};
 	char ctr_buf[5] = {0};
@@ -405,7 +539,12 @@ void nrf_communication_test(void)
 	while(1)
 	{
 		// Test transmit data
+<<<<<<< HEAD
 		sprintf(buf1, "%d", test_data);
+=======
+		uint8_t buf2[20]={0};
+		sprintf(buf2, "%d", test_data);
+>>>>>>> FFF
 
 		// Print transmit data
 		uint8_t test[25] = {0};
@@ -413,10 +552,18 @@ void nrf_communication_test(void)
 
 		ssd1306_SetCursor(0, 16);
 		strcpy(test, "Data:");
+<<<<<<< HEAD
 		strcat(test, buf1);
 		ssd1306_WriteString(test,  Font_7x10, White);
 
 		dt = NRF24L01_Send(buf1);						// Transmit data
+=======
+		strcat(test, buf2);
+		ssd1306_WriteString(test,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		dt = NRF24L01_Send(buf2);						// Transmit data
+>>>>>>> FFF
 
 		retr_cnt = dt & 0xF;
 		retr_cnt_full += retr_cnt;
@@ -459,11 +606,16 @@ void nrf_communication_test(void)
 		test_data++;
 		i++;
 
+<<<<<<< HEAD
 		HAL_Delay(500);
+=======
+		HAL_Delay(100);
+>>>>>>> FFF
 	}
 }
 //----------------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 //----------------------------------------------------------------------------------------
 
 //----------------------------------------------------------------------------------------
@@ -494,6 +646,8 @@ void nrf_communication_test(void)
 
 
 
+=======
+>>>>>>> FFF
 
 
 

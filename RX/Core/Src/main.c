@@ -153,7 +153,13 @@ int main(void)
 
   while (1)
   {
-	menu();
+	//menu();
+
+	  nrf_RX();
+
+       nrf_TX();		// <<<<<<<<<<<<<<<<<<<<<,,
+	  // gpio_test();
+
 
 	  // RX NRF TEST
 	  // nrf_rx_mode();
@@ -471,6 +477,48 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void gpio_test(void)
+{
+	// 1. Configure PC14 like output
+	GPIO_InitTypeDef GPIO_InitStruct = {0};		// Make
+	GPIO_InitStruct.Pin = GPIO_PIN_14;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+	// 2. Set Logic 0
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_RESET);
+	HAL_Delay(1000);
+
+	// 4. Set Logic 1
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_SET);
+	HAL_Delay(1000);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_14, GPIO_PIN_RESET);
+
+	// 5. Configure PC14 like input
+	HAL_GPIO_DeInit(GPIOC, GPIO_PIN_14);
+	GPIO_InitStruct.Pin = GPIO_PIN_14;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+	int f = 99;
+
+	if(GPIOC -> IDR & GPIO_PIN_14)
+	{
+		int h = 99;
+	}
+	else
+	{
+		int j = 88;
+	}
+
+	HAL_GPIO_DeInit(GPIOC, GPIO_PIN_14);
+
+}
+
+
+
 
 //----------------------------------------------------------------------------------------
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)

@@ -12,4 +12,8 @@ nrf24l01.c:154:6:read_config_registers	8	static
 nrf24l01.c:168:6:NRF24L01_TX_Mode	16	static
 nrf24l01.c:177:6:NRF24_Transmit	16	static
 nrf24l01.c:188:9:NRF24L01_Send	24	static
+<<<<<<< HEAD
 nrf24l01.c:225:6:nrf_communication_test	80	static
+=======
+nrf24l01.c:226:6:nrf_communication_test	72	static
+>>>>>>> FFF
