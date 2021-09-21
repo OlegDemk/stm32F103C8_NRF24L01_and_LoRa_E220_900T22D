@@ -154,11 +154,14 @@ int main(void)
 
   while (1)
   {
-	//menu();
+	menu();
 
-	  //nrf_RX();
+	//  nrf_RX();
+    //nrf_TX();		// <<<<<<<<<<<<<<<<<<<<<,,
 
-    nrf_TX();		// <<<<<<<<<<<<<<<<<<<<<,,
+
+
+
 	  // gpio_test();
 
 

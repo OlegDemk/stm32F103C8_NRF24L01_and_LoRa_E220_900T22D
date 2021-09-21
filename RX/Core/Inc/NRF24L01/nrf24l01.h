@@ -78,7 +78,7 @@
 //------------------------------------------------
 
 
-bool read_config_registers(void);
+
 bool NRF24L01_Receive(void);
 void IRQ_Callback(void);
 

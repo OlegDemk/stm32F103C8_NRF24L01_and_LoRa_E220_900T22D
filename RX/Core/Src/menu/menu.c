@@ -304,9 +304,8 @@ void Menu_Init (void)
 // ----------------------------------------------------------------------------------------
 void nrf_rx_mode(void)
 {
-
 	clearn_oled();
-	bool init_status = NRF24_ini_rx_mode();
+	NRF24_init_RX_mode();
 	while(1)
 	{
 		NRF24L01_Receive();
@@ -315,9 +314,12 @@ void nrf_rx_mode(void)
 // ----------------------------------------------------------------------------------------
 void nrf_tx_mode(void)
 {
-
 	clearn_oled();
-	nrf_communication_test();     //nrf_tx_test();
+	NRF24_init_TX_mode();
+	while(1)
+	{
+		NRF24L01_Transmission();
+	}
 }
 // ----------------------------------------------------------------------------------------
 

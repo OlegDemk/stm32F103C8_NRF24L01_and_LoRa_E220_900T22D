@@ -38,109 +38,57 @@ uint8_t ErrCnt_Fl = 0; 					// Error counter (Can count only to 15)
 ////////  TX part of variables
 uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};   // Address for pipe 0
 uint32_t i=1,retr_cnt_full=0, cnt_lost=0;
-uint32_t cnt_lost_global = 0;
 
 bool read_config_registers(void);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//    						Common functions for work with NRF module
-//----------------------------------------------------------------------------------------
-/*
- * Function make us delay
- */
-__STATIC_INLINE void DelayMicro(__IO uint32_t micros)
-{
-	uint32_t test_micros = SystemCoreClock;
-	micros *= (SystemCoreClock / 100000) /84;
-	while (micros--);
-}
-//----------------------------------------------------------------------------------------
-uint8_t NRF24_ReadReg(uint8_t addr)
-{
-  uint8_t dt=0, cmd;
-  CS_ON;
-  HAL_SPI_TransmitReceive(&hspi1,&addr,&dt,1,1000);
-  if (addr!=STATUS_NRF)
-  {
-	  cmd=0xFF;
-	  HAL_SPI_TransmitReceive(&hspi1,&cmd,&dt,1,1000);
-  }
-  CS_OFF;
-  return dt;
-}
-//----------------------------------------------------------------------------------------
-void NRF24_WriteReg(uint8_t addr, uint8_t dt)
-{
-  addr |= W_REGISTER;								// Add write bit
-  CS_ON;
-  HAL_SPI_Transmit(&hspi1,&addr,1,1000);			// Send address in bus
-  HAL_SPI_Transmit(&hspi1,&dt,1,1000);				// Send data in bus
-  CS_OFF;
-}
-//----------------------------------------------------------------------------------------
-void NRF24_ToggleFeatures(void)
-{
-  uint8_t dt[1] = {ACTIVATE};
-  CS_ON;
-  HAL_SPI_Transmit(&hspi1,dt,1,1000);
-  DelayMicro(1);
-  dt[0] = 0x73;
-  HAL_SPI_Transmit(&hspi1,dt,1,1000);
-  CS_OFF;
-}
-//----------------------------------------------------------------------------------------
-void NRF24_Read_Buf(uint8_t addr,uint8_t *pBuf,uint8_t bytes)
-{
-  CS_ON;
-  HAL_SPI_Transmit(&hspi1,&addr,1,1000);			// Send address in bus
-  HAL_SPI_Receive(&hspi1,pBuf,bytes,1000);			// Save data in buffer
-  CS_OFF;
-}
-//----------------------------------------------------------------------------------------
-void NRF24_Write_Buf(uint8_t addr,uint8_t *pBuf,uint8_t bytes)
-{
-  addr |= W_REGISTER;								//Add write bit
-  CS_ON;
-  HAL_SPI_Transmit(&hspi1,&addr,1,1000);			// Send address in bus
-  DelayMicro(1);
-  HAL_SPI_Transmit(&hspi1,pBuf,bytes,1000);			// Send data in buffer
-  CS_OFF;
-}
-//----------------------------------------------------------------------------------------
-void NRF24_FlushRX(void)
-{
-  uint8_t dt[1] = {FLUSH_RX};
-  CS_ON;
-  HAL_SPI_Transmit(&hspi1,dt,1,1000);
-  DelayMicro(1);
-  CS_OFF;
-}
-//----------------------------------------------------------------------------------------
-void NRF24_FlushTX(void)
-{
-  uint8_t dt[1] = {FLUSH_TX};
-  CS_ON;
-  HAL_SPI_Transmit(&hspi1,dt,1,1000);
-  DelayMicro(1);
-  CS_OFF;
-}
+// common functions for TX and RX modes
+__STATIC_INLINE void DelayMicro(__IO uint32_t micros);
+uint8_t NRF24_ReadReg(uint8_t addr);
+void NRF24_WriteReg(uint8_t addr, uint8_t dt);
+void NRF24_ToggleFeatures(void);
+void NRF24_Read_Buf(uint8_t addr,uint8_t *pBuf,uint8_t bytes);
+void NRF24_Write_Buf(uint8_t addr,uint8_t *pBuf,uint8_t bytes);
+void NRF24_FlushRX(void);
+void NRF24_FlushTX(void);
+bool read_config_registers(void);
+
+// Functions prototypes for RX
+void nrf_RX(void);								// Main function RX
+void NRF24L01_RX_Mode(void);
+bool NRF24L01_Receive(void);
+void NRF24_init_RX_mode(void);
+void IRQ_Callback(void);
+
+// Functions prototypes for TX
+void nrf_TX(void);								// Main function TX
+void NRF24L01_RX_Mode_for_TX_mode(void);
+void NRF24_init_TX_mode(void);
+void NRF24L01_TX_Mode(uint8_t *pBuf);
+void NRF24_Transmit(uint8_t addr,uint8_t *pBuf,uint8_t bytes);
+uint8_t NRF24L01_Send(uint8_t *pBuf);
+void NRF24L01_Transmission(void);
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                RX PART
-
+//----------------------------------------------------------------------------------------
+// Function for test TX mode
+void nrf_RX(void)				// Main function RX
+{
+	NRF24_init_RX_mode();
+	while(1)
+	{
+		NRF24L01_Receive();
+	}
+}
 //----------------------------------------------------------------------------------------
 void NRF24L01_RX_Mode(void)
 {
   uint8_t regval=0x00;
   regval = NRF24_ReadReg(CONFIG);
-
   regval |= (1<<PWR_UP) | (1<<PRIM_RX);    	// Power up module. Write PWR_UP and PRIM_RX bits
-
   NRF24_WriteReg(CONFIG,regval);
-
   NRF24_WriteReg(CONFIG, 0x33);     		//  IRQ WORK  ~ 130 us
-
   CE_SET;
   DelayMicro(150); // Delay 130 us
   // Flush buffers
@@ -172,14 +120,14 @@ bool NRF24L01_Receive(void)
 		}
 		// Print RX data on OLED
 		ssd1306_UpdateScreen();
-
 		rx_flag = 0;
 	}
 }
 //----------------------------------------------------------------------------------------
-
 void NRF24_init_RX_mode(void)                  // RECEIVE
 {
+	tx_or_rx_mode = rx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
+
 	CE_RESET;
 	DelayMicro(5000);
 
@@ -208,40 +156,7 @@ void NRF24_init_RX_mode(void)                  // RECEIVE
 
 	NRF24L01_RX_Mode();
 }
-//----------------------------------------------------------------------------------------
-// Read config data from nrf registers
-bool read_config_registers(void)
-{
-	HAL_Delay(100);
 
-	config_array[0] = NRF24_ReadReg(CONFIG);			// 0x0B
-	config_array[1] = NRF24_ReadReg(EN_AA);			    // 0x01
-	config_array[2] = NRF24_ReadReg(EN_RXADDR); 		// 0x01
-	config_array[3] = NRF24_ReadReg(STATUS_NRF);		// 0x0E
-	config_array[4] = NRF24_ReadReg(RF_SETUP);		    // 0x06
-
-	NRF24_Read_Buf(TX_ADDR,buf1,3);
-	NRF24_Read_Buf(RX_ADDR_P0,buf1,3);
-
-	if(config_array[0] == 0)		// Data from nrf module was read
-	{
-		return false;
-	}
-	else
-	{
-		return true;
-	}
-}
-//----------------------------------------------------------------------------------------
-void nrf_RX(void)				// Main function RX
-{
-	tx_or_rx_mode = rx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
-	NRF24_init_RX_mode();
-	while(1)
-	{
-		NRF24L01_Receive();
-	}
-}
 //----------------------------------------------------------------------------------------
 // Callback generate when stm32 get falling  signal from IRQ pin (NRF module show that it has data in buffer)
 void IRQ_Callback(void)
@@ -268,6 +183,16 @@ void IRQ_Callback(void)
 //                                                TX PART
 
 //----------------------------------------------------------------------------------------
+// Function for test TX mode
+void nrf_TX(void)		// Main function TX
+{
+	NRF24_init_TX_mode();
+	while(1)
+	{
+		NRF24L01_Transmission();
+	}
+}
+//----------------------------------------------------------------------------------------
 void NRF24L01_RX_Mode_for_TX_mode(void)
 {
   uint8_t regval=0x00;
@@ -281,18 +206,10 @@ void NRF24L01_RX_Mode_for_TX_mode(void)
   NRF24_FlushTX();
 }
 //----------------------------------------------------------------------------------------
-void nrf_TX(void)		// Main function TX
-{
-	tx_or_rx_mode = tx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
-	NRF24_init_TX_mode();
-	while(1)
-	{
-		NRF24L01_Transmission();
-	}
-}
-//----------------------------------------------------------------------------------------
 void NRF24_init_TX_mode(void)    // TRANSMITTER
 {
+	tx_or_rx_mode = tx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
+
 	CE_RESET;
 	DelayMicro(5000);
 
@@ -414,7 +331,7 @@ void NRF24L01_Transmission(void)
 		ssd1306_WriteString(test,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		dt = NRF24L01_Send(buf2);						// Transmit data
+		//dt = NRF24L01_Send(buf2);						// Transmit data
 
 		retr_cnt = dt & 0xF;
 		retr_cnt_full += retr_cnt;
@@ -461,9 +378,113 @@ void NRF24L01_Transmission(void)
 	}
 }
 //----------------------------------------------------------------------------------------
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//    						Common functions for work with NRF module
 //----------------------------------------------------------------------------------------
+/*
+ * Function make us delay
+ */
+__STATIC_INLINE void DelayMicro(__IO uint32_t micros)
+{
+	uint32_t test_micros = SystemCoreClock;
+	micros *= (SystemCoreClock / 100000) /84;
+	while (micros--);
+}
+//----------------------------------------------------------------------------------------
+uint8_t NRF24_ReadReg(uint8_t addr)
+{
+  uint8_t dt=0, cmd;
+  CS_ON;
+  HAL_SPI_TransmitReceive(&hspi1,&addr,&dt,1,1000);
+  if (addr!=STATUS_NRF)
+  {
+	  cmd=0xFF;
+	  HAL_SPI_TransmitReceive(&hspi1,&cmd,&dt,1,1000);
+  }
+  CS_OFF;
+  return dt;
+}
+//----------------------------------------------------------------------------------------
+void NRF24_WriteReg(uint8_t addr, uint8_t dt)
+{
+  addr |= W_REGISTER;								// Add write bit
+  CS_ON;
+  HAL_SPI_Transmit(&hspi1,&addr,1,1000);			// Send address in bus
+  HAL_SPI_Transmit(&hspi1,&dt,1,1000);				// Send data in bus
+  CS_OFF;
+}
+//----------------------------------------------------------------------------------------
+void NRF24_ToggleFeatures(void)
+{
+  uint8_t dt[1] = {ACTIVATE};
+  CS_ON;
+  HAL_SPI_Transmit(&hspi1,dt,1,1000);
+  DelayMicro(1);
+  dt[0] = 0x73;
+  HAL_SPI_Transmit(&hspi1,dt,1,1000);
+  CS_OFF;
+}
+//----------------------------------------------------------------------------------------
+void NRF24_Read_Buf(uint8_t addr,uint8_t *pBuf,uint8_t bytes)
+{
+  CS_ON;
+  HAL_SPI_Transmit(&hspi1,&addr,1,1000);			// Send address in bus
+  HAL_SPI_Receive(&hspi1,pBuf,bytes,1000);			// Save data in buffer
+  CS_OFF;
+}
+//----------------------------------------------------------------------------------------
+void NRF24_Write_Buf(uint8_t addr,uint8_t *pBuf,uint8_t bytes)
+{
+  addr |= W_REGISTER;								//Add write bit
+  CS_ON;
+  HAL_SPI_Transmit(&hspi1,&addr,1,1000);			// Send address in bus
+  DelayMicro(1);
+  HAL_SPI_Transmit(&hspi1,pBuf,bytes,1000);			// Send data in buffer
+  CS_OFF;
+}
+//----------------------------------------------------------------------------------------
+void NRF24_FlushRX(void)
+{
+  uint8_t dt[1] = {FLUSH_RX};
+  CS_ON;
+  HAL_SPI_Transmit(&hspi1,dt,1,1000);
+  DelayMicro(1);
+  CS_OFF;
+}
+//----------------------------------------------------------------------------------------
+void NRF24_FlushTX(void)
+{
+  uint8_t dt[1] = {FLUSH_TX};
+  CS_ON;
+  HAL_SPI_Transmit(&hspi1,dt,1,1000);
+  DelayMicro(1);
+  CS_OFF;
+}
+//----------------------------------------------------------------------------------------
+// Read config data from nrf registers
+bool read_config_registers(void)
+{
+	HAL_Delay(100);
 
+	config_array[0] = NRF24_ReadReg(CONFIG);			// 0x0B
+	config_array[1] = NRF24_ReadReg(EN_AA);			    // 0x01
+	config_array[2] = NRF24_ReadReg(EN_RXADDR); 		// 0x01
+	config_array[3] = NRF24_ReadReg(STATUS_NRF);		// 0x0E
+	config_array[4] = NRF24_ReadReg(RF_SETUP);		    // 0x06
+
+	NRF24_Read_Buf(TX_ADDR,buf1,3);
+	NRF24_Read_Buf(RX_ADDR_P0,buf1,3);
+
+	if(config_array[0] == 0)		// Data from nrf module was read
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
 //----------------------------------------------------------------------------------------
 
 
