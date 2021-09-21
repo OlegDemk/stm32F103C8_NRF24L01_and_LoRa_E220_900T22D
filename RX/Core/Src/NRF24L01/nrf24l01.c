@@ -68,6 +68,10 @@ void NRF24_Transmit(uint8_t addr,uint8_t *pBuf,uint8_t bytes);
 uint8_t NRF24L01_Send(uint8_t *pBuf);
 void NRF24L01_Transmission(void);
 
+
+// TODO
+// fill in reset_nrf24l01() before init nrf module
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                RX PART
@@ -126,6 +130,8 @@ bool NRF24L01_Receive(void)
 //----------------------------------------------------------------------------------------
 void NRF24_init_RX_mode(void)                  // RECEIVE
 {
+	reset_nrf24l01();	// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 	tx_or_rx_mode = rx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
 
 	CE_RESET;
@@ -208,6 +214,8 @@ void NRF24L01_RX_Mode_for_TX_mode(void)
 //----------------------------------------------------------------------------------------
 void NRF24_init_TX_mode(void)    // TRANSMITTER
 {
+	reset_nrf24l01();	// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 	tx_or_rx_mode = tx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
 
 	CE_RESET;
@@ -484,6 +492,36 @@ bool read_config_registers(void)
 	{
 		return true;
 	}
+}
+//----------------------------------------------------------------------------------------
+void reset_nrf24l01(void)   // reconfigure module
+{
+
+	CE_RESET;
+	DelayMicro(5000);
+
+	NRF24_WriteReg(CONFIG, 0x0a); 			// Set PWR_UP bit, enable CRC(1 byte) &Prim_RX:0 (Transmitter)
+
+	DelayMicro(5000);
+
+	NRF24_WriteReg(EN_AA, 0x01); 			// Enable Pipe0
+	NRF24_WriteReg(EN_RXADDR, 0x01); 		// Enable Pipe0
+	NRF24_WriteReg(SETUP_AW, 0x01); 		// Setup address width=3 bytes
+	NRF24_WriteReg(SETUP_RETR, 0x5F); 		// 1500us, 15 retrans
+	NRF24_ToggleFeatures();
+	NRF24_WriteReg(FEATURE, 0);
+	NRF24_WriteReg(DYNPD, 0);
+	NRF24_WriteReg(STATUS_NRF, 0x00); 		// Reset flags for IRQ   // WAS NRF24_WriteReg(STATUS_NRF, 0x70); 		// Reset flags for IRQ
+	NRF24_WriteReg(RF_CH, 76); 				// Frequency = 2476 MHz
+	NRF24_WriteReg(RF_SETUP, 0x26);  		// TX_PWR:0dBm, Datarate:250kbps
+
+	uint8_t TX_ADDRESS_RESET[TX_ADR_WIDTH] = {0x00,0x00,0x00};   // Address for pipe 0
+	NRF24_Write_Buf(TX_ADDR, TX_ADDRESS_RESET, TX_ADR_WIDTH);			// Write TX address
+
+	NRF24_Write_Buf(RX_ADDR_P0, TX_ADDRESS_RESET, TX_ADR_WIDTH);		// Set up pipe 0 address
+	NRF24_WriteReg(RX_PW_P0, TX_PLOAD_WIDTH);				 	// Number of bytes in TX buffer
+
+	NRF24L01_RX_Mode_for_TX_mode();
 }
 //----------------------------------------------------------------------------------------
 
