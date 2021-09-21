@@ -1,4 +1,3 @@
-nrf24l01.c:33:6:nrf	40	static
 nrf24l01.c:51:22:DelayMicro	24	static
 nrf24l01.c:58:9:NRF24_ReadReg	32	static
 nrf24l01.c:72:6:NRF24_WriteReg	16	static
@@ -9,8 +8,15 @@ nrf24l01.c:110:6:NRF24_FlushRX	16	static
 nrf24l01.c:119:6:NRF24_FlushTX	16	static
 nrf24l01.c:128:6:NRF24L01_RX_Mode	16	static
 nrf24l01.c:147:6:NRF24L01_Receive	40	static
-nrf24l01.c:176:6:NRF24_ini	8	static
-nrf24l01.c:208:6:read_config_registers	8	static
-nrf24l01.c:231:6:nrf_communication_test	8	static
-nrf24l01.c:236:6:init_nrf	16	static
-nrf24l01.c:244:6:IRQ_Callback	16	static
+nrf24l01.c:177:6:NRF24_init_RX_mode	8	static
+nrf24l01.c:209:6:read_config_registers	8	static
+nrf24l01.c:232:6:nrf_RX	8	static
+nrf24l01.c:241:6:init_nrf	16	static
+nrf24l01.c:249:6:IRQ_Callback	16	static
+nrf24l01.c:275:6:NRF24L01_RX_Mode_ddddd	16	static
+nrf24l01.c:288:6:nrf_TX	8	static
+nrf24l01.c:297:6:NRF24_init_TX_mode	8	static
+nrf24l01.c:336:6:NRF24L01_TX_Mode	16	static
+nrf24l01.c:345:6:NRF24_Transmit	16	static
+nrf24l01.c:356:9:NRF24L01_Send	24	static
+nrf24l01.c:416:6:NRF24L01_Transmission	96	static

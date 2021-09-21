@@ -77,13 +77,13 @@
 //------------------------------------------------
 
 
-
-void NRF24_ini(void);
-void nrf_communication_test(void);
 bool read_config_registers(void);
 bool NRF24L01_Receive(void);
 void IRQ_Callback(void);
 
-bool init_nrf(void);
+void nrf_RX(void);
+void NRF24_init_RX_mode(void);
+
+void nrf_TX(void);
 
 #endif /* INC_NRF24L01_NRF24L01_H_ */

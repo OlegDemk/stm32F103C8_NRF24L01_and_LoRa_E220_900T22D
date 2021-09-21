@@ -240,13 +240,14 @@ void nrf_communication_test(void)
 		sprintf(buf1, "%d", test_data);
 
 		// Print transmit data
-		uint8_t test[25] = {0};
+		uint8_t test[20] = {0};
 		uint8_t test_i[10] = {0};
 
 		ssd1306_SetCursor(0, 16);
 		strcpy(test, "Data:");
 		strcat(test, buf1);
 		ssd1306_WriteString(test,  Font_7x10, White);
+		ssd1306_UpdateScreen();
 
 		dt = NRF24L01_Send(buf1);						// Transmit data
 

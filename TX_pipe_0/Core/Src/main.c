@@ -33,8 +33,8 @@
 #define off 0
 #define on 1
 
-#define nrf off
-#define lora on
+#define nrf on
+#define lora off
 
 char uart_rx_data[50] = {0};			// Main rx buffer data
 char str[1] = {0};						// Buffer for one char
@@ -131,12 +131,12 @@ int main(void)
   // Test write on OLED
   ssd1306_SetCursor(0, 0);
   char test_main[20] = {0};
-  strcpy(test_main, "NRF24L01 RX");
+  strcpy(test_main, "NRF24L01 TX");
   ssd1306_WriteString(test_main,  Font_7x10, White);
   ssd1306_UpdateScreen();
 
-  NRF24_ini();
-  read_config_registers();
+//  NRF24_ini();
+//  read_config_registers();
 #endif
 
 #if lora
@@ -165,7 +165,7 @@ int main(void)
   while (1)
   {
 	#if nrf
-  nrf_communication_test();      // Main function LORA
+  nrf_communication_test();       // Main function LORA
 	#endif
 
 	#if lora
@@ -380,9 +380,9 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA2 SW3_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_2|SW3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pin : PA2 */
+  GPIO_InitStruct.Pin = GPIO_PIN_2;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -405,6 +405,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : SW3_Pin */
+  GPIO_InitStruct.Pin = SW3_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(SW3_GPIO_Port, &GPIO_InitStruct);
 
 }
 
