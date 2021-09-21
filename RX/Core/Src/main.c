@@ -46,8 +46,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
-
+extern bool tx_mode;
+extern bool rx_mode;
+extern bool tx_or_rx_mode;
 
 char uart_rx_data[50] = {0};			// Main rx buffer data
 char str[1] = {0};						// Buffer for one char
@@ -157,7 +158,7 @@ int main(void)
 
 	  //nrf_RX();
 
-     nrf_TX();		// <<<<<<<<<<<<<<<<<<<<<,,
+    nrf_TX();		// <<<<<<<<<<<<<<<<<<<<<,,
 	  // gpio_test();
 
 
@@ -528,7 +529,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
   if(GPIO_Pin== GPIO_PIN_2)			// If detect External interrupt from PA2
   {
-	  IRQ_Callback();					// Call Callback
+	  if(tx_or_rx_mode == rx_mode)
+	  {
+		  IRQ_Callback();					// Call Callback
+	  }
   }
   else
   {
