@@ -118,7 +118,7 @@ void clear_menu_items (bool first, bool second, bool third, bool fourth);
 void print_rows_on_oled_if_up(void);											// print text menu items
 void print_rows_on_oled_if_down(void);											// print text menu items
 void print_menu_init(void);
-void action(void);
+void print_menu_items(void);
 void return_from_menu(void);
 void items_menu_1_set_par_1(void);
 void items_menu_1_set_par_2(void);
@@ -138,27 +138,28 @@ void Menu_Init (void)
 	// Main functions
 	void (*p_print_rows_on_oled_if_up) (void);
 	p_print_rows_on_oled_if_up = print_rows_on_oled_if_up;
-
 	void (*p_print_rows_on_oled_if_down) (void);					// Create pointer on function
 	p_print_rows_on_oled_if_down = print_rows_on_oled_if_down;		// Save function print on pointer print_p
-
 	void (*p_return_from_menu)(void);
 	p_return_from_menu = return_from_menu;
-
-	void (*p_action) (void);										// Create pointer on function
-	p_action = action;												// Save function action on pointer action_p
+	// ------------------------------------------------------
 
 	// LoRa  menu functions
 	void (*p_lora_rx_mode) (void);						// Function "Do it". Works when select it
 	p_lora_rx_mode = lora_rx_mode;
-
 	void (*p_lora_tx_mode) (void);						// Function "Do it". Works when select it
 	p_lora_tx_mode = lora_tx_mode;
 
+	// ------------------------------------------------------
+	void (*p_nrf_tx_mode) (void);						// Function "Do it". Works when select it
+	p_nrf_tx_mode = nrf_tx_mode;
+	void (*p_nrf_rx_mode) (void);						// Function "Do it". Works when select it
+	p_nrf_rx_mode = nrf_rx_mode;
 
+
+	// ------------------------------------------------------
 	void (*p_items_menu_1_set_par_2) (void);			// Doesen't use yet
 	p_items_menu_1_set_par_2 = items_menu_1_set_par_2;
-
 
 	// items_menu_2 menu functions
 //	void (*p_do_it_function_menu_2) (void);						// Function "Do it". Works when select it
@@ -172,18 +173,9 @@ void Menu_Init (void)
 	p_do_it_function_menu_3 = do_it_function_menu_3;
 
 
-	void (*p_nrf_tx_mode) (void);						// Function "Do it". Works when select it
-	p_nrf_tx_mode = nrf_tx_mode;
-
-	void (*p_nrf_rx_mode) (void);						// Function "Do it". Works when select it
-	p_nrf_rx_mode = nrf_rx_mode;
-
-
-
 	// Fill in elements(nodes) of list (7 items)
 	// Main menu items
 	/////////////////////////////////////////////////////////////////
-
 	items[0].up = 0;
 	items[0].down = &items[1];
 	items[0].child = &items_menu_1[0];
@@ -247,7 +239,7 @@ void Menu_Init (void)
 	items_menu_1[2].makeAction = p_return_from_menu;
 
 	///////////////////////////////////////////////////////////////////
-	// Creating next menu
+	// Creating NRF menu
 	items_menu_2[0].up = 0;
 	items_menu_2[0].down = &items_menu_2[1];
 	items_menu_2[0].child = 0;
@@ -299,11 +291,81 @@ void Menu_Init (void)
 	items_menu_3[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_3[1].updateScreen_down = p_print_rows_on_oled_if_down;
 	items_menu_3[1].makeAction = p_return_from_menu;
+}
 
+// ----------------------------------------------------------------------------------------
+void menu(void)
+{
+	Menu_Init();									// Init all structures
+	print_menu_init();								// Print start menu and scrolingbar
+	HAL_Delay(10);
+
+	while(1)
+	{
+		if(button_processed_status == 1)			// If buttons was pressed
+		{
+
+			button_processed_status = 1;
+			switch (button_status)
+			{
+				case BOTTON_UP:
+					up();
+					break;
+				case BUTTON_ENTER:
+					enter();
+					break;
+				case BUTTON_DOWN:
+					down();
+					break;
+			}
+			button_status = BOTTON_DOESENT_PRESS;
+		}
+	}
+}
+// ----------------------------------------------------------------------------------------
+void up(void)
+{
+	if (currentItem->up)
+	{
+	    currentItem = currentItem->up;
+	    if (currentItem->updateScreen_up )
+	    {
+	        currentItem->updateScreen_up();
+	    }
+	}
+}
+// ----------------------------------------------------------------------------------------
+void down(void)
+{
+	if (currentItem->down)
+	{
+	    currentItem = currentItem->down;
+	    if (currentItem->updateScreen_down )
+	    {
+	        currentItem->updateScreen_down();
+	    }
+	}
+}
+// ----------------------------------------------------------------------------------------
+void enter(void)
+{
+	bool status = true;
+	// Якщо є функція "makeAction" тоді виконати її
+	if (currentItem->makeAction)
+	{
+		currentItem->makeAction();
+		status = false;
+	}
+	// Якщо є перехід на  "child" і "makeAction" не була виконана, тоді виконати перехід
+	if((currentItem->child) && (status == true))
+	{
+		currentItem = currentItem->child;
+		print_menu_items();
+	}
 }
 // ----------------------------------------------------------------------------------------
 
-
+// ----------------------------------------------------------------------------------------
 /*
 This function print scrollbar on right part of OLED.
  */
@@ -369,7 +431,7 @@ void print_rectangle_on_head(void)
 void clear_menu_items (bool first, bool second, bool third, bool fourth)
 {
 	uint8_t start_row_x = 15;
-	char str[16] = "               ";   // Must be 15
+	char str[16] = "               ";   						// Must be 15
 
 	if(first == true)
 	{
@@ -394,14 +456,11 @@ void clear_menu_items (bool first, bool second, bool third, bool fourth)
 	ssd1306_UpdateScreen();
 }
 // ----------------------------------------------------------------------------------------
-void print_rows_on_oled_if_up(void)				// print text menu items
+void print_rows_on_oled_if_up(void)								// print text menu items
 {
 	char str[16] = {0};
-
 	clear_menu_items (true , true , true , true );
-
 	print_rectangle_on_head();
-
 	// Print pointer on first item menu
 	ssd1306_SetCursor(0, first_menu_row);
 	ssd1306_WriteString(str_pointer,  Font_7x10, White);
@@ -409,6 +468,7 @@ void print_rows_on_oled_if_up(void)				// print text menu items
 	MenuItem_t * currentItem_buff_up = currentItem;				// Create buffer on selected current item pointer.
 	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
 	{
+		// Fill in OLED buffer
 		// Print number of menu item
 		itoa(currentItem_buff_up -> id, str, 10);
 		ssd1306_SetCursor(start_print_id_menu_x, row);
@@ -431,21 +491,19 @@ void print_rows_on_oled_if_up(void)				// print text menu items
 	scroll_bar();
 }
 // ----------------------------------------------------------------------------------------
-void print_rows_on_oled_if_down(void)			// print text menu items
+void print_rows_on_oled_if_down(void)							// print text menu items
 {
 	char str[16] = {0};
-
 	clear_menu_items (true , true , true , true );
-
 	print_rectangle_on_head();
-
 	// Print pointer on first item menu
 	ssd1306_SetCursor(0, first_menu_row);
 	ssd1306_WriteString(str_pointer,  Font_7x10, White);
 
-	MenuItem_t * currentItem_buff = currentItem;
+	MenuItem_t * currentItem_buff = currentItem;				// Create buffer on selected current item pointer.
 	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
 	{
+		// Fill in OLED buffer
 		// Print number of menu item
         itoa(currentItem_buff -> id, str, 10);
 		ssd1306_SetCursor(start_print_id_menu_x, row);
@@ -472,18 +530,17 @@ void print_rows_on_oled_if_down(void)			// print text menu items
 // Print first 4 items of menu (only first time)
 void print_menu_init(void)
 {
-	MenuItem_t * currentItem_buff = currentItem;
-
+	MenuItem_t * currentItem_buff = currentItem;		// Create buffer on selected current item pointer.
 	print_rectangle_on_head();
 
-	//Print selected name of menu
+	// Print ">> MAIN MENU <<" on head of OLED
 	char str[20] = ">> MAIN MENU <<";
 	ssd1306_SetCursor(10, 3);
 	ssd1306_WriteString(str,  Font_7x10, White);
 	ssd1306_UpdateScreen();
 	memset(str, 0, sizeof(str));
 
-	for (uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
+	for(uint8_t row = first_menu_row; row <= fourth_menu_row; row = row + row_step)
 	{
 		if(row == first_menu_row)
 		{
@@ -514,12 +571,11 @@ void print_menu_init(void)
 	scroll_bar();
 }
 // ----------------------------------------------------------------------------------------
-void action(void)
+// print pointers of menu
+void print_menu_items(void)
 {
 	char str[16] = {0};
-
 	clearn_oled();
-
 	print_rectangle_on_head();
 
 	//Print selected name of menu on top of OLED (in rectangle)
@@ -577,6 +633,7 @@ void return_from_menu(void)
 	print_menu_init();													// Print all start menu
 }
 // ----------------------------------------------------------------------------------------
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -606,7 +663,7 @@ void lora_rx_mode(void)
 
 	// Return to first item of current menu
 	currentItem = &items_menu_1[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
+	print_menu_items();													// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
 void lora_tx_mode(void)
@@ -636,14 +693,14 @@ void lora_tx_mode(void)
 
 	// Return to first item of current menu
 	currentItem = &items_menu_1[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
+	print_menu_items();													// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 // NRF FUNCTIONS
-void nrf_rx_mode(void)    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,,
+void nrf_rx_mode(void)
 {
 	clearn_oled();
 	NRF24_init_RX_mode();
@@ -667,10 +724,9 @@ void nrf_rx_mode(void)    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	NRF24_WriteReg(CONFIG, 0x00); 										// STOP work with nrf module  (Power off)
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);				// Turn off GREEN LED
 	block_interrupt_form_up_and_down_buttons = false;
-
 	// Return to first item of current menu
 	currentItem = &items_menu_2[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
+	print_menu_items();													// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
 void nrf_tx_mode(void)
@@ -697,21 +753,23 @@ void nrf_tx_mode(void)
 	NRF24_WriteReg(CONFIG, 0x00); 										// STOP work with nrf module  (Power off)
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);				// Turn off GREEN LED
 	block_interrupt_form_up_and_down_buttons = false;
-
 	// Return to first item of current menu
 	currentItem = &items_menu_2[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
-
-
-
-//	clearn_oled();
-//	NRF24_init_TX_mode();
-//	while(1)
-//	{
-//		NRF24L01_Transmission();
-//	}
+	print_menu_items();													// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+// SENSORS FUNCTIONS
+
+
+
+
+
+
+
+
 
 
 
@@ -743,7 +801,7 @@ void items_menu_1_set_par_1(void)
 
 	// Return to first item of current menu
 	currentItem = &items_menu_1[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
+	print_menu_items();													// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
 void items_menu_1_set_par_2(void)
@@ -772,7 +830,7 @@ void items_menu_1_set_par_2(void)
 
 	// Return to first item of current menu
 	currentItem = &items_menu_1[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
+	print_menu_items();													// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -807,7 +865,7 @@ void items_menu_1_set_par_2(void)
 //
 //	// Return to first item of current menu
 //	currentItem = &items_menu_2[0];										// Set global pointer on first menu
-//	action();															// Print items on OLED
+//	print_menu_items();													// Print items on OLED
 //}
 // ----------------------------------------------------------------------------------------
 void items_menu_2_set_par_1(void)
@@ -836,7 +894,7 @@ void items_menu_2_set_par_1(void)
 
 	// Return to first item of current menu
 	currentItem = &items_menu_2[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
+	print_menu_items();													// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -872,82 +930,7 @@ void do_it_function_menu_3(void)        // Print T and H
 
 	// Return to first item of current menu
 	currentItem = &items_menu_3[0];										// Set global pointer on first menu
-	action();															// Print items on OLED
+	print_menu_items();													// Print items on OLED
 }
-//// ----------------------------------------------------------------------------------------
-void up(void)
-{
-	if (currentItem->up)
-	{
-	    currentItem = currentItem->up;
-	    if (currentItem->updateScreen_up )
-	    {
-	        currentItem->updateScreen_up();
-	    }
-	}
-}
-// ----------------------------------------------------------------------------------------
-void down(void)
-{
-	if (currentItem->down)
-	{
-	    currentItem = currentItem->down;
-	    if (currentItem->updateScreen_down )
-	    {
-	        currentItem->updateScreen_down();
-	    }
-	}
-}
-// ----------------------------------------------------------------------------------------
-void enter(void)
-{
-	bool status = true;
-	// Якщо є функція "makeAction" тоді виконати її
-	if (currentItem->makeAction)
-	{
-		currentItem->makeAction();
-		status = false;
-	}
-	// Якщо є перехід на  "child" і "makeAction" не була виконана, тоді виконати перехід
-	if((currentItem->child) && (status == true))
-	{
-		currentItem = currentItem->child;
-		action();
-	}
-}
-// ----------------------------------------------------------------------------------------
-void menu(void)
-{
-	Menu_Init();									// Init all structures
-
-	print_menu_init();								// Print start menu and scrolingbar
-
-	HAL_Delay(10);
-
-	while(1)
-	{
-		if(button_processed_status == 1)			// If buttons was pressed
-		{
-
-			button_processed_status = 1;
-			switch (button_status)
-			{
-				case BOTTON_UP:
-					up();
-					break;
-				case BUTTON_ENTER:
-					enter();
-					break;
-				case BUTTON_DOWN:
-					down();
-					break;
-			}
-			button_status = BOTTON_DOESENT_PRESS;
-		}
-	}
-}
-
-
-// ---------------------------------------------------------------------------------
 
 

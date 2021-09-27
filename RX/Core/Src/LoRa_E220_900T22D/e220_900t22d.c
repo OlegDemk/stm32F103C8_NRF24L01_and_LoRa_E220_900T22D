@@ -28,18 +28,10 @@ void set_config_deep_sleep_mode (void);
 void set_WOR_RX_mode (void);
 void set_WOR_TX_mode (void);
 
-//char uart_rx_data[50] = {0};			// Main rx buffer data
-extern char str[1];						// Buffer for one char
-//bool flag_command_received = false;		// Flag show status receive data (completed/not completed)
-//extern uint8_t rx_data_counter;
-
+extern char str[1];							// Buffer for one char
 char test_main[20] = {0};
-
-
-//extern UART_HandleTypeDef huart1;
-
-extern bool flag_command_received;		// Flag show status receive data (completed/not completed)
-extern char uart_rx_data[50];			// Main rx buffer data
+extern bool flag_command_received;			// Flag show status receive data (completed/not completed)
+extern char uart_rx_data[50];				// Main rx buffer data
 
 //----------------------------------------------------------------------------------------
 void LoRa_RX(bool flag)

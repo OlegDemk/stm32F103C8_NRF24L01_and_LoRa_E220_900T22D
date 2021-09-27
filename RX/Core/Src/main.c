@@ -513,24 +513,20 @@ void gpio_test(void)
 
 	if(GPIOC -> IDR & GPIO_PIN_14)
 	{
-		int h = 99;
+		int h = 99;		// For debug
 	}
 	else
 	{
-		int j = 88;
+		int j = 88;		// For debug
 	}
 
 	HAL_GPIO_DeInit(GPIOC, GPIO_PIN_14);
 
 }
-
-
-
-
 //----------------------------------------------------------------------------------------
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if(GPIO_Pin== GPIO_PIN_2)			// If detect External interrupt from PA2
+  if(GPIO_Pin== GPIO_PIN_2)			// If detect External interrupt from PA2   (IRQ from NRF module)
   {
 	  if(tx_or_rx_mode == rx_mode)
 	  {
