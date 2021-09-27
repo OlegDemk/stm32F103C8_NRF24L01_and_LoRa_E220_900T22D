@@ -68,16 +68,12 @@ void NRF24_Transmit(uint8_t addr,uint8_t *pBuf,uint8_t bytes);
 uint8_t NRF24L01_Send(uint8_t *pBuf);
 void NRF24L01_Transmission(void);
 
-
-// TODO
-// fill in reset_nrf24l01() before init nrf module
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                RX PART
 //----------------------------------------------------------------------------------------
 // Function for test TX mode
-void nrf_RX(void)				// Main function RX
+void nrf_RX(void)							// Main function RX
 {
 	NRF24_init_RX_mode();
 	while(1)
@@ -190,7 +186,7 @@ void IRQ_Callback(void)
 
 //----------------------------------------------------------------------------------------
 // Function for test TX mode
-void nrf_TX(void)		// Main function TX
+void nrf_TX(void)							// Main function TX
 {
 	NRF24_init_TX_mode();
 	while(1)
@@ -214,7 +210,7 @@ void NRF24L01_RX_Mode_for_TX_mode(void)
 //----------------------------------------------------------------------------------------
 void NRF24_init_TX_mode(void)    // TRANSMITTER
 {
-	reset_nrf24l01();	// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	reset_nrf24l01();
 
 	tx_or_rx_mode = tx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
 
@@ -302,7 +298,6 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
   regval = NRF24_ReadReg(OBSERVE_TX);   // Return Count lost packets and count transmitted packets
 
   // Switch on RX mode
-
   NRF24L01_RX_Mode_for_TX_mode();
 
   return regval;
@@ -315,75 +310,66 @@ void NRF24L01_Transmission(void)
 	static uint8_t retr_cnt, dt = 0;
 	static int test_data = 0;
 
-	// Test transmit data
+	uint8_t buf2[20]={0};
+	sprintf(buf2, "%d", test_data);
 
-//	while(1)
-//	{
-		uint8_t buf2[20]={0};
-		sprintf(buf2, "%d", test_data);
+	// Print transmit data
+	uint8_t test[25] = {0};
+	uint8_t test_i[10] = {0};
 
-		// Print transmit data
-		uint8_t test[25] = {0};
-		uint8_t test_i[10] = {0};
+	ssd1306_SetCursor(0, 16);
+	strcpy(test, "Data:");
 
-		ssd1306_SetCursor(0, 16);
-		strcpy(test, "Data:");
+	ssd1306_WriteString(test,  Font_7x10, White);
 
-		ssd1306_WriteString(test,  Font_7x10, White);
+	dt = NRF24L01_Send(buf2);						// Transmit data
 
-		dt = NRF24L01_Send(buf2);						// Transmit data
+	strcat(test, buf2);
+	ssd1306_WriteString(test,  Font_7x10, White);
+	ssd1306_UpdateScreen();
 
-		strcat(test, buf2);
-		ssd1306_WriteString(test,  Font_7x10, White);
-		ssd1306_UpdateScreen();
+	retr_cnt = dt & 0xF;
+	retr_cnt_full += retr_cnt;
 
-		//dt = NRF24L01_Send(buf2);						// Transmit data
+	// Print transmit counter
+	memset(test, 0, sizeof(test));
+	memset(test_i, 0, sizeof(test_i));
 
-		retr_cnt = dt & 0xF;
-		retr_cnt_full += retr_cnt;
+	ssd1306_SetCursor(0, 26);
+	strcpy(test, "Conut trans:");
+	// number in string
+	itoa(i, test_i, 10);
+	strcat(test, test_i);
+	ssd1306_WriteString(test,  Font_7x10, White);
 
-		// Print transmit counter
-		memset(test, 0, sizeof(test));
-		memset(test_i, 0, sizeof(test_i));
+	// Print retransmeet counter
+	memset(test, 0, sizeof(test));
+	memset(test_i, 0, sizeof(test_i));
 
-		ssd1306_SetCursor(0, 26);
-		strcpy(test, "Conut trans:");
-		// number in string
-		itoa(i, test_i, 10);
-		strcat(test, test_i);
-		ssd1306_WriteString(test,  Font_7x10, White);
+	ssd1306_SetCursor(0, 36);
+	strcpy(test, "Retransm:");
+	itoa(retr_cnt_full, test_i, 10);
+	strcat(test, test_i);
+	ssd1306_WriteString(test,  Font_7x10, White);
+	ssd1306_UpdateScreen();
 
-		// Print retransmeet counter
-		memset(test, 0, sizeof(test));
-		memset(test_i, 0, sizeof(test_i));
+	// Print lost pacets
+	memset(test, 0, sizeof(test));
+	memset(test_i, 0, sizeof(test_i));
 
-		ssd1306_SetCursor(0, 36);
-		strcpy(test, "Retransm:");
-		itoa(retr_cnt_full, test_i, 10);
-		strcat(test, test_i);
-		ssd1306_WriteString(test,  Font_7x10, White);
-		ssd1306_UpdateScreen();
+	cnt_lost = dt >> 4;
 
-		// Print lost pacets
-		memset(test, 0, sizeof(test));
-		memset(test_i, 0, sizeof(test_i));
+	ssd1306_SetCursor(0, 46);
+	strcpy(test, "Lost:");
+	itoa(cnt_lost, test_i, 10);
+	strcat(test, test_i);
+	ssd1306_WriteString(test,  Font_7x10, White);
+	ssd1306_UpdateScreen();
 
-		cnt_lost = dt >> 4;
+	test_data++;
+	i++;
 
-		ssd1306_SetCursor(0, 46);
-		strcpy(test, "Lost:");
-		itoa(cnt_lost, test_i, 10);
-		strcat(test, test_i);
-		ssd1306_WriteString(test,  Font_7x10, White);
-		ssd1306_UpdateScreen();
-
-		test_data++;
-		i++;
-
-		HAL_Delay(100);
-	//}
-
-
+	HAL_Delay(100);
 }
 //----------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

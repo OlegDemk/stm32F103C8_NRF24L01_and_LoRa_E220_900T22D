@@ -29,16 +29,17 @@ void set_WOR_RX_mode (void);
 void set_WOR_TX_mode (void);
 
 extern char str[1];							// Buffer for one char
-char test_main[20] = {0};
+//char test_main[20] = {0};
 extern bool flag_command_received;			// Flag show status receive data (completed/not completed)
 extern char uart_rx_data[50];				// Main rx buffer data
 
 //----------------------------------------------------------------------------------------
 void LoRa_RX(bool flag)
 {
-	static bool flag_first_time = true;		// Trigger variable
+	static bool flag_first_time = true;								// Trigger variable
+	char str_1[20] = {0};
 
-	if((flag_first_time == true) && (flag == true))
+	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
 	{
 		// state_machine
 		HAL_Delay(100);
@@ -46,38 +47,36 @@ void LoRa_RX(bool flag)
 		HAL_Delay(500);
 
 		ssd1306_SetCursor(0, 16);
-		strcpy(test_main, "RX data: ");
-		ssd1306_WriteString(test_main,  Font_7x10, White);
+		strcpy(str_1, "RX data: ");
+		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
 		HAL_UART_Receive_IT(&huart1, str, 1);
-		memset(test_main, 0, sizeof(test_main));
+		memset(str_1, 0, sizeof(str_1));
 		flag_first_time = false;
 	}
-	if((flag_first_time == false) && (flag == true))
+	if((flag_first_time == false) && (flag == true))				// Do it when data was received
 	{
-		if(flag_command_received == true)			// If data is ready
+		if(flag_command_received == true)							// If data is ready
 		{
-			// Data received
-
-			//   Print on OLED
+			// Data receive
+			// Clean data part on OLED
 			char clearn_array[10] = "         ";
 			ssd1306_SetCursor(60, 16);
-
 			ssd1306_WriteString(clearn_array,  Font_7x10, White);
 			ssd1306_UpdateScreen();
 
+			// Print received data
 			ssd1306_SetCursor(60, 16);
-			strcpy(test_main, uart_rx_data);
-
-			ssd1306_WriteString(test_main,  Font_7x10, White);
+			strcpy(str_1, uart_rx_data);
+			ssd1306_WriteString(str_1,  Font_7x10, White);
 			ssd1306_UpdateScreen();
 
 			HAL_Delay(100);
 			memset(uart_rx_data, 0, sizeof(uart_rx_data));
 			flag_command_received = false;
 
-			HAL_UART_Receive_IT(&huart1, str, 1);		// Start interrupt again
+			HAL_UART_Receive_IT(&huart1, str, 1);				// Start interrupt again
 		}
 	}
 	if(flag == false)
@@ -88,50 +87,47 @@ void LoRa_RX(bool flag)
 //----------------------------------------------------------------------------------------
 void LoRa_TX(bool flag)
 {
-	static bool flag_first_time = true;		// Trigger variable
-	static int transmit_count = 0;			// Variable for transmit
-	if((flag_first_time == true) && (flag == true))
+	static bool flag_first_time = true;						// Trigger variable
+	static int transmit_count = 0;							// Variable for transmit
+	char str_1[20] = {0};
+
+	if((flag_first_time == true) && (flag == true))			// Do it only first time (init)
 	{
 		HAL_Delay(100);
 		init_lora_TX();
 		HAL_Delay(500);
 
 		ssd1306_SetCursor(0, 16);
-		strcpy(test_main, "TX data: ");
-		ssd1306_WriteString(test_main,  Font_7x10, White);
+		strcpy(str_1, "TX data: ");
+		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
 		HAL_UART_Receive_IT(&huart1, str, 1);
 		flag_first_time = false;
 	}
-	if((flag_first_time == false) && (flag == true))
+	if((flag_first_time == false) && (flag == true))		// Repeat it part for transmit data
 	{
 		int count = lora_transmit_data(transmit_count);
 		transmit_count ++;
 		// Print transmeeting data
-		memset(test_main, 0, sizeof(test_main));
+		memset(str_1, 0, sizeof(str_1));
 		ssd1306_SetCursor(60, 16);
-		sprintf(test_main, "%d", count);
-		ssd1306_WriteString(test_main,  Font_7x10, White);
+		sprintf(str_1, "%d", count);
+		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		HAL_Delay(2000);			// Must be more than 1.5 sec
+		HAL_Delay(2000);									// Must be more than 1.5 sec
 	}
 	if(flag == false)
 	{
 		flag_first_time = true;
 		transmit_count = 0;
 	}
-
-
 }
 //----------------------------------------------------------------------------------------
 int lora_transmit_data(int transmit_count)    // Rename
 {
-//	static int transmit_count = 0;			// Variable for transmit
 	static uint8_t data[10] = {0};
-
-	//transmit_count++;
 
 	data[5] = '0' + transmit_count%10;
 	data[4] = '0' + (transmit_count/10) % 10;
