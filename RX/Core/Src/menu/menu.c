@@ -88,6 +88,10 @@ typedef struct Struct{
 #define MENU_3_ITEM_NUM 2
 //#define MENU_4_ITEM_NUM 10
 
+extern  uint32_t i; 											// Counter transmitted data
+extern int test_data;									  		// Init test data for transmit
+extern uint32_t retr_cnt_full;
+extern uint32_t cnt_lost;
 // Create menu item array structure for all menus
 MenuItem_t items[MENU_ITEM_NUM];
 MenuItem_t items_menu_1[MENU_1_ITEM_NUM];
@@ -749,6 +753,10 @@ void nrf_tx_mode(void)
 	do{
 		NRF24L01_Transmission();
 	}while (button_status != BUTTON_ENTER);
+	i = 1; 																// Counter transmitted data
+	test_data = 0;									  					// Init test data for transmit data
+	retr_cnt_full = 0;
+	cnt_lost = 0;
 
 	NRF24_WriteReg(CONFIG, 0x00); 										// STOP work with nrf module  (Power off)
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);				// Turn off GREEN LED
@@ -786,7 +794,7 @@ void items_menu_1_set_par_1(void)
 	ssd1306_UpdateScreen();
 	memset(str, 0, sizeof(str));
 
-	strncpy(str, "Set parametr 1", sizeof(str));
+	strncpy(str, "Set parameter 1", sizeof(str));
 	ssd1306_SetCursor(0, first_menu_row);
 	ssd1306_WriteString(str,  Font_7x10, White);
 	ssd1306_UpdateScreen();
@@ -816,7 +824,7 @@ void items_menu_1_set_par_2(void)
 	ssd1306_UpdateScreen();
 	memset(str, 0, sizeof(str));
 
-	strncpy(str, "Set parametr 2", sizeof(str));
+	strncpy(str, "Set parameter 2", sizeof(str));
 	ssd1306_SetCursor(0, first_menu_row);
 	ssd1306_WriteString(str,  Font_7x10, White);
 	ssd1306_UpdateScreen();

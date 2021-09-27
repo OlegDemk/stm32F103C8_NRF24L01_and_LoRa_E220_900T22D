@@ -36,8 +36,10 @@ uint8_t pipe = 0;						// Number of pipes
 uint8_t ErrCnt_Fl = 0; 					// Error counter (Can count only to 15)
 
 ////////  TX part of variables
-uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};   // Address for pipe 0
-uint32_t i=1,retr_cnt_full=0, cnt_lost=0;
+uint8_t TX_ADDRESS[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};   		// Address for pipe 0
+uint32_t retr_cnt_full=0, cnt_lost=0;
+uint32_t i = 1; 											// Counter transmitted data
+int test_data = 0;									  		// Init test data for transmit
 
 bool read_config_registers(void);
 
@@ -290,7 +292,6 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
   }
   else if(status & MAX_RT)   //MAX_RT == 0x10  // Retransmeet data flag
   {
-
     NRF24_WriteReg(STATUS_NRF, 0x10);
     NRF24_FlushTX();
   }
@@ -305,65 +306,58 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
 //----------------------------------------------------------------------------------------
 void NRF24L01_Transmission(void)
 {
-	char ctr[5] = {0};
-	char ctr_buf[5] = {0};
 	static uint8_t retr_cnt, dt = 0;
-	static int test_data = 0;
-
+	//static int test_data = 0;							// Init test data for transmit
 	uint8_t buf2[20]={0};
-	sprintf(buf2, "%d", test_data);
-
-	// Print transmit data
-	uint8_t test[25] = {0};
 	uint8_t test_i[10] = {0};
 
-	ssd1306_SetCursor(0, 16);
-	strcpy(test, "Data:");
+	uint8_t str_nrf[25] = {0};
 
-	ssd1306_WriteString(test,  Font_7x10, White);
+	// Print transmit data
+	ssd1306_SetCursor(0, 16);
+	strcpy(str_nrf, "Data:");
+	sprintf(buf2, "%d", test_data);
+	strcat(str_nrf, buf2);
+	ssd1306_WriteString(str_nrf,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str_nrf, 0, sizeof(str_nrf));
 
 	dt = NRF24L01_Send(buf2);						// Transmit data
 
-	strcat(test, buf2);
-	ssd1306_WriteString(test,  Font_7x10, White);
-	ssd1306_UpdateScreen();
-
+	// Calculation retransmitted packets
 	retr_cnt = dt & 0xF;
-	retr_cnt_full += retr_cnt;
+	retr_cnt_full += retr_cnt;		// Counting retransmit packets
 
 	// Print transmit counter
-	memset(test, 0, sizeof(test));
 	memset(test_i, 0, sizeof(test_i));
-
 	ssd1306_SetCursor(0, 26);
-	strcpy(test, "Conut trans:");
-	// number in string
-	itoa(i, test_i, 10);
-	strcat(test, test_i);
-	ssd1306_WriteString(test,  Font_7x10, White);
-
-	// Print retransmeet counter
-	memset(test, 0, sizeof(test));
-	memset(test_i, 0, sizeof(test_i));
-
-	ssd1306_SetCursor(0, 36);
-	strcpy(test, "Retransm:");
-	itoa(retr_cnt_full, test_i, 10);
-	strcat(test, test_i);
-	ssd1306_WriteString(test,  Font_7x10, White);
+	strcpy(str_nrf, "Conut trans:");
+	itoa(i, test_i, 10);								// Convert number in string
+	strcat(str_nrf, test_i);
+	ssd1306_WriteString(str_nrf,  Font_7x10, White);
 	ssd1306_UpdateScreen();
 
-	// Print lost pacets
-	memset(test, 0, sizeof(test));
+	// Print retransmeet counter
+	memset(str_nrf, 0, sizeof(str_nrf));
+	memset(test_i, 0, sizeof(test_i));
+	ssd1306_SetCursor(0, 36);
+	strcpy(str_nrf, "Retransm:");
+	itoa(retr_cnt_full, test_i, 10);
+	strcat(str_nrf, test_i);
+	ssd1306_WriteString(str_nrf,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+
+	// Print lost packets
+	memset(str_nrf, 0, sizeof(str_nrf));
 	memset(test_i, 0, sizeof(test_i));
 
 	cnt_lost = dt >> 4;
 
 	ssd1306_SetCursor(0, 46);
-	strcpy(test, "Lost:");
+	strcpy(str_nrf, "Lost:");
 	itoa(cnt_lost, test_i, 10);
-	strcat(test, test_i);
-	ssd1306_WriteString(test,  Font_7x10, White);
+	strcat(str_nrf, test_i);
+	ssd1306_WriteString(str_nrf,  Font_7x10, White);
 	ssd1306_UpdateScreen();
 
 	test_data++;
