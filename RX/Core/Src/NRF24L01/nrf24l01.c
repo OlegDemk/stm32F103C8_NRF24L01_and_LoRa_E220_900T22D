@@ -312,15 +312,13 @@ void NRF24L01_Transmission(void)
 {
 	char ctr[5] = {0};
 	char ctr_buf[5] = {0};
+	static uint8_t retr_cnt, dt = 0;
+	static int test_data = 0;
 
-	uint8_t retr_cnt, dt = 0;
+	// Test transmit data
 
-	int test_data = 0;
-
-	while(1)
-	{
-		// Test transmit data
-
+//	while(1)
+//	{
 		uint8_t buf2[20]={0};
 		sprintf(buf2, "%d", test_data);
 
@@ -382,8 +380,10 @@ void NRF24L01_Transmission(void)
 		test_data++;
 		i++;
 
-		HAL_Delay(1000);
-	}
+		HAL_Delay(100);
+	//}
+
+
 }
 //----------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -496,7 +496,6 @@ bool read_config_registers(void)
 //----------------------------------------------------------------------------------------
 void reset_nrf24l01(void)   // reconfigure module
 {
-
 	CE_RESET;
 	DelayMicro(5000);
 

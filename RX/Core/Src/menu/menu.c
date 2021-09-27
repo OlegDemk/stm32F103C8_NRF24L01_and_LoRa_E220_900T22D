@@ -302,29 +302,6 @@ void Menu_Init (void)
 
 }
 // ----------------------------------------------------------------------------------------
-void nrf_rx_mode(void)
-{
-	clearn_oled();
-	NRF24_init_RX_mode();
-	while(1)
-	{
-		NRF24L01_Receive();
-	}
-}
-// ----------------------------------------------------------------------------------------
-void nrf_tx_mode(void)
-{
-	clearn_oled();
-	NRF24_init_TX_mode();
-	while(1)
-	{
-		NRF24L01_Transmission();
-	}
-}
-// ----------------------------------------------------------------------------------------
-
-
-
 
 
 /*
@@ -666,7 +643,75 @@ void lora_tx_mode(void)
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 // NRF FUNCTIONS
+void nrf_rx_mode(void)    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,,
+{
+	clearn_oled();
+	NRF24_init_RX_mode();
+	print_rectangle_on_head();
 
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;
+	// waiting for press enter(SW2) button
+	do{
+		NRF24L01_Receive();
+	}while (button_status != BUTTON_ENTER);
+
+	NRF24_WriteReg(CONFIG, 0x00); 										// STOP work with nrf module  (Power off)
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);				// Turn off GREEN LED
+	block_interrupt_form_up_and_down_buttons = false;
+
+	// Return to first item of current menu
+	currentItem = &items_menu_2[0];										// Set global pointer on first menu
+	action();															// Print items on OLED
+}
+// ----------------------------------------------------------------------------------------
+void nrf_tx_mode(void)
+{
+	clearn_oled();
+	NRF24_init_TX_mode();
+	print_rectangle_on_head();
+
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;
+	// waiting for press enter(SW2) button
+	do{
+		NRF24L01_Transmission();
+	}while (button_status != BUTTON_ENTER);
+
+	NRF24_WriteReg(CONFIG, 0x00); 										// STOP work with nrf module  (Power off)
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);				// Turn off GREEN LED
+	block_interrupt_form_up_and_down_buttons = false;
+
+	// Return to first item of current menu
+	currentItem = &items_menu_2[0];										// Set global pointer on first menu
+	action();															// Print items on OLED
+
+
+
+//	clearn_oled();
+//	NRF24_init_TX_mode();
+//	while(1)
+//	{
+//		NRF24L01_Transmission();
+//	}
+}
+// ----------------------------------------------------------------------------------------
 
 
 
