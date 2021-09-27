@@ -223,7 +223,7 @@ void LoRa_RX(bool flag)
  8000246:	2200      	movs	r2, #0
  8000248:	701a      	strb	r2, [r3, #0]
 
-			HAL_UART_Receive_IT(&huart1, str, 1);				// Start interrupt again
+			HAL_UART_Receive_IT(&huart1, str, 1);					// Start interrupt again
  800024a:	2201      	movs	r2, #1
  800024c:	490b      	ldr	r1, [pc, #44]	; (800027c <LoRa_RX+0x130>)
  800024e:	480c      	ldr	r0, [pc, #48]	; (8000280 <LoRa_RX+0x134>)
@@ -266,8 +266,8 @@ void LoRa_TX(bool flag)
  8000294:	af00      	add	r7, sp, #0
  8000296:	4603      	mov	r3, r0
  8000298:	71fb      	strb	r3, [r7, #7]
-	static bool flag_first_time = true;						// Trigger variable
-	static int transmit_count = 0;							// Variable for transmit
+	static bool flag_first_time = true;								// Trigger variable
+	static int transmit_count = 0;									// Variable for transmit
 	char str_1[20] = {0};
  800029a:	2300      	movs	r3, #0
  800029c:	60bb      	str	r3, [r7, #8]
@@ -278,7 +278,7 @@ void LoRa_TX(bool flag)
  80002a8:	609a      	str	r2, [r3, #8]
  80002aa:	60da      	str	r2, [r3, #12]
 
-	if((flag_first_time == true) && (flag == true))			// Do it only first time (init)
+	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
  80002ac:	4b37      	ldr	r3, [pc, #220]	; (800038c <LoRa_TX+0xfc>)
  80002ae:	781b      	ldrb	r3, [r3, #0]
  80002b0:	2b00      	cmp	r3, #0
@@ -325,7 +325,7 @@ void LoRa_TX(bool flag)
  80002fe:	2200      	movs	r2, #0
  8000300:	701a      	strb	r2, [r3, #0]
 	}
-	if((flag_first_time == false) && (flag == true))		// Repeat it part for transmit data
+	if((flag_first_time == false) && (flag == true))				// Repeat it part for transmit data
  8000302:	4b22      	ldr	r3, [pc, #136]	; (800038c <LoRa_TX+0xfc>)
  8000304:	781b      	ldrb	r3, [r3, #0]
  8000306:	f083 0301 	eor.w	r3, r3, #1
@@ -374,7 +374,7 @@ void LoRa_TX(bool flag)
 		ssd1306_UpdateScreen();
  800035e:	f000 ffe9 	bl	8001334 <ssd1306_UpdateScreen>
 
-		HAL_Delay(2000);									// Must be more than 1.5 sec
+		HAL_Delay(2000);											// Must be more than 1.5 sec
  8000362:	f44f 60fa 	mov.w	r0, #2000	; 0x7d0
  8000366:	f002 fff9 	bl	800335c <HAL_Delay>
 	}
@@ -410,7 +410,7 @@ void LoRa_TX(bool flag)
 
 080003a8 <lora_transmit_data>:
 //----------------------------------------------------------------------------------------
-int lora_transmit_data(int transmit_count)    // Rename
+int lora_transmit_data(int transmit_count)
 {
  80003a8:	b580      	push	{r7, lr}
  80003aa:	b082      	sub	sp, #8

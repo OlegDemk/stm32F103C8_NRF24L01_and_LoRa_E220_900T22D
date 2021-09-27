@@ -76,7 +76,7 @@ void LoRa_RX(bool flag)
 			memset(uart_rx_data, 0, sizeof(uart_rx_data));
 			flag_command_received = false;
 
-			HAL_UART_Receive_IT(&huart1, str, 1);				// Start interrupt again
+			HAL_UART_Receive_IT(&huart1, str, 1);					// Start interrupt again
 		}
 	}
 	if(flag == false)
@@ -87,11 +87,11 @@ void LoRa_RX(bool flag)
 //----------------------------------------------------------------------------------------
 void LoRa_TX(bool flag)
 {
-	static bool flag_first_time = true;						// Trigger variable
-	static int transmit_count = 0;							// Variable for transmit
+	static bool flag_first_time = true;								// Trigger variable
+	static int transmit_count = 0;									// Variable for transmit
 	char str_1[20] = {0};
 
-	if((flag_first_time == true) && (flag == true))			// Do it only first time (init)
+	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
 	{
 		HAL_Delay(100);
 		init_lora_TX();
@@ -105,7 +105,7 @@ void LoRa_TX(bool flag)
 		HAL_UART_Receive_IT(&huart1, str, 1);
 		flag_first_time = false;
 	}
-	if((flag_first_time == false) && (flag == true))		// Repeat it part for transmit data
+	if((flag_first_time == false) && (flag == true))				// Repeat it part for transmit data
 	{
 		int count = lora_transmit_data(transmit_count);
 		transmit_count ++;
@@ -116,7 +116,7 @@ void LoRa_TX(bool flag)
 		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		HAL_Delay(2000);									// Must be more than 1.5 sec
+		HAL_Delay(2000);											// Must be more than 1.5 sec
 	}
 	if(flag == false)
 	{
@@ -125,7 +125,7 @@ void LoRa_TX(bool flag)
 	}
 }
 //----------------------------------------------------------------------------------------
-int lora_transmit_data(int transmit_count)    // Rename
+int lora_transmit_data(int transmit_count)
 {
 	static uint8_t data[10] = {0};
 
