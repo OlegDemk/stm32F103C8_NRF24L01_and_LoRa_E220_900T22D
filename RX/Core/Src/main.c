@@ -154,10 +154,17 @@ int main(void)
 
   while (1)
   {
-	menu();
+	//menu();
+	  init_am2302();
+	  while(1)
+	  {
+		  am2302_measure();
+		  HAL_Delay(2000);
+	  }
 
-	//  nrf_RX();
-    //nrf_TX();		// <<<<<<<<<<<<<<<<<<<<<,,
+
+
+
 
 
 

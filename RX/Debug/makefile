@@ -15,6 +15,7 @@ RM := rm -rf
 -include Core/Src/menu/subdir.mk
 -include Core/Src/lists/subdir.mk
 -include Core/Src/keyboard/subdir.mk
+-include Core/Src/am2302/subdir.mk
 -include Core/Src/UART/subdir.mk
 -include Core/Src/OLED/subdir.mk
 -include Core/Src/NRF24L01/subdir.mk

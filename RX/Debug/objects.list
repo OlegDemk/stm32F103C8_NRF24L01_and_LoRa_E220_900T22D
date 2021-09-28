@@ -4,6 +4,7 @@
 "Core/Src/OLED/oled_main.o"
 "Core/Src/OLED/ssd1306.o"
 "Core/Src/UART/uart.o"
+"Core/Src/am2302/am2302.o"
 "Core/Src/keyboard/keyboard.o"
 "Core/Src/lists/lists.o"
 "Core/Src/lists/simply_linked_list.o"

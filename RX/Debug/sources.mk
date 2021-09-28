@@ -24,6 +24,7 @@ Core/Src/LoRa_E220_900T22D \
 Core/Src/NRF24L01 \
 Core/Src/OLED \
 Core/Src/UART \
+Core/Src/am2302 \
 Core/Src/keyboard \
 Core/Src/lists \
 Core/Src \
