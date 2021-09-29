@@ -36,6 +36,11 @@ extern "C" {
 #include <stdbool.h>
 void test(void);
 
+struct{
+	int temterature;
+	int humidity;
+	bool status;
+}am3202_sensor;
 //// Define button status
 //#define BOTTON_DOESENT_PRESS 0
 //#define BOTTON_UP 1

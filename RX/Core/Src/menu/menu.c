@@ -18,6 +18,8 @@
 
 #include <NRF24L01/nrf24l01.h>
 
+#include <am2302/am2302.h>
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /*							READ ME
  	  	  Дане меню використовує OLED екран з драйвером ssd1306.  0.96 дюйма 128x64 I2C
@@ -65,7 +67,13 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 extern UART_HandleTypeDef huart3;
+extern TIM_HandleTypeDef htim2;
 
+//extern struct am3202_sensor;
+extern bool ready_to_work;
+extern bool error_state;
+extern bool am2302_ready;
+int measure_counter = 0;		// For am3202
 // ----------------------------------------------------------------------------------
 // Main struct menu
 typedef struct Struct{
@@ -85,13 +93,9 @@ typedef struct Struct{
 #define MENU_ITEM_NUM 3
 #define MENU_1_ITEM_NUM 3
 #define MENU_2_ITEM_NUM 3
-#define MENU_3_ITEM_NUM 2
+#define MENU_3_ITEM_NUM 4
 //#define MENU_4_ITEM_NUM 10
 
-extern  uint32_t i; 											// Counter transmitted data
-extern int test_data;									  		// Init test data for transmit
-extern uint32_t retr_cnt_full;
-extern uint32_t cnt_lost;
 // Create menu item array structure for all menus
 MenuItem_t items[MENU_ITEM_NUM];
 MenuItem_t items_menu_1[MENU_1_ITEM_NUM];
@@ -107,7 +111,7 @@ extern int button_processed_status;									// For interrupt work only one time
 
 char str_pointer[4] = "->";											// How look pointer on menu item
 
-// Rows coordinates
+// OLED Rows coordinates
 uint16_t first_menu_row = 16;
 uint16_t second_menu_row = 28;
 uint16_t third_menu_row = 40;
@@ -115,6 +119,12 @@ uint16_t fourth_menu_row = 52;
 uint8_t row_step = 12;
 uint16_t start_print_id_menu_x = 15;
 uint16_t start_print_name_menu_x = 30;
+
+// AM2302
+extern  uint32_t i; 											// Counter transmitted data
+extern int test_data;									  		// Init test data for transmit
+extern uint32_t retr_cnt_full;
+extern uint32_t cnt_lost;
 
 void scroll_bar(void);
 void print_rectangle_on_head(void);
@@ -124,16 +134,20 @@ void print_rows_on_oled_if_down(void);											// print text menu items
 void print_menu_init(void);
 void print_menu_items(void);
 void return_from_menu(void);
+// Don't used functions
 void items_menu_1_set_par_1(void);
 void items_menu_1_set_par_2(void);
 void items_menu_2_set_par_1(void);
-void do_it_function_menu_3(void);        // Print T and H
+void do_it_function_menu_3(void);
+//
 
-void lora_rx_mode(void);
-void lora_tx_mode(void);
-void nrf_tx_mode(void);
-void nrf_rx_mode(void);
-
+void lora_tx_mode(void);						// Transmit test data (counter)
+void lora_rx_mode(void);						// Receive data from LoRa module
+void nrf_tx_mode(void);							// Transmit test data (counter)
+void nrf_rx_mode(void);							// Receive data from NRF module
+void am2302(void);								// Measure T and H using TIMER2 (timer will be off if out from this function)
+void periodic_measurement_am2302_on(void);		// On Measure T and H using TIMER2 (Use it for TX data by NRF or LoRa)
+void periodic_measurement_am2302_off(void);		// OFF Measure T and H using TIMER2
 
 // ----------------------------------------------------------------------------------------
 void Menu_Init (void)
@@ -155,26 +169,37 @@ void Menu_Init (void)
 	p_lora_tx_mode = lora_tx_mode;
 
 	// ------------------------------------------------------
+	// NRF menu functions
 	void (*p_nrf_tx_mode) (void);						// Function "Do it". Works when select it
 	p_nrf_tx_mode = nrf_tx_mode;
 	void (*p_nrf_rx_mode) (void);						// Function "Do it". Works when select it
 	p_nrf_rx_mode = nrf_rx_mode;
 
-
 	// ------------------------------------------------------
-	void (*p_items_menu_1_set_par_2) (void);			// Doesen't use yet
-	p_items_menu_1_set_par_2 = items_menu_1_set_par_2;
+	// NRF menu functions
+	void (*p_am2302_measure) (void);
+	p_am2302_measure = am2302;
+	// ------------------------------------------------------
+	void (*p_periodic_measurement_am2302_on) (void);
+	p_periodic_measurement_am2302_on = periodic_measurement_am2302_on;
+	// ------------------------------------------------------
+	void (*p_periodic_measurement_am2302_off) (void);
+	p_periodic_measurement_am2302_off = periodic_measurement_am2302_off;
+	// ------------------------------------------------------
+
+//	void (*p_items_menu_1_set_par_2) (void);			// Doesen't use yet
+//	p_items_menu_1_set_par_2 = items_menu_1_set_par_2;
 
 	// items_menu_2 menu functions
 //	void (*p_do_it_function_menu_2) (void);						// Function "Do it". Works when select it
 //	p_do_it_function_menu_2 = do_it_function_menu_2;
 
-	void (*p_items_menu_2_set_par_1) (void);
-	p_items_menu_2_set_par_1 = items_menu_2_set_par_1;
+//	void (*p_items_menu_2_set_par_1) (void);
+//	p_items_menu_2_set_par_1 = items_menu_2_set_par_1;
 
-	// items_menu_3 menu functions
-	void (*p_do_it_function_menu_3) (void);						// Function "Do it". Works when select it
-	p_do_it_function_menu_3 = do_it_function_menu_3;
+//	// items_menu_3 menu functions
+//	void (*p_do_it_function_menu_3) (void);						// Function "Do it". Works when select it
+//	p_do_it_function_menu_3 = do_it_function_menu_3;
 
 
 	// Fill in elements(nodes) of list (7 items)
@@ -284,17 +309,37 @@ void Menu_Init (void)
 	items_menu_3[0].name = "Measure T & H";						// Name of item
 	items_menu_3[0].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_3[0].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_3[0].makeAction = p_do_it_function_menu_3;
+	items_menu_3[0].makeAction = p_am2302_measure;
 
 	items_menu_3[1].up = &items_menu_3[0];
-	items_menu_3[1].down = 0;
+	items_menu_3[1].down = &items_menu_3[2];
 	items_menu_3[1].child = 0;
 	items_menu_3[1].parent = &items[2];
 	items_menu_3[1].id = 2;
-	items_menu_3[1].name = "EXIT";						// Name of item
+	items_menu_3[1].name = "Per Meas: ON";						// Name of item
 	items_menu_3[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_3[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_3[1].makeAction = p_return_from_menu;
+	items_menu_3[1].makeAction = p_periodic_measurement_am2302_on;
+
+	items_menu_3[2].up = &items_menu_3[1];
+	items_menu_3[2].down = &items_menu_3[3];
+	items_menu_3[2].child = 0;
+	items_menu_3[2].parent = &items[2];
+	items_menu_3[2].id = 3;
+	items_menu_3[2].name = "Per Meas: OFF";						// Name of item
+	items_menu_3[2].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_3[2].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_3[2].makeAction = p_periodic_measurement_am2302_off;
+
+	items_menu_3[3].up = &items_menu_3[2];
+	items_menu_3[3].down = 0;
+	items_menu_3[3].child = 0;
+	items_menu_3[3].parent = &items[2];
+	items_menu_3[3].id = 4;
+	items_menu_3[3].name = "EXIT";						// Name of item
+	items_menu_3[3].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_3[3].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_3[3].makeAction = p_return_from_menu;
 }
 
 // ----------------------------------------------------------------------------------------
@@ -770,10 +815,197 @@ void nrf_tx_mode(void)
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
 // SENSORS FUNCTIONS
+// Function uses Tim2 for periodic measuring.
+void am2302(void)
+{
+	HAL_TIM_Base_Start_IT(&htim2);		// For sensor measure
+	HAL_Delay(100);
+	clearn_oled();
+	print_rectangle_on_head();
 
-//Вимірювання робити по таймеру, якщо вибрана функція вимірювання
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
 
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;	// Lock interrupt from UP and DOWN buttons
+	measure_counter = 1;
+	// waiting for press enter(SW2) button
+	do{
+		// Print data
+		if(am2302_ready == true)						// Flug from interrup tim2
+		{
+			char str_temperature[10] = {0};
+			char str_humidity[10] = {0};
+			char str_1[10] = {0};
 
+			// Clear data place on OLED
+			memset(str, ' ', sizeof(str));
+			ssd1306_SetCursor(10, first_menu_row);
+			ssd1306_WriteString(str,  Font_7x10, White);
+			ssd1306_UpdateScreen();
+			ssd1306_SetCursor(10, second_menu_row);
+			ssd1306_WriteString(str,  Font_7x10, White);
+			ssd1306_UpdateScreen();
+			memset(str, 0, sizeof(str));
+
+			// Print T and H on OLED
+			itoa(am3202_sensor.temterature , str, 10);
+			strcat(str_temperature, "T = ");
+			strcat(str_temperature, str);
+			strcat(str_temperature, " C");
+			ssd1306_SetCursor(10, first_menu_row);
+			ssd1306_WriteString(str_temperature,  Font_7x10, White);
+			memset(str, 0,sizeof(str));
+
+			itoa(am3202_sensor.humidity , str, 10);
+			strcat(str_humidity, "H = ");
+			strcat(str_humidity, str);
+			strcat(str_humidity, " %");
+			ssd1306_SetCursor(10, second_menu_row);
+			ssd1306_WriteString(str_humidity,  Font_7x10, White);
+
+			// Print counter
+			memset(str, 0,sizeof(str));
+			strcat(str, "Counter: ");
+			itoa(measure_counter , str_1, 10);
+			strcat(str, str_1);
+			ssd1306_SetCursor(10, third_menu_row);
+			ssd1306_WriteString(str,  Font_7x10, White);
+			ssd1306_UpdateScreen();
+
+			measure_counter++;
+			am2302_ready = false;
+		}
+
+	}while (button_status != BUTTON_ENTER);
+	HAL_TIM_Base_Stop_IT(&htim2);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); // Turn off LED
+	block_interrupt_form_up_and_down_buttons = false;	// Unlock  UP and DOWN buttons interrupt
+
+	// Return to first item of current menu
+	currentItem = &items_menu_3[0];										// Set global pointer on first menu
+	print_menu_items();
+}
+// ----------------------------------------------------------------------------------------
+// Function uses Tim2 for periodic measuring.
+void periodic_measurement_am2302_on(void)
+{
+	HAL_TIM_Base_Start_IT(&htim2);		// For sensor measure
+	HAL_Delay(100);
+	clearn_oled();
+	print_rectangle_on_head();
+
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;
+	measure_counter = 1;
+	// waiting for press enter(SW2) button
+	do{
+		// Print data
+		if(am2302_ready == true)	// Flug from interrup tim2
+		{
+			char str_temperature[10] = {0};
+			char str_humidity[10] = {0};
+			char str_1[10] = {0};
+
+			// Clear data place on OLED
+			memset(str, ' ', sizeof(str));
+			ssd1306_SetCursor(10, first_menu_row);
+			ssd1306_WriteString(str,  Font_7x10, White);
+			ssd1306_UpdateScreen();
+			ssd1306_SetCursor(10, second_menu_row);
+			ssd1306_WriteString(str,  Font_7x10, White);
+			ssd1306_UpdateScreen();
+
+			memset(str, 0, sizeof(str));
+			// Print T and H on OLED
+
+			itoa(am3202_sensor.temterature , str, 10);
+			strcat(str_temperature, "T = ");
+			strcat(str_temperature, str);
+			strcat(str_temperature, " C");
+			ssd1306_SetCursor(10, first_menu_row);
+			ssd1306_WriteString(str_temperature,  Font_7x10, White);
+
+			memset(str, 0,sizeof(str));
+			itoa(am3202_sensor.humidity , str, 10);
+			strcat(str_humidity, "H = ");
+			strcat(str_humidity, str);
+			strcat(str_humidity, " %");
+			ssd1306_SetCursor(10, second_menu_row);
+			ssd1306_WriteString(str_humidity,  Font_7x10, White);
+
+			// Print counter
+			memset(str, 0,sizeof(str));
+			strcat(str, "Counter: ");
+			itoa(measure_counter , str_1, 10);
+			strcat(str, str_1);
+			ssd1306_SetCursor(10, third_menu_row);
+			ssd1306_WriteString(str,  Font_7x10, White);
+			ssd1306_UpdateScreen();
+
+			measure_counter++;
+			am2302_ready = false;
+		}
+
+	}while (button_status != BUTTON_ENTER);
+	block_interrupt_form_up_and_down_buttons = false;	// Unlock  UP and DOWN buttons interrupt
+	// Return to first item of current menu
+	currentItem = &items_menu_3[0];										// Set global pointer on first menu
+	print_menu_items();
+}
+// ----------------------------------------------------------------------------------------
+// Function turn off Tim2 for periodic measuring.
+void periodic_measurement_am2302_off(void)
+{
+	HAL_TIM_Base_Start_IT(&htim2);		// For sensor measure
+	HAL_Delay(100);
+	clearn_oled();
+	print_rectangle_on_head();
+
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;
+	measure_counter = 1;
+	HAL_TIM_Base_Stop_IT(&htim2);
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); // Turn off LED
+
+	ssd1306_SetCursor(10, second_menu_row);
+	strcat(str, "STOP measuring");
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+	// waiting for press enter(SW2) button
+	do{
+
+	}while (button_status != BUTTON_ENTER);
+	block_interrupt_form_up_and_down_buttons = false;	// Unlock  UP and DOWN buttons interrupt
+
+	// Return to first item of current menu
+	currentItem = &items_menu_3[0];										// Set global pointer on first menu
+	print_menu_items();
+
+}
 
 
 

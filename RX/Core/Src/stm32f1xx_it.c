@@ -26,6 +26,7 @@
 #include <state_machine/state_machine.h>
 
 #include <menu/menu.h>
+#include <am2302/am2302.h>
 
 #define detected 0
 
@@ -39,6 +40,7 @@ uint8_t dalay_duration = 5;
 
 int button_processed_status = 1;					// For interrupt work only one time
 
+bool am2302_ready = false;
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,6 +75,7 @@ int button_processed_status = 1;					// For interrupt work only one time
 
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim2;
 extern UART_HandleTypeDef huart1;
 /* USER CODE BEGIN EV */
 
@@ -334,6 +337,29 @@ void TIM1_UP_IRQHandler(void)
   /* USER CODE BEGIN TIM1_UP_IRQn 1 */
 
   /* USER CODE END TIM1_UP_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM2 global interrupt.
+  */
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+	static int i = 0;
+	if(i == 200)								// Do it every 2 seconds
+	{
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+		am2302_measure();
+		i = 0;
+		am2302_ready = !am2302_ready;
+	}
+	i++;
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+
+  /* USER CODE END TIM2_IRQn 1 */
 }
 
 /**
