@@ -67,7 +67,8 @@ void NRF24_init_TX_mode(void);
 void NRF24L01_TX_Mode(uint8_t *pBuf);
 void NRF24_Transmit(uint8_t addr,uint8_t *pBuf,uint8_t bytes);
 uint8_t NRF24L01_Send(uint8_t *pBuf);
-void NRF24L01_Transmission(void);
+void NRF24L01_Transmission_counter(void);
+void NRF24L01_Transmission_t_and_h(void);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,7 +192,7 @@ void nrf_TX(void)							// Main function TX
 	NRF24_init_TX_mode();
 	while(1)
 	{
-		NRF24L01_Transmission();
+		NRF24L01_Transmission_counter();
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -301,13 +302,73 @@ uint8_t NRF24L01_Send(uint8_t *pBuf)
   return regval;
 }
 //----------------------------------------------------------------------------------------
-void NRF24L01_Transmission(void)
+void NRF24L01_Transmission_counter(void)
 {
 	static uint8_t retr_cnt, dt = 0;
 	//static int test_data = 0;							// Init test data for transmit
 	uint8_t buf2[20]={0};
 	uint8_t test_i[10] = {0};
+	uint8_t str_nrf[25] = {0};
 
+	// Print transmit data
+	ssd1306_SetCursor(0, 16);
+	strcpy(str_nrf, "Data:");
+	sprintf(buf2, "%d", test_data);
+	strcat(str_nrf, buf2);
+	ssd1306_WriteString(str_nrf,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str_nrf, 0, sizeof(str_nrf));
+
+	dt = NRF24L01_Send(buf2);						// Transmit data
+
+	// Calculation retransmitted packets
+	retr_cnt = dt & 0xF;
+	retr_cnt_full += retr_cnt;		// Counting retransmit packets
+
+	// Print transmit counter
+	memset(test_i, 0, sizeof(test_i));
+	ssd1306_SetCursor(0, 26);
+	strcpy(str_nrf, "Conut trans:");
+	itoa(i, test_i, 10);								// Convert number in string
+	strcat(str_nrf, test_i);
+	ssd1306_WriteString(str_nrf,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+
+	// Print retransmeet counter
+	memset(str_nrf, 0, sizeof(str_nrf));
+	memset(test_i, 0, sizeof(test_i));
+	ssd1306_SetCursor(0, 36);
+	strcpy(str_nrf, "Retransm:");
+	itoa(retr_cnt_full, test_i, 10);
+	strcat(str_nrf, test_i);
+	ssd1306_WriteString(str_nrf,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+
+	// Print lost packets
+	memset(str_nrf, 0, sizeof(str_nrf));
+	memset(test_i, 0, sizeof(test_i));
+
+	cnt_lost = dt >> 4;
+
+	ssd1306_SetCursor(0, 46);
+	strcpy(str_nrf, "Lost:");
+	itoa(cnt_lost, test_i, 10);
+	strcat(str_nrf, test_i);
+	ssd1306_WriteString(str_nrf,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+
+	test_data++;
+	i++;
+
+	HAL_Delay(100);
+}
+//----------------------------------------------------------------------------------------
+void NRF24L01_Transmission_t_and_h(void)
+{
+	static uint8_t retr_cnt, dt = 0;
+	//static int test_data = 0;							// Init test data for transmit
+	uint8_t buf2[20]={0};
+	uint8_t test_i[10] = {0};
 	uint8_t str_nrf[25] = {0};
 
 	// Print transmit data

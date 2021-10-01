@@ -147,9 +147,10 @@ void do_it_function_menu_3(void);
 //
 
 void lora_tx_mode(void);						// Transmit test data (counter)
-void lora_tx_mode_send_T_and_H(void);
+void lora_tx_mode_send_T_and_H(void);			// Transmit H and H
 void lora_rx_mode(void);						// Receive data from LoRa module
 void nrf_tx_mode_send_test_number(void);		// Transmit test data (counter)
+void nrf_tx_mode_send_T_and_H(void);			// Transmit H and H
 void nrf_rx_mode(void);							// Receive data from NRF module
 void am2302(void);								// Measure T and H using TIMER2 (timer will be off if out from this function)
 void periodic_measurement_am2302_on(void);		// On Measure T and H using TIMER2 (Use it for TX data by NRF or LoRa)
@@ -181,6 +182,8 @@ void Menu_Init (void)
 	// NRF menu functions
 	void (*p_nrf_tx_mode_send_test_number) (void);						// Function "Do it". Works when select it
 	p_nrf_tx_mode_send_test_number = nrf_tx_mode_send_test_number;
+	void (*p_nrf_tx_mode_send_T_and_H) (void);
+	p_nrf_tx_mode_send_T_and_H = nrf_tx_mode_send_T_and_H;
 	void (*p_nrf_rx_mode) (void);						// Function "Do it". Works when select it
 	p_nrf_rx_mode = nrf_rx_mode;
 
@@ -340,7 +343,6 @@ void Menu_Init (void)
 	items_menu_2[2].updateScreen_down = p_print_rows_on_oled_if_down;
 	items_menu_2[2].makeAction = p_return_from_menu;
 
-	 //// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 	// NRF TX menu
 	items_menu_2_1[0].up = 0;
 	items_menu_2_1[0].down = &items_menu_2_1[1];
@@ -360,7 +362,7 @@ void Menu_Init (void)
 	items_menu_2_1[1].name = "TX T & H";
 	items_menu_2_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_2_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2_1[1].makeAction = 0;   //  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<,
+	items_menu_2_1[1].makeAction = p_nrf_tx_mode_send_T_and_H;
 
 	items_menu_2_1[2].up = &items_menu_2_1[1];
 	items_menu_2_1[2].down = 0;
@@ -898,7 +900,7 @@ void nrf_tx_mode_send_test_number(void)
 	block_interrupt_form_up_and_down_buttons = true;
 	// waiting for press enter(SW2) button
 	do{
-		NRF24L01_Transmission();
+		NRF24L01_Transmission_counter();
 	}while (button_status != BUTTON_ENTER);
 	i = 1; 																// Counter transmitted data
 	test_data = 0;									  					// Init test data for transmit data
@@ -912,6 +914,40 @@ void nrf_tx_mode_send_test_number(void)
 	currentItem = &items_menu_2[0];										// Set global pointer on first menu
 	print_menu_items();													// Print items on OLED
 }
+// ----------------------------------------------------------------------------------------
+void nrf_tx_mode_send_T_and_H(void)
+{
+	clearn_oled();
+	NRF24_init_TX_mode();
+	print_rectangle_on_head();
+
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;
+	// waiting for press enter(SW2) button
+	do{
+		NRF24L01_Transmission_t_and_h();
+	}while (button_status != BUTTON_ENTER);
+	i = 1; 																// Counter transmitted data
+	test_data = 0;									  					// Init test data for transmit data
+	retr_cnt_full = 0;
+	cnt_lost = 0;
+
+	NRF24_WriteReg(CONFIG, 0x00); 										// STOP work with nrf module  (Power off)
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);				// Turn off GREEN LED
+	block_interrupt_form_up_and_down_buttons = false;
+	// Return to first item of current menu
+	currentItem = &items_menu_2[0];										// Set global pointer on first menu
+	print_menu_items();													// Print items on OLED
+}
+
 // ----------------------------------------------------------------------------------------
 ////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////
