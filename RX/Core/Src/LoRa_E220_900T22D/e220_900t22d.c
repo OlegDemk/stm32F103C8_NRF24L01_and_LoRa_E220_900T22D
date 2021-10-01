@@ -38,7 +38,7 @@ extern bool flag_command_received;			// Flag show status receive data (completed
 extern char uart_rx_data[50];				// Main rx buffer data
 
 int transmit_count = 1;									// Variable for transmit
-int tx_lora_data = 99999;								// Test TX data
+int tx_lora_data = 0;								// Test TX data
 //----------------------------------------------------------------------------------------
 void LoRa_RX(bool flag)
 {
@@ -97,6 +97,8 @@ void LoRa_RX(bool flag)
 			//memset(uart_rx_data, 0, sizeof(uart_rx_data));
 			flag_command_received = false;
 
+			memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
+
 			HAL_UART_Receive_IT(&huart1, str, 1);					// Start interrupt again
 		}
 	}
@@ -114,6 +116,8 @@ void LoRa_TX_send_test_number(bool flag)
 
 	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
 	{
+		memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
+
 		HAL_Delay(100);
 		init_lora_TX();
 		HAL_Delay(500);
@@ -158,7 +162,7 @@ void LoRa_TX_send_test_number(bool flag)
 	{
 		flag_first_time = true;
 		transmit_count = 0;
-		tx_lora_data = 99999;
+		tx_lora_data = 0;
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -187,6 +191,8 @@ void LoRa_TX_send_T_and_H(bool flag)   // Зробити пересилання 
 
 	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
 	{
+		memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
+
 		HAL_Delay(100);
 		init_lora_TX();
 		HAL_Delay(500);
@@ -255,7 +261,7 @@ void LoRa_TX_send_T_and_H(bool flag)   // Зробити пересилання 
 	{
 		flag_first_time = true;
 		transmit_count = 1;
-		tx_lora_data = 99999;
+		//tx_lora_data = 0;
 	}
 }
 //----------------------------------------------------------------------------------------
