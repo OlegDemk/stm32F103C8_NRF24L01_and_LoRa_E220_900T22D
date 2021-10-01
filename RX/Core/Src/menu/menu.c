@@ -316,7 +316,7 @@ void Menu_Init (void)
 	items_menu_2[0].up = 0;
 	items_menu_2[0].down = &items_menu_2[1];
 	items_menu_2[0].child = 0;
-	items_menu_2[0].parent = &items[1];
+	items_menu_2[0].parent = &items[0];
 	items_menu_2[0].id = 1;
 	items_menu_2[0].name = "NRF RX";						// Name of item
 	items_menu_2[0].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -326,7 +326,7 @@ void Menu_Init (void)
 	items_menu_2[1].up = &items_menu_2[0];
 	items_menu_2[1].down = &items_menu_2[2];
 	items_menu_2[1].child = &items_menu_2_1[0];
-	items_menu_2[1].parent = &items[1];
+	items_menu_2[1].parent = &items[0];
 	items_menu_2[1].id = 2;
 	items_menu_2[1].name = "NRF TX";						// Name of item
 	items_menu_2[1].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -336,7 +336,7 @@ void Menu_Init (void)
 	items_menu_2[2].up = &items_menu_2[1];
 	items_menu_2[2].down = 0;
 	items_menu_2[2].child = 0;
-	items_menu_2[2].parent = &items[1];
+	items_menu_2[2].parent = &items[0];
 	items_menu_2[2].id = 3;
 	items_menu_2[2].name = "EXIT";						// Name of item
 	items_menu_2[2].updateScreen_up = p_print_rows_on_oled_if_up;
@@ -880,6 +880,9 @@ void nrf_rx_mode(void)
 	// Return to first item of current menu
 	currentItem = &items_menu_2[0];										// Set global pointer on first menu
 	print_menu_items();													// Print items on OLED
+
+	int g = 99;		// For debug
+	g = 999 + 10;
 }
 // ----------------------------------------------------------------------------------------
 void nrf_tx_mode_send_test_number(void)
