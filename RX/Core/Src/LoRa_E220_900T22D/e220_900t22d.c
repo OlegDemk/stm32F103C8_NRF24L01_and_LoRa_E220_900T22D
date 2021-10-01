@@ -16,6 +16,8 @@
 
 #include <keyboard/keyboard.h>
 
+#include <am2302/am2302.h>
+
 extern UART_HandleTypeDef huart1;
 
 bool init_lora_RX(void);
@@ -28,11 +30,15 @@ void set_config_deep_sleep_mode (void);
 void set_WOR_RX_mode (void);
 void set_WOR_TX_mode (void);
 
+lora_transmit_string_data(char* transmit_str);
+
 extern char str[1];							// Buffer for one char
 //char test_main[20] = {0};
 extern bool flag_command_received;			// Flag show status receive data (completed/not completed)
 extern char uart_rx_data[50];				// Main rx buffer data
 
+int transmit_count = 0;									// Variable for transmit
+int tx_lora_data = 99999;								// Test TX data
 //----------------------------------------------------------------------------------------
 void LoRa_RX(bool flag)
 {
@@ -47,7 +53,7 @@ void LoRa_RX(bool flag)
 		HAL_Delay(500);
 
 		ssd1306_SetCursor(0, 16);
-		strcpy(str_1, "RX data: ");
+		strcpy(str_1, "RX data:");
 		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
@@ -61,19 +67,32 @@ void LoRa_RX(bool flag)
 		{
 			// Data receive
 			// Clean data part on OLED
-			char clearn_array[10] = "         ";
-			ssd1306_SetCursor(60, 16);
+			char clearn_array[20] = "                  ";
+			ssd1306_SetCursor(0, 28);
 			ssd1306_WriteString(clearn_array,  Font_7x10, White);
 			ssd1306_UpdateScreen();
 
+
+
+			//Відсіяти 0 елемент в массиві
 			// Print received data
-			ssd1306_SetCursor(60, 16);
-			strcpy(str_1, uart_rx_data);
+			ssd1306_SetCursor(0, 28);
+			//strcpy(str_1, uart_rx_data);       /// PROBLEM WHERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+			int i = 0;
+			for(i = 0; i <= sizeof(str_1); i++)
+			{
+				if(i == 0)
+				{
+					//str_1[i] = uart_rx_data[]
+					i++;
+				}
+				str_1[i-1] = uart_rx_data[i];
+			}
 			ssd1306_WriteString(str_1,  Font_7x10, White);
 			ssd1306_UpdateScreen();
 
 			HAL_Delay(100);
-			memset(uart_rx_data, 0, sizeof(uart_rx_data));
+			//memset(uart_rx_data, 0, sizeof(uart_rx_data));
 			flag_command_received = false;
 
 			HAL_UART_Receive_IT(&huart1, str, 1);					// Start interrupt again
@@ -85,10 +104,52 @@ void LoRa_RX(bool flag)
 	}
 }
 //----------------------------------------------------------------------------------------
-void LoRa_TX(bool flag)
+//void LoRa_TX(bool flag)
+//{
+//	static bool flag_first_time = true;								// Trigger variable
+//	//static int transmit_count = 0;									// Variable for transmit
+//	char str_1[20] = {0};
+//
+//	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
+//	{
+//		HAL_Delay(100);
+//		init_lora_TX();
+//		HAL_Delay(500);
+//
+//		ssd1306_SetCursor(0, 16);
+//		strcpy(str_1, "TX data: ");
+//		ssd1306_WriteString(str_1,  Font_7x10, White);
+//		ssd1306_UpdateScreen();
+//
+//		HAL_UART_Receive_IT(&huart1, str, 1);
+//		flag_first_time = false;
+//	}
+//	if((flag_first_time == false) && (flag == true))				// Repeat it part for transmit data
+//	{
+//		int count = lora_transmit_data(transmit_count);
+//
+//		// Print transmeeting data
+//		memset(str_1, 0, sizeof(str_1));
+//		ssd1306_SetCursor(60, 16);
+//		sprintf(str_1, "%d", count);
+//		ssd1306_WriteString(str_1,  Font_7x10, White);
+//		ssd1306_UpdateScreen();
+//
+//		transmit_count ++;
+//
+//		HAL_Delay(2000);											// Must be more than 1.5 sec
+//	}
+//	if(flag == false)
+//	{
+//		flag_first_time = true;
+//		transmit_count = 0;
+//	}
+//}
+// -------------------------------------------------------------------------------
+void LoRa_TX_send_test_number(bool flag)
 {
 	static bool flag_first_time = true;								// Trigger variable
-	static int transmit_count = 0;									// Variable for transmit
+	//static int transmit_count = 0;									// Variable for transmit
 	char str_1[20] = {0};
 
 	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
@@ -98,7 +159,13 @@ void LoRa_TX(bool flag)
 		HAL_Delay(500);
 
 		ssd1306_SetCursor(0, 16);
-		strcpy(str_1, "TX data: ");
+		strcpy(str_1, "TX count:");
+		ssd1306_WriteString(str_1,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		memset(str_1, 0, sizeof(str_1));
+		ssd1306_SetCursor(0, 28);
+		strcpy(str_1, "Data:");
 		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
@@ -107,21 +174,31 @@ void LoRa_TX(bool flag)
 	}
 	if((flag_first_time == false) && (flag == true))				// Repeat it part for transmit data
 	{
-		int count = lora_transmit_data(transmit_count);
-		transmit_count ++;
-		// Print transmeeting data
+		lora_transmit_data(tx_lora_data);
+		tx_lora_data++;
+
+		// Print transmitter counter
 		memset(str_1, 0, sizeof(str_1));
-		ssd1306_SetCursor(60, 16);
-		sprintf(str_1, "%d", count);
+		ssd1306_SetCursor(70, 16);
+		sprintf(str_1, "%d", transmit_count);
 		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
+		// Print transmitter data
+		memset(str_1, 0, sizeof(str_1));
+		ssd1306_SetCursor(35, 28);
+		sprintf(str_1, "%d", tx_lora_data);
+		ssd1306_WriteString(str_1,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		transmit_count++;											// Increment test data
 		HAL_Delay(2000);											// Must be more than 1.5 sec
 	}
 	if(flag == false)
 	{
 		flag_first_time = true;
 		transmit_count = 0;
+		tx_lora_data = 99999;
 	}
 }
 //----------------------------------------------------------------------------------------
@@ -135,9 +212,118 @@ int lora_transmit_data(int transmit_count)
 	data[2] = '0' + (transmit_count/1000) % 10;
 	data[1] = '0' + (transmit_count/10000) % 10;
 	data[0] = '0' + (transmit_count/100000) % 10;
-	data[6] = '\0';
+	data[6] = '\n';
 
 	HAL_UART_Transmit_IT(&huart1, data, 7);
+
+	return transmit_count;
+}
+// -------------------------------------------------------------------------------
+void LoRa_TX_send_T_and_H(bool flag)   // Зробити пересилання стрінги !!!!
+{
+	static bool flag_first_time = true;								// Trigger variable
+	//static int transmit_count = 0;									// Variable for transmit
+	char str_1[20] = {0};
+
+	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
+	{
+		HAL_Delay(100);
+		init_lora_TX();
+		HAL_Delay(500);
+
+		ssd1306_SetCursor(0, 16);
+		strcpy(str_1, "TX count:");
+		ssd1306_WriteString(str_1,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		memset(str_1, 0, sizeof(str_1));
+		ssd1306_SetCursor(0, 28);
+		strcpy(str_1, "Data:");
+		ssd1306_WriteString(str_1,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		HAL_UART_Receive_IT(&huart1, str, 1);
+		flag_first_time = false;
+	}
+	if((flag_first_time == false) && (flag == true))				// Repeat it part for transmit data
+	{
+		char test_strung[10] = "123";
+		strcat(test_strung, "\n");
+
+		// 1. Read data from am2302 struct and convert it on string !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+		int k = 0;
+		while(k < 10)
+		{
+			char test_strung_1[10] = {0};      <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<,
+			strcat(test_strung_1, "11111");
+		    strcat(test_strung_1, "\n");
+			HAL_UART_Transmit_IT(&huart1, test_strung_1, 10);
+			HAL_Delay(2000);
+
+			memset(test_strung_1, 0, sizeof(test_strung_1));
+			strcat(test_strung_1, "22222");
+			strcat(test_strung_1, "\n");
+			HAL_UART_Transmit_IT(&huart1, test_strung_1, 10);
+			HAL_Delay(2000);
+
+			memset(test_strung_1, 0, sizeof(test_strung_1));
+			strcat(test_strung_1, "33333");
+			strcat(test_strung_1, "\n");
+			HAL_UART_Transmit_IT(&huart1, test_strung_1, 10);
+			HAL_Delay(2000);
+
+			memset(test_strung_1, 0, sizeof(test_strung_1));
+			strcat(test_strung_1, "44444");
+			strcat(test_strung_1, "\n");
+			HAL_UART_Transmit_IT(&huart1, test_strung_1, 10);
+			HAL_Delay(2000);
+			k++;
+		}
+//		HAL_UART_Transmit_IT(&huart1, test_strung, 10);
+		//lora_transmit_string_data(test_strung);
+
+
+		// Print transmitter counter
+		memset(str_1, 0, sizeof(str_1));
+		ssd1306_SetCursor(70, 16);
+		sprintf(str_1, "%d", transmit_count);
+		ssd1306_WriteString(str_1,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		// Print transmitter data
+
+		ssd1306_SetCursor(35, 28);
+		ssd1306_WriteString(test_strung,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		transmit_count++;											// Increment test data
+		HAL_Delay(2000);											// Must be more than 1.5 sec
+	}
+	if(flag == false)
+	{
+		flag_first_time = true;
+		transmit_count = 0;
+		tx_lora_data = 99999;
+	}
+}
+//----------------------------------------------------------------------------------------
+int lora_transmit_string_data(char* transmit_str)
+{
+	//char end_of_message = '\n';
+	//char data[10] = "777";
+	//strcat(data, "\n");
+
+//	data[5] = '0' + transmit_count%10;
+//	data[4] = '0' + (transmit_count/10) % 10;
+//	data[3] = '0' + (transmit_count/100) % 10;
+//	data[2] = '0' + (transmit_count/1000) % 10;
+//	data[1] = '0' + (transmit_count/10000) % 10;
+//	data[0] = '0' + (transmit_count/100000) % 10;
+//	data[6] = '\0';
+
+	HAL_UART_Transmit_IT(&huart1, transmit_str, 10);
+	int g = 99;
 
 	return transmit_count;
 }

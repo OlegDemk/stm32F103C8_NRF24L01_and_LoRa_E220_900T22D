@@ -91,9 +91,11 @@ typedef struct Struct{
 
 // How many menu items in menu
 #define MENU_ITEM_NUM 3
-#define MENU_1_ITEM_NUM 3
-#define MENU_2_ITEM_NUM 3
-#define MENU_3_ITEM_NUM 4
+#define MENU_1_ITEM_NUM 3			// LoRa menu
+#define MENU_1_1_ITEM_NUM 3			// LoRa TX menu
+#define MENU_2_ITEM_NUM 3			// NRF menu
+#define MENU_3_ITEM_NUM 4			// Sensor menu
+
 //#define MENU_4_ITEM_NUM 10
 
 // Create menu item array structure for all menus
@@ -101,6 +103,7 @@ MenuItem_t items[MENU_ITEM_NUM];
 MenuItem_t items_menu_1[MENU_1_ITEM_NUM];
 MenuItem_t items_menu_2[MENU_2_ITEM_NUM];
 MenuItem_t items_menu_3[MENU_3_ITEM_NUM];
+MenuItem_t items_menu_1_1[MENU_1_1_ITEM_NUM];
 //MenuItem_t items_menu_4[MENU_4_ITEM_NUM];
 
 MenuItem_t * currentItem = &items[0];								// Create and set pointer on first element of list
@@ -142,6 +145,7 @@ void do_it_function_menu_3(void);
 //
 
 void lora_tx_mode(void);						// Transmit test data (counter)
+void lora_tx_mode_send_T_and_H(void);
 void lora_rx_mode(void);						// Receive data from LoRa module
 void nrf_tx_mode(void);							// Transmit test data (counter)
 void nrf_rx_mode(void);							// Receive data from NRF module
@@ -167,6 +171,9 @@ void Menu_Init (void)
 	p_lora_rx_mode = lora_rx_mode;
 	void (*p_lora_tx_mode) (void);						// Function "Do it". Works when select it
 	p_lora_tx_mode = lora_tx_mode;
+	void (*p_lora_tx_mode_send_T_and_H) (void);
+	p_lora_tx_mode_send_T_and_H = lora_tx_mode_send_T_and_H;
+
 
 	// ------------------------------------------------------
 	// NRF menu functions
@@ -249,13 +256,13 @@ void Menu_Init (void)
 
 	items_menu_1[1].up = &items_menu_1[0];
 	items_menu_1[1].down = &items_menu_1[2];
-	items_menu_1[1].child = 0;
+	items_menu_1[1].child = &items_menu_1_1[0];
 	items_menu_1[1].parent = &items[0];
 	items_menu_1[1].id = 2;
 	items_menu_1[1].name = "LoRa TX";
 	items_menu_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1[1].makeAction = p_lora_tx_mode;
+	items_menu_1[1].makeAction = 0;
 
 	items_menu_1[2].up = &items_menu_1[1];
 	items_menu_1[2].down = 0;
@@ -266,6 +273,38 @@ void Menu_Init (void)
 	items_menu_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1[2].updateScreen_down = p_print_rows_on_oled_if_down;
 	items_menu_1[2].makeAction = p_return_from_menu;
+
+
+	//items_menu_1_1[0] // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	items_menu_1_1[0].up = 0;
+	items_menu_1_1[0].down = &items_menu_1_1[1];
+	items_menu_1_1[0].child = 0;
+	items_menu_1_1[0].parent = &items_menu_1[0];
+	items_menu_1_1[0].id = 1;
+	items_menu_1_1[0].name = "TX Test data";
+	items_menu_1_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_1_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_1_1[0].makeAction = p_lora_tx_mode;
+
+	items_menu_1_1[1].up = &items_menu_1_1[0];
+	items_menu_1_1[1].down = &items_menu_1_1[2];
+	items_menu_1_1[1].child = 0;
+	items_menu_1_1[1].parent = &items_menu_1[0];
+	items_menu_1_1[1].id = 2;
+	items_menu_1_1[1].name = "TX T & H";
+	items_menu_1_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_1_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_1_1[1].makeAction = p_lora_tx_mode_send_T_and_H;       /// TRAN string   <<<<<<<<<<<<<<
+
+	items_menu_1_1[2].up = &items_menu_1_1[1];
+	items_menu_1_1[2].down = 0;
+	items_menu_1_1[2].child = 0;
+	items_menu_1_1[2].parent = &items_menu_1[0];
+	items_menu_1_1[2].id = 3;
+	items_menu_1_1[2].name = "EXIT";
+	items_menu_1_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_1_1[2].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_1_1[2].makeAction = p_return_from_menu;
 
 	///////////////////////////////////////////////////////////////////
 	// Creating NRF menu
@@ -733,10 +772,39 @@ void lora_tx_mode(void)
 	block_interrupt_form_up_and_down_buttons = true;
 	// waiting for press enter(SW2) button
 	do{
-		LoRa_TX(true);
+		LoRa_TX_send_test_number(true);
 
 	}while (button_status != BUTTON_ENTER);
-	LoRa_TX(false);
+	LoRa_TX_send_test_number(false);
+
+	block_interrupt_form_up_and_down_buttons = false;
+
+	// Return to first item of current menu
+	currentItem = &items_menu_1[0];										// Set global pointer on first menu
+	print_menu_items();													// Print items on OLED
+}
+// ----------------------------------------------------------------------------------------
+void lora_tx_mode_send_T_and_H(void)
+{
+	clearn_oled();
+	print_rectangle_on_head();
+
+	// Print selected name of menu
+	char str[16] = {0};
+	strncpy(str, currentItem -> name, 15);
+	ssd1306_SetCursor(10, 3);
+	ssd1306_WriteString(str,  Font_7x10, White);
+	ssd1306_UpdateScreen();
+	memset(str, 0, sizeof(str));
+
+	button_status = BOTTON_DOESENT_PRESS;
+	block_interrupt_form_up_and_down_buttons = true;
+	// waiting for press enter(SW2) button
+	do{
+		LoRa_TX_send_T_and_H(true);
+
+	}while (button_status != BUTTON_ENTER);
+	LoRa_TX_send_T_and_H(false);
 
 	block_interrupt_form_up_and_down_buttons = false;
 

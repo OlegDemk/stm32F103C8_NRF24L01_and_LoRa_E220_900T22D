@@ -603,7 +603,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart == &huart1)											// Which uart generate Callback function
 	{
-		if((str[0] == '\0') || (rx_data_counter >= sizeof(uart_rx_data)))   		// Detect '\0' Null or  data too long
+		if((str[0] == '\n') || (rx_data_counter >= sizeof(uart_rx_data)))   		// Detect '\0' Null or  data too long
 		{
 			flag_command_received = true;                          // Data is ready
 			rx_data_counter = 0;
