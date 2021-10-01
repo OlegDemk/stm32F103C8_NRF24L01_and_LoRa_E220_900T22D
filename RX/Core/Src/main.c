@@ -605,7 +605,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 		if((str[0] == '\n') || (rx_data_counter >= sizeof(uart_rx_data)))   		// Detect '\0' Null or  data too long
 		{
-			flag_command_received = true;                          // Data is ready
+			flag_command_received = true;                           // Data is ready
 			rx_data_counter = 0;
 		}
 		else
