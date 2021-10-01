@@ -225,7 +225,12 @@ void LoRa_TX_send_T_and_H(bool flag)   // Зробити пересилання 
 		memset(str_buf, 0, sizeof(str_buf));
 		strcat(test_strung, "%");
 
-		strcat(test_strung, "\n");
+		// Print transmitter data
+		ssd1306_SetCursor(0, 40);
+		ssd1306_WriteString(test_strung,  Font_7x10, White);
+		ssd1306_UpdateScreen();
+
+		strcat(test_strung, "\n");				// Add stop
 
 		HAL_UART_Transmit_IT(&huart1, test_strung, sizeof(test_strung));				// Transmitting over LoRa module
 		HAL_Delay(2000);
@@ -237,11 +242,7 @@ void LoRa_TX_send_T_and_H(bool flag)   // Зробити пересилання 
 		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		// Print transmitter data
 
-		ssd1306_SetCursor(0, 40);
-		ssd1306_WriteString(test_strung,  Font_7x10, White);
-		ssd1306_UpdateScreen();
 
 		transmit_count++;											// Increment test data
 		HAL_Delay(2000);											// Must be more than 1.5 sec

@@ -955,6 +955,9 @@ void am2302(void)
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); // Turn off LED
 	block_interrupt_form_up_and_down_buttons = false;	// Unlock  UP and DOWN buttons interrupt
 
+	am3202_sensor.temterature = 0;
+	am3202_sensor.humidity = 0;
+
 	// Return to first item of current menu
 	currentItem = &items_menu_3[0];										// Set global pointer on first menu
 	print_menu_items();
@@ -1062,6 +1065,9 @@ void periodic_measurement_am2302_off(void)
 	ssd1306_WriteString(str,  Font_7x10, White);
 	ssd1306_UpdateScreen();
 	memset(str, 0, sizeof(str));
+
+	am3202_sensor.temterature = 0;
+	am3202_sensor.humidity = 0;
 
 	// waiting for press enter(SW2) button
 	do{

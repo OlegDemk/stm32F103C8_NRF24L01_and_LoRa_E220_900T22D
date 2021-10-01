@@ -17,9 +17,9 @@ menu.c:787:6:lora_tx_mode_send_T_and_H	24	static
 menu.c:820:6:nrf_rx_mode	24	static
 menu.c:849:6:nrf_tx_mode	24	static
 menu.c:887:6:am2302	64	static
-menu.c:964:6:periodic_measurement_am2302_on	64	static
-menu.c:1039:6:periodic_measurement_am2302_off	32	static
-menu.c:1085:6:items_menu_1_set_par_1	32	static
-menu.c:1115:6:items_menu_1_set_par_2	32	static
-menu.c:1179:6:items_menu_2_set_par_1	24	static
-menu.c:1211:6:do_it_function_menu_3	32	static
+menu.c:967:6:periodic_measurement_am2302_on	64	static
+menu.c:1042:6:periodic_measurement_am2302_off	32	static
+menu.c:1091:6:items_menu_1_set_par_1	32	static
+menu.c:1121:6:items_menu_1_set_par_2	32	static
+menu.c:1185:6:items_menu_2_set_par_1	24	static
+menu.c:1217:6:do_it_function_menu_3	32	static
