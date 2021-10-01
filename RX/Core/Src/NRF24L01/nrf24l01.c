@@ -22,7 +22,7 @@ bool rx_mode = false;
 bool tx_or_rx_mode = true;
 
 #define TX_ADR_WIDTH 3
-#define TX_PLOAD_WIDTH 10
+#define TX_PLOAD_WIDTH 15
 uint8_t TX_ADDRESS_0[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};	// TX Pipe 0
 uint8_t TX_ADDRESS_1[TX_ADR_WIDTH] = {0xb7,0xb5,0xa1};  // TX Pipe 1
 uint8_t RX_BUF[TX_PLOAD_WIDTH] = {0};
@@ -108,7 +108,7 @@ bool NRF24L01_Receive(void)
 		{
 			ssd1306_SetCursor(0, 16);
 			char str_rx_oled_buffer_pipe_0[15] = {0};
-			strcpy(str_rx_oled_buffer_pipe_0, "P0 data:");
+			strcpy(str_rx_oled_buffer_pipe_0, "P0: ");
 			strcat(str_rx_oled_buffer_pipe_0, RX_BUF);
 			ssd1306_WriteString(str_rx_oled_buffer_pipe_0,  Font_7x10, White);
 		}
@@ -116,7 +116,7 @@ bool NRF24L01_Receive(void)
 		{
 			ssd1306_SetCursor(0, 26);
 			char str_rx_oled_buffer_pipe_1[15] = {0};
-			strcpy(str_rx_oled_buffer_pipe_1, "P1 data:");
+			strcpy(str_rx_oled_buffer_pipe_1, "P1: ");
 			strcat(str_rx_oled_buffer_pipe_1, RX_BUF);
 			ssd1306_WriteString(str_rx_oled_buffer_pipe_1,  Font_7x10, White);
 		}
@@ -370,18 +370,24 @@ void NRF24L01_Transmission_t_and_h(void)
 	uint8_t buf2[20]={0};
 	uint8_t test_i[10] = {0};
 	uint8_t str_nrf[25] = {0};
-
+	char str_buf[10] = {0};
 	// Print transmit data
 	ssd1306_SetCursor(0, 16);
-	strcpy(str_nrf, "Data:");
-	sprintf(buf2, "%d", test_data);
-	strcat(str_nrf, buf2);
+	strcat(str_nrf, "T=");
+	itoa(am3202_sensor.temterature, str_buf, 10);
+	strcat(str_nrf, str_buf);
+	strcat(str_nrf, "C ");
+	memset(str_buf, 0, sizeof(str_buf));
+	itoa(am3202_sensor.humidity, str_buf, 10);
+	strcat(str_nrf, "H=");
+	strcat(str_nrf, str_buf);
+	strcat(str_nrf, "% ");
 	ssd1306_WriteString(str_nrf,  Font_7x10, White);
 	ssd1306_UpdateScreen();
+	//memset(str_nrf, 0, sizeof(str_nrf));
+
+	dt = NRF24L01_Send(str_nrf);						// Transmit data
 	memset(str_nrf, 0, sizeof(str_nrf));
-
-	dt = NRF24L01_Send(buf2);						// Transmit data
-
 	// Calculation retransmitted packets
 	retr_cnt = dt & 0xF;
 	retr_cnt_full += retr_cnt;		// Counting retransmit packets
