@@ -90,11 +90,12 @@ typedef struct Struct{
 }MenuItem_t;
 
 // How many menu items in menu
-#define MENU_ITEM_NUM 3
-#define MENU_1_ITEM_NUM 3			// LoRa menu
-#define MENU_1_1_ITEM_NUM 3			// LoRa TX menu
-#define MENU_2_ITEM_NUM 3			// NRF menu
-#define MENU_3_ITEM_NUM 4			// Sensor menu
+#define MENU_ITEM_NUM 3				// Main menu		(first menu level)
+#define MENU_1_ITEM_NUM 3			// LoRa menu 		(second menu level)
+#define MENU_1_1_ITEM_NUM 3			// LoRa TX menu		(third menu level)
+#define MENU_2_ITEM_NUM 3			// NRF menu			(second menu level)
+#define MENU_2_1_ITEM_NUM 3			// NRF TX menu 		(third menu level)
+#define MENU_3_ITEM_NUM 4			// Sensor menu		(second menu level)
 
 //#define MENU_4_ITEM_NUM 10
 
@@ -104,6 +105,7 @@ MenuItem_t items_menu_1[MENU_1_ITEM_NUM];
 MenuItem_t items_menu_2[MENU_2_ITEM_NUM];
 MenuItem_t items_menu_3[MENU_3_ITEM_NUM];
 MenuItem_t items_menu_1_1[MENU_1_1_ITEM_NUM];
+MenuItem_t items_menu_2_1[MENU_2_1_ITEM_NUM];
 //MenuItem_t items_menu_4[MENU_4_ITEM_NUM];
 
 MenuItem_t * currentItem = &items[0];								// Create and set pointer on first element of list
@@ -147,7 +149,7 @@ void do_it_function_menu_3(void);
 void lora_tx_mode(void);						// Transmit test data (counter)
 void lora_tx_mode_send_T_and_H(void);
 void lora_rx_mode(void);						// Receive data from LoRa module
-void nrf_tx_mode(void);							// Transmit test data (counter)
+void nrf_tx_mode_send_test_number(void);		// Transmit test data (counter)
 void nrf_rx_mode(void);							// Receive data from NRF module
 void am2302(void);								// Measure T and H using TIMER2 (timer will be off if out from this function)
 void periodic_measurement_am2302_on(void);		// On Measure T and H using TIMER2 (Use it for TX data by NRF or LoRa)
@@ -177,8 +179,8 @@ void Menu_Init (void)
 
 	// ------------------------------------------------------
 	// NRF menu functions
-	void (*p_nrf_tx_mode) (void);						// Function "Do it". Works when select it
-	p_nrf_tx_mode = nrf_tx_mode;
+	void (*p_nrf_tx_mode_send_test_number) (void);						// Function "Do it". Works when select it
+	p_nrf_tx_mode_send_test_number = nrf_tx_mode_send_test_number;
 	void (*p_nrf_rx_mode) (void);						// Function "Do it". Works when select it
 	p_nrf_rx_mode = nrf_rx_mode;
 
@@ -275,7 +277,7 @@ void Menu_Init (void)
 	items_menu_1[2].makeAction = p_return_from_menu;
 
 
-	//items_menu_1_1[0] // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	// LoRa TX menu
 	items_menu_1_1[0].up = 0;
 	items_menu_1_1[0].down = &items_menu_1_1[1];
 	items_menu_1_1[0].child = 0;
@@ -294,7 +296,7 @@ void Menu_Init (void)
 	items_menu_1_1[1].name = "TX T & H";
 	items_menu_1_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_1_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_1_1[1].makeAction = p_lora_tx_mode_send_T_and_H;       /// TRAN string   <<<<<<<<<<<<<<
+	items_menu_1_1[1].makeAction = p_lora_tx_mode_send_T_and_H;
 
 	items_menu_1_1[2].up = &items_menu_1_1[1];
 	items_menu_1_1[2].down = 0;
@@ -320,13 +322,13 @@ void Menu_Init (void)
 
 	items_menu_2[1].up = &items_menu_2[0];
 	items_menu_2[1].down = &items_menu_2[2];
-	items_menu_2[1].child = 0;
+	items_menu_2[1].child = &items_menu_2_1[0];
 	items_menu_2[1].parent = &items[1];
 	items_menu_2[1].id = 2;
 	items_menu_2[1].name = "NRF TX";						// Name of item
 	items_menu_2[1].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_2[1].updateScreen_down = p_print_rows_on_oled_if_down;
-	items_menu_2[1].makeAction = p_nrf_tx_mode;
+	items_menu_2[1].makeAction = 0;
 
 	items_menu_2[2].up = &items_menu_2[1];
 	items_menu_2[2].down = 0;
@@ -337,6 +339,38 @@ void Menu_Init (void)
 	items_menu_2[2].updateScreen_up = p_print_rows_on_oled_if_up;
 	items_menu_2[2].updateScreen_down = p_print_rows_on_oled_if_down;
 	items_menu_2[2].makeAction = p_return_from_menu;
+
+	 //// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	// NRF TX menu
+	items_menu_2_1[0].up = 0;
+	items_menu_2_1[0].down = &items_menu_2_1[1];
+	items_menu_2_1[0].child = 0;
+	items_menu_2_1[0].parent = &items_menu_2[0];
+	items_menu_2_1[0].id = 1;
+	items_menu_2_1[0].name = "TX Test data";
+	items_menu_2_1[0].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_2_1[0].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_2_1[0].makeAction = p_nrf_tx_mode_send_test_number;
+
+	items_menu_2_1[1].up = &items_menu_2_1[0];
+	items_menu_2_1[1].down = &items_menu_2_1[2];
+	items_menu_2_1[1].child = 0;
+	items_menu_2_1[1].parent = &items_menu_2[0];
+	items_menu_2_1[1].id = 2;
+	items_menu_2_1[1].name = "TX T & H";
+	items_menu_2_1[1].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_2_1[1].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_2_1[1].makeAction = 0;   //  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<,
+
+	items_menu_2_1[2].up = &items_menu_2_1[1];
+	items_menu_2_1[2].down = 0;
+	items_menu_2_1[2].child = 0;
+	items_menu_2_1[2].parent = &items_menu_2[0];
+	items_menu_2_1[2].id = 3;
+	items_menu_2_1[2].name = "EXIT";
+	items_menu_2_1[2].updateScreen_up = p_print_rows_on_oled_if_up;
+	items_menu_2_1[2].updateScreen_down = p_print_rows_on_oled_if_down;
+	items_menu_2_1[2].makeAction = p_return_from_menu;
 
 	///////////////////////////////////////////////////////////////////
 	// Creating sensor menu
@@ -846,7 +880,7 @@ void nrf_rx_mode(void)
 	print_menu_items();													// Print items on OLED
 }
 // ----------------------------------------------------------------------------------------
-void nrf_tx_mode(void)
+void nrf_tx_mode_send_test_number(void)
 {
 	clearn_oled();
 	NRF24_init_TX_mode();

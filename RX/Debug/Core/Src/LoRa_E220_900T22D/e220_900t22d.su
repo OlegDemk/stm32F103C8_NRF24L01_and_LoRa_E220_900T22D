@@ -3,8 +3,8 @@ e220_900t22d.c:101:6:LoRa_TX_send_test_number	40	static
 e220_900t22d.c:159:6:lora_transmit_data	16	static
 e220_900t22d.c:174:6:LoRa_TX_send_T_and_H	96	static
 e220_900t22d.c:253:6:read_all_settings_from_module	8	static
-e220_900t22d.c:280:6:init_lora_TX	8	static
-e220_900t22d.c:321:6:init_lora_RX	8	static
-e220_900t22d.c:353:6:set_config_deep_sleep_mode	8	static
-e220_900t22d.c:361:6:set_WOR_RX_mode	8	static
-e220_900t22d.c:368:6:set_WOR_TX_mode	8	static
+e220_900t22d.c:275:6:init_lora_TX	8	static
+e220_900t22d.c:316:6:init_lora_RX	8	static
+e220_900t22d.c:348:6:set_config_deep_sleep_mode	8	static
+e220_900t22d.c:356:6:set_WOR_RX_mode	8	static
+e220_900t22d.c:363:6:set_WOR_TX_mode	8	static

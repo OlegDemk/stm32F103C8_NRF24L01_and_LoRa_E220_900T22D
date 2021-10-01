@@ -21,7 +21,6 @@ bool tx_mode = true;
 bool rx_mode = false;
 bool tx_or_rx_mode = true;
 
-
 #define TX_ADR_WIDTH 3
 #define TX_PLOAD_WIDTH 10
 uint8_t TX_ADDRESS_0[TX_ADR_WIDTH] = {0xb3,0xb4,0x01};	// TX Pipe 0
@@ -55,14 +54,14 @@ void NRF24_FlushTX(void);
 bool read_config_registers(void);
 
 // Functions prototypes for RX
-void nrf_RX(void);								// Main function RX
+void nrf_RX(void);													// Main function RX (Only for test)
+void NRF24_init_RX_mode(void);
 void NRF24L01_RX_Mode(void);
 bool NRF24L01_Receive(void);
-void NRF24_init_RX_mode(void);
-void IRQ_Callback(void);
+void IRQ_Callback(void);											// Callback when are IRQ signal
 
 // Functions prototypes for TX
-void nrf_TX(void);								// Main function TX
+void nrf_TX(void);													// Main function TX (Only for test)
 void NRF24L01_RX_Mode_for_TX_mode(void);
 void NRF24_init_TX_mode(void);
 void NRF24L01_TX_Mode(uint8_t *pBuf);
@@ -128,8 +127,7 @@ bool NRF24L01_Receive(void)
 //----------------------------------------------------------------------------------------
 void NRF24_init_RX_mode(void)                  // RECEIVE
 {
-	reset_nrf24l01();	// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+	reset_nrf24l01();				// RESET module settings
 	tx_or_rx_mode = rx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
 
 	CE_RESET;
@@ -212,8 +210,7 @@ void NRF24L01_RX_Mode_for_TX_mode(void)
 //----------------------------------------------------------------------------------------
 void NRF24_init_TX_mode(void)    // TRANSMITTER
 {
-	reset_nrf24l01();
-
+	reset_nrf24l01();				// RESET module settings
 	tx_or_rx_mode = tx_mode;		// For block interrupt HAL_GPIO_EXTI_Callback
 
 	CE_RESET;

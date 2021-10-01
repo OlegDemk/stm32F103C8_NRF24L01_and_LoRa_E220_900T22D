@@ -264,12 +264,7 @@ void read_all_settings_from_module(void)
 
 	HAL_UART_Transmit_IT(&huart1, data, 3);
 
-	//HAL_UART_Receive_IT(&huart1, str, 1);    <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-//	while чикати на зчитування регістрів
-//	порівняти їх з записаними
-
 	HAL_Delay(100);
-
 
 	// Return:
 	// 0xC1 0x00 0x03 0x12 0x34 0x62
