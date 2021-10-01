@@ -15,14 +15,18 @@
 #include <OLED/oled_main.h>
 
 #include <keyboard/keyboard.h>
-
 #include <am2302/am2302.h>
 
 extern UART_HandleTypeDef huart1;
 
+extern bool flag_command_received;			// Flag show status receive data (completed/not completed)
+extern char uart_rx_data[50];				// Main rx buffer data
+extern char str[1];							// Buffer for one char (It uses for HAL_UART_Receive_IT)
+int transmit_count = 1;						// Variable for transmit
+int tx_lora_data = 0;						// Test TX data
+
 bool init_lora_RX(void);
 bool init_lora_TX(void);
-
 int lora_transmit_data(int transmit_count);
 void read_all_settings_from_module(void);
 void read_settings_from_module(void);
@@ -30,26 +34,19 @@ void set_config_deep_sleep_mode (void);
 void set_WOR_RX_mode (void);
 void set_WOR_TX_mode (void);
 
-lora_transmit_string_data(char* transmit_str);
+void LoRa_TX_send_test_number(bool flag);
+void LoRa_TX_send_T_and_H(bool flag);
 
-extern char str[1];							// Buffer for one char
-//char test_main[20] = {0};
-extern bool flag_command_received;			// Flag show status receive data (completed/not completed)
-extern char uart_rx_data[50];				// Main rx buffer data
-
-int transmit_count = 1;									// Variable for transmit
-int tx_lora_data = 0;								// Test TX data
 //----------------------------------------------------------------------------------------
+// for receiving data from LoRa module using one function
+// "flag" needed for start or stop this function
 void LoRa_RX(bool flag)
 {
 	static bool flag_first_time = true;								// Trigger variable
-	char str_1[20] = {0};
+	char str_1[25] = {0};
 
-	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
+	if((flag_first_time == true) && (flag == true))					// Do it only first time (init LoRa RX )
 	{
-		//memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
-
-		// state_machine
 		HAL_Delay(100);
 		init_lora_RX();
 		HAL_Delay(500);
@@ -59,7 +56,7 @@ void LoRa_RX(bool flag)
 		ssd1306_WriteString(str_1,  Font_7x10, White);
 		ssd1306_UpdateScreen();
 
-		HAL_UART_Receive_IT(&huart1, str, 1);
+		HAL_UART_Receive_IT(&huart1, str, 1);						// Refresh interrupt
 		memset(str_1, 0, sizeof(str_1));
 		flag_first_time = false;
 	}
@@ -67,25 +64,20 @@ void LoRa_RX(bool flag)
 	{
 		if(flag_command_received == true)							// If data is ready
 		{
-			// Data receive
-			// Clean data part on OLED
-			char clearn_array[25] = "                       ";
+			// Clean data place on OLED
+			strcpy(str_1, "                       ");
 			ssd1306_SetCursor(0, 28);
-			ssd1306_WriteString(clearn_array,  Font_7x10, White);
+			ssd1306_WriteString(str_1,  Font_7x10, White);
 			ssd1306_UpdateScreen();
 
-			//memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
-
-			//Відсіяти 0 елемент в массиві
 			// Print received data
+			// Delete first element of array (because sometimes first element of array can be '\0' it will break down ssd1306_WriteString function)
 			ssd1306_SetCursor(0, 28);
-			//strcpy(str_1, uart_rx_data);       /// PROBLEM WHERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 			int i = 0;
 			for(i = 0; i <= sizeof(str_1); i++)
 			{
-				if(i == 0)
+				if(i == 0)								// Delay first element of array
 				{
-					//str_1[i] = uart_rx_data[]
 					i++;
 				}
 				str_1[i-1] = uart_rx_data[i];
@@ -94,15 +86,12 @@ void LoRa_RX(bool flag)
 			ssd1306_UpdateScreen();
 
 			HAL_Delay(100);
-			//memset(uart_rx_data, 0, sizeof(uart_rx_data));
-			flag_command_received = false;
-
-			memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
-
+			flag_command_received = false;							// Set flag. Set show? that data was printed
+			memset(uart_rx_data, 0, sizeof(uart_rx_data));			// Cleaning buffer where was received data (From HAL_UART_RxCpltCallback)
 			HAL_UART_Receive_IT(&huart1, str, 1);					// Start interrupt again
 		}
 	}
-	if(flag == false)
+	if(flag == false)												// Stop function
 	{
 		flag_first_time = true;
 	}
@@ -261,6 +250,8 @@ void LoRa_TX_send_T_and_H(bool flag)   // Зробити пересилання 
 	{
 		flag_first_time = true;
 		transmit_count = 1;
+//		am3202_sensor.temterature = 0;
+//		am3202_sensor.humidity = 0;
 		//tx_lora_data = 0;
 	}
 }

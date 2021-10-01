@@ -7,43 +7,43 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
   1 .text         000089c4  0800010c  0800010c  0001010c  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .rodata       000009e0  08008ad0  08008ad0  00018ad0  2**2
+  2 .rodata       000009dc  08008ad0  08008ad0  00018ad0  2**2
                   CONTENTS, ALLOC, LOAD, READONLY, DATA
-  3 .ARM.extab    00000000  080094b0  080094b0  000200b4  2**0
+  3 .ARM.extab    00000000  080094ac  080094ac  000200b4  2**0
                   CONTENTS
-  4 .ARM          00000000  080094b0  080094b0  000200b4  2**0
+  4 .ARM          00000000  080094ac  080094ac  000200b4  2**0
                   CONTENTS
-  5 .preinit_array 00000000  080094b0  080094b0  000200b4  2**0
+  5 .preinit_array 00000000  080094ac  080094ac  000200b4  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  6 .init_array   00000004  080094b0  080094b0  000194b0  2**2
+  6 .init_array   00000004  080094ac  080094ac  000194ac  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  7 .fini_array   00000004  080094b4  080094b4  000194b4  2**2
+  7 .fini_array   00000004  080094b0  080094b0  000194b0  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  8 .data         000000b4  20000000  080094b8  00020000  2**2
+  8 .data         000000b4  20000000  080094b4  00020000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00000924  200000b4  0800956c  000200b4  2**2
+  9 .bss          00000924  200000b4  08009568  000200b4  2**2
                   ALLOC
- 10 ._user_heap_stack 00000600  200009d8  0800956c  000209d8  2**0
+ 10 ._user_heap_stack 00000600  200009d8  08009568  000209d8  2**0
                   ALLOC
  11 .ARM.attributes 00000029  00000000  00000000  000200b4  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00018700  00000000  00000000  000200dd  2**0
+ 12 .debug_info   000186ef  00000000  00000000  000200dd  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 0000331a  00000000  00000000  000387dd  2**0
+ 13 .debug_abbrev 0000331a  00000000  00000000  000387cc  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 000013d8  00000000  00000000  0003baf8  2**3
+ 14 .debug_aranges 000013d8  00000000  00000000  0003bae8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_ranges 000012c0  00000000  00000000  0003ced0  2**3
+ 15 .debug_ranges 000012c0  00000000  00000000  0003cec0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00019be7  00000000  00000000  0003e190  2**0
+ 16 .debug_macro  00019be7  00000000  00000000  0003e180  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00018d53  00000000  00000000  00057d77  2**0
+ 17 .debug_line   00018d4f  00000000  00000000  00057d67  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    00090663  00000000  00000000  00070aca  2**0
+ 18 .debug_str    00090656  00000000  00000000  00070ab6  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000053  00000000  00000000  0010112d  2**0
+ 19 .comment      00000053  00000000  00000000  0010110c  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00005924  00000000  00000000  00101180  2**2
+ 20 .debug_frame  00005924  00000000  00000000  00101160  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -884,175 +884,168 @@ Disassembly of section .text:
 
 08000a7c <LoRa_RX>:
 
-int transmit_count = 1;									// Variable for transmit
-int tx_lora_data = 0;								// Test TX data
 //----------------------------------------------------------------------------------------
+// for receiving data from LoRa module using one function
+// "flag" needed for start or stop this function
 void LoRa_RX(bool flag)
 {
  8000a7c:	b5b0      	push	{r4, r5, r7, lr}
- 8000a7e:	b090      	sub	sp, #64	; 0x40
+ 8000a7e:	b08a      	sub	sp, #40	; 0x28
  8000a80:	af00      	add	r7, sp, #0
  8000a82:	4603      	mov	r3, r0
  8000a84:	71fb      	strb	r3, [r7, #7]
 	static bool flag_first_time = true;								// Trigger variable
-	char str_1[20] = {0};
+	char str_1[25] = {0};
  8000a86:	2300      	movs	r3, #0
- 8000a88:	62bb      	str	r3, [r7, #40]	; 0x28
- 8000a8a:	f107 032c 	add.w	r3, r7, #44	; 0x2c
+ 8000a88:	60bb      	str	r3, [r7, #8]
+ 8000a8a:	f107 030c 	add.w	r3, r7, #12
  8000a8e:	2200      	movs	r2, #0
  8000a90:	601a      	str	r2, [r3, #0]
  8000a92:	605a      	str	r2, [r3, #4]
  8000a94:	609a      	str	r2, [r3, #8]
  8000a96:	60da      	str	r2, [r3, #12]
+ 8000a98:	611a      	str	r2, [r3, #16]
+ 8000a9a:	751a      	strb	r2, [r3, #20]
 
-	if((flag_first_time == true) && (flag == true))					// Do it only first time (init)
- 8000a98:	4b50      	ldr	r3, [pc, #320]	; (8000bdc <LoRa_RX+0x160>)
- 8000a9a:	781b      	ldrb	r3, [r3, #0]
- 8000a9c:	2b00      	cmp	r3, #0
- 8000a9e:	d02f      	beq.n	8000b00 <LoRa_RX+0x84>
- 8000aa0:	79fb      	ldrb	r3, [r7, #7]
- 8000aa2:	2b00      	cmp	r3, #0
- 8000aa4:	d02c      	beq.n	8000b00 <LoRa_RX+0x84>
+	if((flag_first_time == true) && (flag == true))					// Do it only first time (init LoRa RX )
+ 8000a9c:	4b4f      	ldr	r3, [pc, #316]	; (8000bdc <LoRa_RX+0x160>)
+ 8000a9e:	781b      	ldrb	r3, [r3, #0]
+ 8000aa0:	2b00      	cmp	r3, #0
+ 8000aa2:	d02f      	beq.n	8000b04 <LoRa_RX+0x88>
+ 8000aa4:	79fb      	ldrb	r3, [r7, #7]
+ 8000aa6:	2b00      	cmp	r3, #0
+ 8000aa8:	d02c      	beq.n	8000b04 <LoRa_RX+0x88>
 	{
-		//memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
-
-		// state_machine
 		HAL_Delay(100);
- 8000aa6:	2064      	movs	r0, #100	; 0x64
- 8000aa8:	f003 ffe8 	bl	8004a7c <HAL_Delay>
+ 8000aaa:	2064      	movs	r0, #100	; 0x64
+ 8000aac:	f003 ffe6 	bl	8004a7c <HAL_Delay>
 		init_lora_RX();
- 8000aac:	f000 fbfa 	bl	80012a4 <init_lora_RX>
+ 8000ab0:	f000 fbf8 	bl	80012a4 <init_lora_RX>
 		HAL_Delay(500);
- 8000ab0:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
- 8000ab4:	f003 ffe2 	bl	8004a7c <HAL_Delay>
+ 8000ab4:	f44f 70fa 	mov.w	r0, #500	; 0x1f4
+ 8000ab8:	f003 ffe0 	bl	8004a7c <HAL_Delay>
 
 		ssd1306_SetCursor(0, 16);
- 8000ab8:	2110      	movs	r1, #16
- 8000aba:	2000      	movs	r0, #0
- 8000abc:	f001 fbd0 	bl	8002260 <ssd1306_SetCursor>
+ 8000abc:	2110      	movs	r1, #16
+ 8000abe:	2000      	movs	r0, #0
+ 8000ac0:	f001 fbce 	bl	8002260 <ssd1306_SetCursor>
 		strcpy(str_1, "Receiving data:");
- 8000ac0:	f107 0328 	add.w	r3, r7, #40	; 0x28
- 8000ac4:	4a46      	ldr	r2, [pc, #280]	; (8000be0 <LoRa_RX+0x164>)
- 8000ac6:	461c      	mov	r4, r3
- 8000ac8:	4613      	mov	r3, r2
- 8000aca:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
- 8000acc:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
+ 8000ac4:	f107 0308 	add.w	r3, r7, #8
+ 8000ac8:	4a45      	ldr	r2, [pc, #276]	; (8000be0 <LoRa_RX+0x164>)
+ 8000aca:	461c      	mov	r4, r3
+ 8000acc:	4613      	mov	r3, r2
+ 8000ace:	cb0f      	ldmia	r3, {r0, r1, r2, r3}
+ 8000ad0:	e884 000f 	stmia.w	r4, {r0, r1, r2, r3}
 		ssd1306_WriteString(str_1,  Font_7x10, White);
- 8000ad0:	4a44      	ldr	r2, [pc, #272]	; (8000be4 <LoRa_RX+0x168>)
- 8000ad2:	f107 0028 	add.w	r0, r7, #40	; 0x28
- 8000ad6:	2301      	movs	r3, #1
- 8000ad8:	ca06      	ldmia	r2, {r1, r2}
- 8000ada:	f001 fb9b 	bl	8002214 <ssd1306_WriteString>
+ 8000ad4:	4a43      	ldr	r2, [pc, #268]	; (8000be4 <LoRa_RX+0x168>)
+ 8000ad6:	f107 0008 	add.w	r0, r7, #8
+ 8000ada:	2301      	movs	r3, #1
+ 8000adc:	ca06      	ldmia	r2, {r1, r2}
+ 8000ade:	f001 fb99 	bl	8002214 <ssd1306_WriteString>
 		ssd1306_UpdateScreen();
- 8000ade:	f001 fa89 	bl	8001ff4 <ssd1306_UpdateScreen>
+ 8000ae2:	f001 fa87 	bl	8001ff4 <ssd1306_UpdateScreen>
 
-		HAL_UART_Receive_IT(&huart1, str, 1);
- 8000ae2:	2201      	movs	r2, #1
- 8000ae4:	4940      	ldr	r1, [pc, #256]	; (8000be8 <LoRa_RX+0x16c>)
- 8000ae6:	4841      	ldr	r0, [pc, #260]	; (8000bec <LoRa_RX+0x170>)
- 8000ae8:	f006 feed 	bl	80078c6 <HAL_UART_Receive_IT>
+		HAL_UART_Receive_IT(&huart1, str, 1);						// Refresh interrupt
+ 8000ae6:	2201      	movs	r2, #1
+ 8000ae8:	493f      	ldr	r1, [pc, #252]	; (8000be8 <LoRa_RX+0x16c>)
+ 8000aea:	4840      	ldr	r0, [pc, #256]	; (8000bec <LoRa_RX+0x170>)
+ 8000aec:	f006 feeb 	bl	80078c6 <HAL_UART_Receive_IT>
 		memset(str_1, 0, sizeof(str_1));
- 8000aec:	f107 0328 	add.w	r3, r7, #40	; 0x28
- 8000af0:	2214      	movs	r2, #20
- 8000af2:	2100      	movs	r1, #0
- 8000af4:	4618      	mov	r0, r3
- 8000af6:	f007 fb47 	bl	8008188 <memset>
+ 8000af0:	f107 0308 	add.w	r3, r7, #8
+ 8000af4:	2219      	movs	r2, #25
+ 8000af6:	2100      	movs	r1, #0
+ 8000af8:	4618      	mov	r0, r3
+ 8000afa:	f007 fb45 	bl	8008188 <memset>
 		flag_first_time = false;
- 8000afa:	4b38      	ldr	r3, [pc, #224]	; (8000bdc <LoRa_RX+0x160>)
- 8000afc:	2200      	movs	r2, #0
- 8000afe:	701a      	strb	r2, [r3, #0]
+ 8000afe:	4b37      	ldr	r3, [pc, #220]	; (8000bdc <LoRa_RX+0x160>)
+ 8000b00:	2200      	movs	r2, #0
+ 8000b02:	701a      	strb	r2, [r3, #0]
 	}
 	if((flag_first_time == false) && (flag == true))				// Do it when data was received
- 8000b00:	4b36      	ldr	r3, [pc, #216]	; (8000bdc <LoRa_RX+0x160>)
- 8000b02:	781b      	ldrb	r3, [r3, #0]
- 8000b04:	f083 0301 	eor.w	r3, r3, #1
- 8000b08:	b2db      	uxtb	r3, r3
- 8000b0a:	2b00      	cmp	r3, #0
- 8000b0c:	d059      	beq.n	8000bc2 <LoRa_RX+0x146>
- 8000b0e:	79fb      	ldrb	r3, [r7, #7]
- 8000b10:	2b00      	cmp	r3, #0
- 8000b12:	d056      	beq.n	8000bc2 <LoRa_RX+0x146>
+ 8000b04:	4b35      	ldr	r3, [pc, #212]	; (8000bdc <LoRa_RX+0x160>)
+ 8000b06:	781b      	ldrb	r3, [r3, #0]
+ 8000b08:	f083 0301 	eor.w	r3, r3, #1
+ 8000b0c:	b2db      	uxtb	r3, r3
+ 8000b0e:	2b00      	cmp	r3, #0
+ 8000b10:	d057      	beq.n	8000bc2 <LoRa_RX+0x146>
+ 8000b12:	79fb      	ldrb	r3, [r7, #7]
+ 8000b14:	2b00      	cmp	r3, #0
+ 8000b16:	d054      	beq.n	8000bc2 <LoRa_RX+0x146>
 	{
 		if(flag_command_received == true)							// If data is ready
- 8000b14:	4b36      	ldr	r3, [pc, #216]	; (8000bf0 <LoRa_RX+0x174>)
- 8000b16:	781b      	ldrb	r3, [r3, #0]
- 8000b18:	2b00      	cmp	r3, #0
- 8000b1a:	d052      	beq.n	8000bc2 <LoRa_RX+0x146>
+ 8000b18:	4b35      	ldr	r3, [pc, #212]	; (8000bf0 <LoRa_RX+0x174>)
+ 8000b1a:	781b      	ldrb	r3, [r3, #0]
+ 8000b1c:	2b00      	cmp	r3, #0
+ 8000b1e:	d050      	beq.n	8000bc2 <LoRa_RX+0x146>
 		{
-			// Data receive
-			// Clean data part on OLED
-			char clearn_array[25] = "                       ";
- 8000b1c:	4b35      	ldr	r3, [pc, #212]	; (8000bf4 <LoRa_RX+0x178>)
- 8000b1e:	f107 040c 	add.w	r4, r7, #12
- 8000b22:	461d      	mov	r5, r3
- 8000b24:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
- 8000b26:	c40f      	stmia	r4!, {r0, r1, r2, r3}
- 8000b28:	e895 0003 	ldmia.w	r5, {r0, r1}
- 8000b2c:	e884 0003 	stmia.w	r4, {r0, r1}
- 8000b30:	2300      	movs	r3, #0
- 8000b32:	f887 3024 	strb.w	r3, [r7, #36]	; 0x24
+			// Clean data place on OLED
+			strcpy(str_1, "                       ");
+ 8000b20:	f107 0308 	add.w	r3, r7, #8
+ 8000b24:	4a33      	ldr	r2, [pc, #204]	; (8000bf4 <LoRa_RX+0x178>)
+ 8000b26:	461c      	mov	r4, r3
+ 8000b28:	4615      	mov	r5, r2
+ 8000b2a:	cd0f      	ldmia	r5!, {r0, r1, r2, r3}
+ 8000b2c:	c40f      	stmia	r4!, {r0, r1, r2, r3}
+ 8000b2e:	e895 0003 	ldmia.w	r5, {r0, r1}
+ 8000b32:	e884 0003 	stmia.w	r4, {r0, r1}
 			ssd1306_SetCursor(0, 28);
  8000b36:	211c      	movs	r1, #28
  8000b38:	2000      	movs	r0, #0
  8000b3a:	f001 fb91 	bl	8002260 <ssd1306_SetCursor>
-			ssd1306_WriteString(clearn_array,  Font_7x10, White);
+			ssd1306_WriteString(str_1,  Font_7x10, White);
  8000b3e:	4a29      	ldr	r2, [pc, #164]	; (8000be4 <LoRa_RX+0x168>)
- 8000b40:	f107 000c 	add.w	r0, r7, #12
+ 8000b40:	f107 0008 	add.w	r0, r7, #8
  8000b44:	2301      	movs	r3, #1
  8000b46:	ca06      	ldmia	r2, {r1, r2}
  8000b48:	f001 fb64 	bl	8002214 <ssd1306_WriteString>
 			ssd1306_UpdateScreen();
  8000b4c:	f001 fa52 	bl	8001ff4 <ssd1306_UpdateScreen>
 
-			//memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
-
-			//Відсіяти 0 елемент в массиві
 			// Print received data
+			// Delete first element of array (because sometimes first element of array can be '\0' it will break down ssd1306_WriteString function)
 			ssd1306_SetCursor(0, 28);
  8000b50:	211c      	movs	r1, #28
  8000b52:	2000      	movs	r0, #0
  8000b54:	f001 fb84 	bl	8002260 <ssd1306_SetCursor>
-			//strcpy(str_1, uart_rx_data);       /// PROBLEM WHERE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 			int i = 0;
  8000b58:	2300      	movs	r3, #0
- 8000b5a:	63fb      	str	r3, [r7, #60]	; 0x3c
+ 8000b5a:	627b      	str	r3, [r7, #36]	; 0x24
 			for(i = 0; i <= sizeof(str_1); i++)
  8000b5c:	2300      	movs	r3, #0
- 8000b5e:	63fb      	str	r3, [r7, #60]	; 0x3c
+ 8000b5e:	627b      	str	r3, [r7, #36]	; 0x24
  8000b60:	e013      	b.n	8000b8a <LoRa_RX+0x10e>
 			{
-				if(i == 0)
- 8000b62:	6bfb      	ldr	r3, [r7, #60]	; 0x3c
+				if(i == 0)								// Delay first element of array
+ 8000b62:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8000b64:	2b00      	cmp	r3, #0
  8000b66:	d102      	bne.n	8000b6e <LoRa_RX+0xf2>
 				{
-					//str_1[i] = uart_rx_data[]
 					i++;
- 8000b68:	6bfb      	ldr	r3, [r7, #60]	; 0x3c
+ 8000b68:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8000b6a:	3301      	adds	r3, #1
- 8000b6c:	63fb      	str	r3, [r7, #60]	; 0x3c
+ 8000b6c:	627b      	str	r3, [r7, #36]	; 0x24
 				}
 				str_1[i-1] = uart_rx_data[i];
- 8000b6e:	6bfb      	ldr	r3, [r7, #60]	; 0x3c
+ 8000b6e:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8000b70:	3b01      	subs	r3, #1
  8000b72:	4921      	ldr	r1, [pc, #132]	; (8000bf8 <LoRa_RX+0x17c>)
- 8000b74:	6bfa      	ldr	r2, [r7, #60]	; 0x3c
+ 8000b74:	6a7a      	ldr	r2, [r7, #36]	; 0x24
  8000b76:	440a      	add	r2, r1
  8000b78:	7812      	ldrb	r2, [r2, #0]
- 8000b7a:	f107 0140 	add.w	r1, r7, #64	; 0x40
+ 8000b7a:	f107 0128 	add.w	r1, r7, #40	; 0x28
  8000b7e:	440b      	add	r3, r1
- 8000b80:	f803 2c18 	strb.w	r2, [r3, #-24]
+ 8000b80:	f803 2c20 	strb.w	r2, [r3, #-32]
 			for(i = 0; i <= sizeof(str_1); i++)
- 8000b84:	6bfb      	ldr	r3, [r7, #60]	; 0x3c
+ 8000b84:	6a7b      	ldr	r3, [r7, #36]	; 0x24
  8000b86:	3301      	adds	r3, #1
- 8000b88:	63fb      	str	r3, [r7, #60]	; 0x3c
- 8000b8a:	6bfb      	ldr	r3, [r7, #60]	; 0x3c
- 8000b8c:	2b14      	cmp	r3, #20
+ 8000b88:	627b      	str	r3, [r7, #36]	; 0x24
+ 8000b8a:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8000b8c:	2b19      	cmp	r3, #25
  8000b8e:	d9e8      	bls.n	8000b62 <LoRa_RX+0xe6>
 			}
 			ssd1306_WriteString(str_1,  Font_7x10, White);
  8000b90:	4a14      	ldr	r2, [pc, #80]	; (8000be4 <LoRa_RX+0x168>)
- 8000b92:	f107 0028 	add.w	r0, r7, #40	; 0x28
+ 8000b92:	f107 0008 	add.w	r0, r7, #8
  8000b96:	2301      	movs	r3, #1
  8000b98:	ca06      	ldmia	r2, {r1, r2}
  8000b9a:	f001 fb3b 	bl	8002214 <ssd1306_WriteString>
@@ -1062,18 +1055,15 @@ void LoRa_RX(bool flag)
 			HAL_Delay(100);
  8000ba2:	2064      	movs	r0, #100	; 0x64
  8000ba4:	f003 ff6a 	bl	8004a7c <HAL_Delay>
-			//memset(uart_rx_data, 0, sizeof(uart_rx_data));
-			flag_command_received = false;
+			flag_command_received = false;							// Set flag. Set show? that data was printed
  8000ba8:	4b11      	ldr	r3, [pc, #68]	; (8000bf0 <LoRa_RX+0x174>)
  8000baa:	2200      	movs	r2, #0
  8000bac:	701a      	strb	r2, [r3, #0]
-
-			memset(uart_rx_data, 0, sizeof(uart_rx_data));//uart_rx_data[50]
+			memset(uart_rx_data, 0, sizeof(uart_rx_data));			// Cleaning buffer where was received data (From HAL_UART_RxCpltCallback)
  8000bae:	2232      	movs	r2, #50	; 0x32
  8000bb0:	2100      	movs	r1, #0
  8000bb2:	4811      	ldr	r0, [pc, #68]	; (8000bf8 <LoRa_RX+0x17c>)
  8000bb4:	f007 fae8 	bl	8008188 <memset>
-
 			HAL_UART_Receive_IT(&huart1, str, 1);					// Start interrupt again
  8000bb8:	2201      	movs	r2, #1
  8000bba:	490b      	ldr	r1, [pc, #44]	; (8000be8 <LoRa_RX+0x16c>)
@@ -1081,7 +1071,7 @@ void LoRa_RX(bool flag)
  8000bbe:	f006 fe82 	bl	80078c6 <HAL_UART_Receive_IT>
 		}
 	}
-	if(flag == false)
+	if(flag == false)												// Stop function
  8000bc2:	79fb      	ldrb	r3, [r7, #7]
  8000bc4:	f083 0301 	eor.w	r3, r3, #1
  8000bc8:	b2db      	uxtb	r3, r3
@@ -1095,7 +1085,7 @@ void LoRa_RX(bool flag)
 	}
 }
  8000bd4:	bf00      	nop
- 8000bd6:	3740      	adds	r7, #64	; 0x40
+ 8000bd6:	3728      	adds	r7, #40	; 0x28
  8000bd8:	46bd      	mov	sp, r7
  8000bda:	bdb0      	pop	{r4, r5, r7, pc}
  8000bdc:	20000004 	.word	0x20000004
@@ -1321,14 +1311,14 @@ void LoRa_TX_send_test_number(bool flag)
  8000d7e:	bd80      	pop	{r7, pc}
  8000d80:	20000005 	.word	0x20000005
  8000d84:	2000055c 	.word	0x2000055c
- 8000d88:	08008afc 	.word	0x08008afc
+ 8000d88:	08008af8 	.word	0x08008af8
  8000d8c:	2000001c 	.word	0x2000001c
- 8000d90:	08008b08 	.word	0x08008b08
+ 8000d90:	08008b04 	.word	0x08008b04
  8000d94:	20000590 	.word	0x20000590
  8000d98:	20000658 	.word	0x20000658
  8000d9c:	200000d0 	.word	0x200000d0
  8000da0:	20000000 	.word	0x20000000
- 8000da4:	08008b10 	.word	0x08008b10
+ 8000da4:	08008b0c 	.word	0x08008b0c
 
 08000da8 <lora_transmit_data>:
 //----------------------------------------------------------------------------------------
@@ -1832,6 +1822,8 @@ void LoRa_TX_send_T_and_H(bool flag)   // Зробити пересилання 
  800118e:	4b0a      	ldr	r3, [pc, #40]	; (80011b8 <LoRa_TX_send_T_and_H+0x2c8>)
  8001190:	2201      	movs	r2, #1
  8001192:	601a      	str	r2, [r3, #0]
+//		am3202_sensor.temterature = 0;
+//		am3202_sensor.humidity = 0;
 		//tx_lora_data = 0;
 	}
 }
@@ -1841,19 +1833,19 @@ void LoRa_TX_send_T_and_H(bool flag)   // Зробити пересилання 
  800119a:	bdb0      	pop	{r4, r5, r7, pc}
  800119c:	20000006 	.word	0x20000006
  80011a0:	2000055c 	.word	0x2000055c
- 80011a4:	08008afc 	.word	0x08008afc
+ 80011a4:	08008af8 	.word	0x08008af8
  80011a8:	2000001c 	.word	0x2000001c
- 80011ac:	08008b14 	.word	0x08008b14
+ 80011ac:	08008b10 	.word	0x08008b10
  80011b0:	20000590 	.word	0x20000590
  80011b4:	20000658 	.word	0x20000658
  80011b8:	20000000 	.word	0x20000000
- 80011bc:	08008b28 	.word	0x08008b28
+ 80011bc:	08008b24 	.word	0x08008b24
  80011c0:	200005b4 	.word	0x200005b4
- 80011c4:	08008b30 	.word	0x08008b30
- 80011c8:	08008b34 	.word	0x08008b34
- 80011cc:	08008b38 	.word	0x08008b38
- 80011d0:	08008b3c 	.word	0x08008b3c
- 80011d4:	08008b10 	.word	0x08008b10
+ 80011c4:	08008b2c 	.word	0x08008b2c
+ 80011c8:	08008b30 	.word	0x08008b30
+ 80011cc:	08008b34 	.word	0x08008b34
+ 80011d0:	08008b38 	.word	0x08008b38
+ 80011d4:	08008b0c 	.word	0x08008b0c
 
 080011d8 <read_all_settings_from_module>:
 
@@ -2372,10 +2364,10 @@ bool NRF24L01_Receive(void)
  80014da:	bd80      	pop	{r7, pc}
  80014dc:	2000011a 	.word	0x2000011a
  80014e0:	20000140 	.word	0x20000140
- 80014e4:	08008b40 	.word	0x08008b40
+ 80014e4:	08008b3c 	.word	0x08008b3c
  80014e8:	20000110 	.word	0x20000110
  80014ec:	2000001c 	.word	0x2000001c
- 80014f0:	08008b4c 	.word	0x08008b4c
+ 80014f0:	08008b48 	.word	0x08008b48
 
 080014f4 <NRF24_init_RX_mode>:
 //----------------------------------------------------------------------------------------
@@ -3181,18 +3173,18 @@ void NRF24L01_Transmission(void)
  8001a8a:	46bd      	mov	sp, r7
  8001a8c:	bd90      	pop	{r4, r7, pc}
  8001a8e:	bf00      	nop
- 8001a90:	08008b58 	.word	0x08008b58
+ 8001a90:	08008b54 	.word	0x08008b54
  8001a94:	2000014c 	.word	0x2000014c
- 8001a98:	08008b60 	.word	0x08008b60
+ 8001a98:	08008b5c 	.word	0x08008b5c
  8001a9c:	2000001c 	.word	0x2000001c
  8001aa0:	20000150 	.word	0x20000150
  8001aa4:	20000151 	.word	0x20000151
  8001aa8:	20000144 	.word	0x20000144
- 8001aac:	08008b64 	.word	0x08008b64
+ 8001aac:	08008b60 	.word	0x08008b60
  8001ab0:	20000018 	.word	0x20000018
- 8001ab4:	08008b74 	.word	0x08008b74
+ 8001ab4:	08008b70 	.word	0x08008b70
  8001ab8:	20000148 	.word	0x20000148
- 8001abc:	08008b80 	.word	0x08008b80
+ 8001abc:	08008b7c 	.word	0x08008b7c
 
 08001ac0 <DelayMicro>:
 //----------------------------------------------------------------------------------------
@@ -3738,7 +3730,7 @@ void reset_nrf24l01(void)   // reconfigure module
  8001e88:	46bd      	mov	sp, r7
  8001e8a:	bd80      	pop	{r7, pc}
  8001e8c:	40010800 	.word	0x40010800
- 8001e90:	08008b88 	.word	0x08008b88
+ 8001e90:	08008b84 	.word	0x08008b84
 
 08001e94 <clearn_oled>:
 	  ssd1306_Fill(Black);
@@ -7788,22 +7780,22 @@ void Menu_Init (void)
  8003548:	200008ec 	.word	0x200008ec
  800354c:	20000910 	.word	0x20000910
  8003550:	200007f0 	.word	0x200007f0
- 8003554:	08008b8c 	.word	0x08008b8c
+ 8003554:	08008b88 	.word	0x08008b88
  8003558:	20000934 	.word	0x20000934
  800355c:	20000784 	.word	0x20000784
- 8003560:	08008b98 	.word	0x08008b98
+ 8003560:	08008b94 	.word	0x08008b94
  8003564:	2000085c 	.word	0x2000085c
- 8003568:	08008ba4 	.word	0x08008ba4
+ 8003568:	08008ba0 	.word	0x08008ba0
  800356c:	20000814 	.word	0x20000814
- 8003570:	08008bb4 	.word	0x08008bb4
+ 8003570:	08008bb0 	.word	0x08008bb0
  8003574:	20000838 	.word	0x20000838
  8003578:	20000958 	.word	0x20000958
- 800357c:	08008bbc 	.word	0x08008bbc
- 8003580:	08008bc4 	.word	0x08008bc4
+ 800357c:	08008bb8 	.word	0x08008bb8
+ 8003580:	08008bc0 	.word	0x08008bc0
  8003584:	2000097c 	.word	0x2000097c
- 8003588:	08008bcc 	.word	0x08008bcc
+ 8003588:	08008bc8 	.word	0x08008bc8
  800358c:	200009a0 	.word	0x200009a0
- 8003590:	08008bdc 	.word	0x08008bdc
+ 8003590:	08008bd8 	.word	0x08008bd8
 	items_menu_2[0].down = &items_menu_2[1];
  8003594:	4b63      	ldr	r3, [pc, #396]	; (8003724 <Menu_Init+0x434>)
  8003596:	4a64      	ldr	r2, [pc, #400]	; (8003728 <Menu_Init+0x438>)
@@ -8069,18 +8061,18 @@ void Menu_Init (void)
  8003724:	20000784 	.word	0x20000784
  8003728:	200007a8 	.word	0x200007a8
  800372c:	20000910 	.word	0x20000910
- 8003730:	08008be8 	.word	0x08008be8
+ 8003730:	08008be4 	.word	0x08008be4
  8003734:	200007cc 	.word	0x200007cc
- 8003738:	08008bf0 	.word	0x08008bf0
- 800373c:	08008bc4 	.word	0x08008bc4
+ 8003738:	08008bec 	.word	0x08008bec
+ 800373c:	08008bc0 	.word	0x08008bc0
  8003740:	2000085c 	.word	0x2000085c
  8003744:	20000880 	.word	0x20000880
  8003748:	20000934 	.word	0x20000934
- 800374c:	08008bf8 	.word	0x08008bf8
+ 800374c:	08008bf4 	.word	0x08008bf4
  8003750:	200008a4 	.word	0x200008a4
- 8003754:	08008c08 	.word	0x08008c08
+ 8003754:	08008c04 	.word	0x08008c04
  8003758:	200008c8 	.word	0x200008c8
- 800375c:	08008c18 	.word	0x08008c18
+ 800375c:	08008c14 	.word	0x08008c14
 
 08003760 <menu>:
 
@@ -8586,7 +8578,7 @@ void clear_menu_items (bool first, bool second, bool third, bool fourth)
  8003a3a:	46bd      	mov	sp, r7
  8003a3c:	bd90      	pop	{r4, r7, pc}
  8003a3e:	bf00      	nop
- 8003a40:	08008c28 	.word	0x08008c28
+ 8003a40:	08008c24 	.word	0x08008c24
  8003a44:	20000038 	.word	0x20000038
  8003a48:	2000001c 	.word	0x2000001c
  8003a4c:	2000003a 	.word	0x2000003a
@@ -9046,7 +9038,7 @@ void print_menu_init(void)
  8003d5c:	bd90      	pop	{r4, r7, pc}
  8003d5e:	bf00      	nop
  8003d60:	20000030 	.word	0x20000030
- 8003d64:	08008c38 	.word	0x08008c38
+ 8003d64:	08008c34 	.word	0x08008c34
  8003d68:	2000001c 	.word	0x2000001c
  8003d6c:	20000038 	.word	0x20000038
  8003d70:	20000042 	.word	0x20000042
@@ -9282,7 +9274,7 @@ void return_from_menu(void)
  8003efe:	bf00      	nop
  8003f00:	20000030 	.word	0x20000030
  8003f04:	200008ec 	.word	0x200008ec
- 8003f08:	08008c38 	.word	0x08008c38
+ 8003f08:	08008c34 	.word	0x08008c34
  8003f0c:	2000001c 	.word	0x2000001c
 
 08003f10 <lora_rx_mode>:
@@ -10155,11 +10147,11 @@ void am2302(void)
  8004540:	20000038 	.word	0x20000038
  8004544:	2000003a 	.word	0x2000003a
  8004548:	200005b4 	.word	0x200005b4
- 800454c:	08008c4c 	.word	0x08008c4c
- 8004550:	08008c54 	.word	0x08008c54
- 8004554:	08008c58 	.word	0x08008c58
- 8004558:	08008c60 	.word	0x08008c60
- 800455c:	08008c64 	.word	0x08008c64
+ 800454c:	08008c48 	.word	0x08008c48
+ 8004550:	08008c50 	.word	0x08008c50
+ 8004554:	08008c54 	.word	0x08008c54
+ 8004558:	08008c5c 	.word	0x08008c5c
+ 800455c:	08008c60 	.word	0x08008c60
  8004560:	2000003c 	.word	0x2000003c
  8004564:	40011000 	.word	0x40011000
  8004568:	2000085c 	.word	0x2000085c
@@ -10515,11 +10507,11 @@ void periodic_measurement_am2302_on(void)
  800482c:	20000038 	.word	0x20000038
  8004830:	2000003a 	.word	0x2000003a
  8004834:	200005b4 	.word	0x200005b4
- 8004838:	08008c4c 	.word	0x08008c4c
- 800483c:	08008c54 	.word	0x08008c54
- 8004840:	08008c58 	.word	0x08008c58
- 8004844:	08008c60 	.word	0x08008c60
- 8004848:	08008c64 	.word	0x08008c64
+ 8004838:	08008c48 	.word	0x08008c48
+ 800483c:	08008c50 	.word	0x08008c50
+ 8004840:	08008c54 	.word	0x08008c54
+ 8004844:	08008c5c 	.word	0x08008c5c
+ 8004848:	08008c60 	.word	0x08008c60
  800484c:	2000003c 	.word	0x2000003c
  8004850:	2000085c 	.word	0x2000085c
 
@@ -10674,7 +10666,7 @@ void periodic_measurement_am2302_off(void)
  8004958:	200005a4 	.word	0x200005a4
  800495c:	40011000 	.word	0x40011000
  8004960:	2000003a 	.word	0x2000003a
- 8004964:	08008c70 	.word	0x08008c70
+ 8004964:	08008c6c 	.word	0x08008c6c
  8004968:	2000085c 	.word	0x2000085c
 
 0800496c <Reset_Handler>:
@@ -10756,7 +10748,7 @@ LoopFillZerobss:
   ldr r1, =_edata
  80049a4:	200000b4 	.word	0x200000b4
   ldr r2, =_sidata
- 80049a8:	080094b8 	.word	0x080094b8
+ 80049a8:	080094b4 	.word	0x080094b4
   ldr r2, =_sbss
  80049ac:	200000b4 	.word	0x200000b4
   ldr r4, =_ebss
@@ -15152,7 +15144,7 @@ if (((RCC_ClkInitStruct->ClockType) & RCC_CLOCKTYPE_PCLK1) == RCC_CLOCKTYPE_PCLK
  80062f2:	bf00      	nop
  80062f4:	40022000 	.word	0x40022000
  80062f8:	40021000 	.word	0x40021000
- 80062fc:	08009440 	.word	0x08009440
+ 80062fc:	0800943c 	.word	0x0800943c
  8006300:	2000002c 	.word	0x2000002c
  8006304:	20000048 	.word	0x20000048
 
@@ -15300,7 +15292,7 @@ uint32_t HAL_RCC_GetSysClockFreq(void)
  80063b2:	bc90      	pop	{r4, r7}
  80063b4:	4770      	bx	lr
  80063b6:	bf00      	nop
- 80063b8:	08008cc4 	.word	0x08008cc4
+ 80063b8:	08008cc0 	.word	0x08008cc0
  80063bc:	40021000 	.word	0x40021000
  80063c0:	007a1200 	.word	0x007a1200
  80063c4:	003d0900 	.word	0x003d0900
@@ -15348,7 +15340,7 @@ uint32_t HAL_RCC_GetPCLK1Freq(void)
  80063f8:	4618      	mov	r0, r3
  80063fa:	bd80      	pop	{r7, pc}
  80063fc:	40021000 	.word	0x40021000
- 8006400:	08009450 	.word	0x08009450
+ 8006400:	0800944c 	.word	0x0800944c
 
 08006404 <HAL_RCC_GetPCLK2Freq>:
   * @note   Each time PCLK2 changes, this function must be called to update the
@@ -15374,7 +15366,7 @@ uint32_t HAL_RCC_GetPCLK2Freq(void)
  8006420:	4618      	mov	r0, r3
  8006422:	bd80      	pop	{r7, pc}
  8006424:	40021000 	.word	0x40021000
- 8006428:	08009450 	.word	0x08009450
+ 8006428:	0800944c 	.word	0x0800944c
 
 0800642c <RCC_Delay>:
   * @brief  This function provides delay (in milliseconds) based on CPU cycles method.
@@ -20644,10 +20636,10 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
  8008122:	4798      	blx	r3
  8008124:	3601      	adds	r6, #1
  8008126:	e7f2      	b.n	800810e <__libc_init_array+0x1e>
- 8008128:	080094b0 	.word	0x080094b0
- 800812c:	080094b0 	.word	0x080094b0
- 8008130:	080094b0 	.word	0x080094b0
- 8008134:	080094b4 	.word	0x080094b4
+ 8008128:	080094ac 	.word	0x080094ac
+ 800812c:	080094ac 	.word	0x080094ac
+ 8008130:	080094ac 	.word	0x080094ac
+ 8008134:	080094b0 	.word	0x080094b0
 
 08008138 <__itoa>:
  8008138:	1e93      	subs	r3, r2, #2
@@ -20984,7 +20976,7 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
  8008400:	7006      	strb	r6, [r0, #0]
  8008402:	f801 5901 	strb.w	r5, [r1], #-1
  8008406:	e7f4      	b.n	80083f2 <__utoa+0x6a>
- 8008408:	08009458 	.word	0x08009458
+ 8008408:	08009454 	.word	0x08009454
 
 0800840c <__malloc_lock>:
  800840c:	4801      	ldr	r0, [pc, #4]	; (8008414 <__malloc_lock+0x8>)
@@ -21277,11 +21269,11 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
  80086c0:	f000 f87c 	bl	80087bc <_printf_i>
  80086c4:	e7eb      	b.n	800869e <_svfiprintf_r+0x1c2>
  80086c6:	bf00      	nop
- 80086c8:	0800947d 	.word	0x0800947d
- 80086cc:	08009487 	.word	0x08009487
+ 80086c8:	08009479 	.word	0x08009479
+ 80086cc:	08009483 	.word	0x08009483
  80086d0:	00000000 	.word	0x00000000
  80086d4:	08008425 	.word	0x08008425
- 80086d8:	08009483 	.word	0x08009483
+ 80086d8:	0800947f 	.word	0x0800947f
 
 080086dc <_printf_common>:
  80086dc:	e92d 47f0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, lr}
@@ -21618,8 +21610,8 @@ static void UART_SetConfig(UART_HandleTypeDef *huart)
  80089f8:	2500      	movs	r5, #0
  80089fa:	f104 0619 	add.w	r6, r4, #25
  80089fe:	e7f5      	b.n	80089ec <_printf_i+0x230>
- 8008a00:	0800948e 	.word	0x0800948e
- 8008a04:	0800949f 	.word	0x0800949f
+ 8008a00:	0800948a 	.word	0x0800948a
+ 8008a04:	0800949b 	.word	0x0800949b
 
 08008a08 <__retarget_lock_acquire_recursive>:
  8008a08:	4770      	bx	lr
