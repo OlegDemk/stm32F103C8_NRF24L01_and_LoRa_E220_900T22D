@@ -1,5 +1,0 @@
-simply_linked_list.c:31:5:simply_linced_lists	136	static
-simply_linked_list.c:105:6:add_list	24	static
-simply_linked_list.c:121:9:create_node	24	static
-simply_linked_list.c:133:6:push_front	32	static
-simply_linked_list.c:141:6:push_back	32	static

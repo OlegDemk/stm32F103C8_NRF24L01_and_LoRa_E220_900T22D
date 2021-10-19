@@ -32,9 +32,7 @@
 #include <LoRa_E220_900T22D/e220_900t22d.h>
 
 #include <keyboard/keyboard.h>
-#include <lists/simply_linked_list.h>
 #include <menu/menu.h>
-#include <state_machine/state_machine.h>
 
 
 /* USER CODE END Includes */
@@ -100,6 +98,35 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+#define STACK_CANARY_WORD (0xCACACACAUL)      // Paint for stack
+
+extern uint32_t _ebss;
+extern uint32_t _estack;
+
+//-------------------------------------------------------------------------------
+unsigned check_stack_size(void)
+{
+	unsigned *addr = &_ebss;				// Create pointer on start heap
+	uint32_t item1, item2;
+
+	unsigned TEST_estack = &_estack;		// Get adress
+
+	while (addr < (&_estack - 1))
+	{
+	    item1 = *addr;
+	    addr++;
+	    item2 = *addr;
+
+	    if (item1 == STACK_CANARY_WORD && item2 != STACK_CANARY_WORD) {
+	      break;
+	    }
+	 }
+
+	 return ((unsigned)&_estack - (unsigned)addr);
+}
+//-------------------------------------------------------------------------------
+
+//-------------------------------------------------------------------------------
 
 /* USER CODE END 0 */
 
@@ -110,7 +137,15 @@ static void MX_TIM2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	// --------------------------------------------------------------------
+	volatile unsigned *top, *start;
+	 __asm__ volatile ("mov %[top], sp" : [top] "=r" (top) : : );
+	 start = &_ebss;
+	 while (start < top)
+	 {
+	  	*(start++) = STACK_CANARY_WORD;
+	 }
+	  // --------------------------------------------------------------------
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -159,34 +194,17 @@ int main(void)
 
   while (1)
   {
+	 int stack_size_2 = check_stack_size();				// 10220
 	 menu();
-
-//	  init_am2302();
-//	  while(1)
-//	  {
-//		  am2302_measure();
-//		  HAL_Delay(2000);
-//	  }
-
-
-
-
-
-
-
-
-	  // gpio_test();
-
-
-	  // RX NRF TEST
-	  // nrf_rx_mode();
-
-	  //nrf_communication_test();
-
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
+
+
+
+
+
   /* USER CODE END 3 */
 }
 
@@ -542,6 +560,9 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+
+// ------------------------------------------------------------------------------------------
 void gpio_test(void)
 {
 	// 1. Configure PC14 like output

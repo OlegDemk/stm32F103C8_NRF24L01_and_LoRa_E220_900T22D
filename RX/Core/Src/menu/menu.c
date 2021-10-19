@@ -859,29 +859,11 @@ void lora_tx_mode_send_T_and_H(void)
 // NRF FUNCTIONS
 void nrf_rx_mode(void)
 {
-//	int debug_val = 0;			// For debug
-//	uint8_t test_1 = 0;			// For debug
-
 	clearn_oled();
 	NRF24_init_RX_mode();
 	print_rectangle_on_head();
 
-	//-------------------------------------------------
-	// Print selected name of menu
-	//static char str_buf[1] = {0};
-
-
-	//static char str_1111[16] = {0};
-//	strncpy(str_1111, currentItem -> name, 15);
-//	ssd1306_SetCursor(10, 3);
-//	ssd1306_WriteString(str_1111,  Font_7x10, White);
-//	ssd1306_UpdateScreen();
-//	memset(str_1111, 0, sizeof(str_1111));
-	//------------------------------------------
-
-
-	//char str_222[10] = {0};  /// Doesen't work with it
-
+	char str_buf_1[25] = {0};
 	strncpy(str_buf_1, currentItem -> name, 15);
 	ssd1306_SetCursor(10, 3);
 	ssd1306_WriteString(str_buf_1,  Font_7x10, White);
@@ -902,20 +884,6 @@ void nrf_rx_mode(void)
 	// Return to first item of current menu
 	currentItem = &items_menu_2[0];										// Set global pointer on first menu
 	print_menu_items();													// Print items on OLED
-
-	///////////////////////////////////////////////////////////////////////////////////////////////
-	// Test
-//	int int_array[10][10]={0};   //TEst it
-//	int i,j = 0;
-//	for(i = 0; i < 10; i++)
-//	{
-//		for(j = 0; j < 10; j++)
-//		{
-//			int_array[i][j] = 1;
-//		}
-//		j = 0;
-//	}
-//	int qqq = 9999;
 }
 // ----------------------------------------------------------------------------------------
 void nrf_tx_mode_send_test_number(void)

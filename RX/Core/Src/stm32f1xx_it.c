@@ -23,7 +23,6 @@
 #include "stm32f1xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <state_machine/state_machine.h>
 
 #include <menu/menu.h>
 #include <am2302/am2302.h>
@@ -105,25 +104,53 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
-	 struct
-	  {
-	    uint32_t r0;
-	    uint32_t r1;
-	    uint32_t r2;
-	    uint32_t r3;
-	    uint32_t r12;
-	    uint32_t lr;
-	    uint32_t pc;
-	    uint32_t psr;
-	  }*stack_ptr; //Указатель на текущее значение стека(SP)
+	int stack_size_1 = check_stack_size();
+//	 unsigned stack_size = 0;
+//	stack_size = check_stack_size();
+	/////////////////////////////////////////////////////////////////////////////////////////////
+//	 struct
+//	  {
+//	    uint32_t r0;
+//	    uint32_t r1;
+//	    uint32_t r2;
+//	    uint32_t r3;
+//	    uint32_t r12;
+//	    uint32_t lr;
+//	    uint32_t pc;
+//	    uint32_t psr;
+//	  }*stack_ptr; 							//Указатель на текущее значение стека(SP)
+//
+//	  asm(
+//	      "TST lr, #4 \n" 					//Тестируем 3ий бит указателя стека(побитовое И)
+//	      "ITE EQ \n"   					//Значение указателя стека имеет бит 3?
+//	      "MRSEQ %[ptr], MSP  \n"  			//Да, сохраняем основной указатель стека
+//	      "MRSNE %[ptr], PSP  \n"  			//Нет, сохраняем указатель стека процесса
+//	      : [ptr] "=r" (stack_ptr)
+//	      );
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	tFailureData failureData;
 
-	  asm(
-	      "TST lr, #4 \n" 			//Тестируем 3ий бит указателя стека(побитовое И)
-	      "ITE EQ \n"   			//Значение указателя стека имеет бит 3?
-	      "MRSEQ %[ptr], MSP  \n"  //Да, сохраняем основной указатель стека
-	      "MRSNE %[ptr], PSP  \n"  //Нет, сохраняем указатель стека процесса
-	      : [ptr] "=r" (stack_ptr)
-	      );
+	failureData.ACTLR = (* ((volatile uint32_t *) (0xe000e008)));
+	failureData.CPUID = (* ((volatile uint32_t *) (0xe000ed00)));
+	failureData.ICSR  = (* ((volatile uint32_t *) (0xe000ed04)));
+	failureData.VTOR  = (* ((volatile uint32_t *) (0xe000ed08)));
+	failureData.AIRCR = (* ((volatile uint32_t *) (0xe000ed0c)));
+	failureData.SCR   = (* ((volatile uint32_t *) (0xe000ed10)));
+	failureData.CCR   = (* ((volatile uint32_t *) (0xe000ed14)));
+	failureData.SHPR1 = (* ((volatile uint32_t *) (0xe000ed18)));
+	failureData.SHPR2 = (* ((volatile uint32_t *) (0xe000ed1c)));
+	failureData.SHPR3 = (* ((volatile uint32_t *) (0xe000ed20)));
+	failureData.SHCRS = (* ((volatile uint32_t *) (0xe000ed24)));
+	failureData.CFSR.u32  = (* ((volatile uint32_t *) (0xe000ed28)));
+	failureData.HFSR  = (* ((volatile uint32_t *) (0xe000ed2c)));
+	failureData.MMAR  = (* ((volatile uint32_t *) (0xe000ed34)));
+	failureData.BFAR  = (* ((volatile uint32_t *) (0xe000ed38)));
+	failureData.AFSR  = (* ((volatile uint32_t *) (0xe000ed3c)));
+
+	failureData.DFSR = (* ((volatile uint32_t *) (0xe000ed30)));
+
+	/////////////////////////////////////////////////////////////////////////////////////////////
+
 	  int hhh = 99;
   /* USER CODE END HardFault_IRQn 0 */
   while (1)

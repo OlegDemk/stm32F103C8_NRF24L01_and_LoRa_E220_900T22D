@@ -107,7 +107,7 @@ bool NRF24L01_Receive(void)
 		if(pipe == 0)
 		{
 			ssd1306_SetCursor(0, 16);
-			char str_rx_oled_buffer_pipe_0[16] = {0};
+			char str_rx_oled_buffer_pipe_0[25] = {0};
 			strcpy(str_rx_oled_buffer_pipe_0, "P0: ");
 			strcat(str_rx_oled_buffer_pipe_0, RX_BUF);
 			ssd1306_WriteString(str_rx_oled_buffer_pipe_0,  Font_7x10, White);
@@ -115,7 +115,7 @@ bool NRF24L01_Receive(void)
 		if(pipe == 1)
 		{
 			ssd1306_SetCursor(0, 26);
-			char str_rx_oled_buffer_pipe_1[16] = {0};
+			char str_rx_oled_buffer_pipe_1[25] = {0};
 			strcpy(str_rx_oled_buffer_pipe_1, "P1: ");
 			strcat(str_rx_oled_buffer_pipe_1, RX_BUF);
 			ssd1306_WriteString(str_rx_oled_buffer_pipe_1,  Font_7x10, White);

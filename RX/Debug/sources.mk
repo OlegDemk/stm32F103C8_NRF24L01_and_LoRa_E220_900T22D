@@ -26,10 +26,8 @@ Core/Src/OLED \
 Core/Src/UART \
 Core/Src/am2302 \
 Core/Src/keyboard \
-Core/Src/lists \
 Core/Src \
 Core/Src/menu \
-Core/Src/state_machine \
 Core/Startup \
 Drivers/STM32F1xx_HAL_Driver/Src \
 

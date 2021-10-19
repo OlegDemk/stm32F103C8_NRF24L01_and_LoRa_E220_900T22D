@@ -30,8 +30,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/OLED/ssd1306.h ../Core/Inc/OLED/oled_main.h \
  ../Core/Inc/NRF24L01/nrf24l01.h \
  ../Core/Inc/LoRa_E220_900T22D/e220_900t22d.h \
- ../Core/Inc/keyboard/keyboard.h ../Core/Inc/lists/simply_linked_list.h \
- ../Core/Inc/menu/menu.h ../Core/Inc/state_machine/state_machine.h
+ ../Core/Inc/keyboard/keyboard.h ../Core/Inc/menu/menu.h
 
 ../Core/Inc/main.h:
 
@@ -103,8 +102,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 
 ../Core/Inc/keyboard/keyboard.h:
 
-../Core/Inc/lists/simply_linked_list.h:
-
 ../Core/Inc/menu/menu.h:
-
-../Core/Inc/state_machine/state_machine.h:
