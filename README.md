@@ -1,5 +1,5 @@
 # stm32F103C8_NRF24L01_and_LoRa_E220_900T22D
-Project was created for demonstrate LoRa and NRF communication between two devices.
+Project (in RX folder!) was created for demonstrate LoRa and NRF communication between two devices.
 
 This project was created in STM32CubeMX.
 Devices: 
@@ -19,7 +19,7 @@ The main features:
 
 For better radio communication need use large capacitors on power line near radio modules!
 
-All project was tested.
+All project was tested. 
 
 ![alt text](https://github.com/OlegDemk/stm32F103C8_NRF24L01_and_LoRa_E220_900T22D/blob/main/schem_device.png)
 
