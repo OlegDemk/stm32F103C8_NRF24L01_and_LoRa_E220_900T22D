@@ -16,6 +16,7 @@ The main features:
 4. LoRa and NFR modules can transmit test data(counter) or real measured temterature and humidity by AM3202 sensor. For transmiting T and H must be trur on periodic meassure:  (3.AM3202 sensor -> 2. Per Meas: ON) after, select LoRa or NRF menu, and Select TX T and H menu item.
 
 For better radio communication need use large capacitors on power line near radio modules!
+
 All project was tested.
 
 ![alt text](https://github.com/OlegDemk/stm32F103C8_NRF24L01_and_LoRa_E220_900T22D/blob/main/schem_device.png)
