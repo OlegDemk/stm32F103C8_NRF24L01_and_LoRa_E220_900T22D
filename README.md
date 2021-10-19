@@ -6,7 +6,7 @@ Devices:
 3. NRF radio module: NRF24L01 (with antenna).
 4. Temperature and humidity sensor: AM2302.
 5. OLED 0.96" 128x64 I2C: SSD1306.
-6. Еhree buttons.
+6. Three buttons.
 7. UART to USB module.
 
 The main features:
