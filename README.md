@@ -7,7 +7,7 @@ Devices:
 4. Temperature and humidity sensor: AM2302.
 5. OLED 0.96" 128x64 I2C: SSD1306.
 6. Three buttons.
-7. UART to USB module.
+7. UART to USB module. (Power source).
 
 The main features:
 1. In project are LoRa E220-900T22D radio module. Module can work in RX and TX modes, depends on choise in menu. (Work dictance about 9 km)
