@@ -14,6 +14,7 @@ The main features:
 2. In project are  NRF24L01 radio module, in RX and TX modes, depends on choise in menu. (Work dictance about 400 - 600 m)
 3. Menu. For create menu was used four-linked list. (see on menu.c file)
 4. LoRa and NFR modules can transmit test data(counter) or real measured temterature and humidity by AM3202 sensor. For transmiting T and H must be trur on periodic meassure:  (3.AM3202 sensor -> 2. Per Meas: ON) after, select LoRa or NRF menu, and Select TX T and H menu item.
+
 For better radio communication need use large capacitors on power line near radio modules!
 All project was tested.
 
