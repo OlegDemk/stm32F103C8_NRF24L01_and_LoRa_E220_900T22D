@@ -1,5 +1,5 @@
 # stm32F103C8_NRF24L01_and_LoRa_E220_900T22D
-Project was created for demonstrate LoRa and NRF communication, between two devices.
+Project was created for demonstrate LoRa and NRF communication between two devices.
 
 This project was created in STM32CubeMX.
 Devices: 
